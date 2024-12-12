@@ -38,6 +38,15 @@ A healthcare management application that uses ***Django*** and ***React*** to ke
         DB_PORT=<db_port_here>
         DEBUG=<based_on_env_set_to_TRUE_or_FALSE>
         SECRET_KEY=<key_for_signing_and_hashing>
+        FRONTEND_BASE_URL=<frontend_base_address ex: http://localhost:3000>
+        RESET_PASSWORD_ENDPOINT=<fronted_url_for_reset_password ex: /reset-password/>
+        EMAIL_BACKEND=<email_backend>
+        EMAIL_HOST=<smtp_host>
+        EMAIL_PORT=<smtp_port>
+        EMAIL_USE_TLS=<True or False>
+        EMAIL_HOST_USER=<smtp_user_id>
+        EMAIL_HOST_PASSWORD=<smtp_password>
+        DEFAULT_FROM_EMAIL=<email_to_be_sent_from>
         
 - Set up the database by migrating the DB schema
 
