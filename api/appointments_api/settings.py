@@ -141,6 +141,7 @@ DEFAULT_FROM_EMAIL= config('DEFAULT_FROM_EMAIL')
 
 REST_FRAMEWORK = {
     "COERCE_DECIMAL_TO_STRING" : False,
+    "DEFAULT_FILTER_BACKENDS": ["django_filters.rest_framework.DjangoFilterBackend"],
     'DEFAULT_AUTHENTICATION_CLASSES': (
         'rest_framework_simplejwt.authentication.JWTAuthentication',
     ),
@@ -154,4 +155,14 @@ SIMPLE_JWT = {
 DJOSER = {
     'TOKEN_MODEL': None,
     'PASSWORD_RESET_CONFIRM_URL': config('FRONTEND_BASE_URL') + config('RESET_PASSWORD_ENDPOINT') + '{uid}/{token}/',
+    'SERIALIZERS': {
+        'user_create': 'user_service.serializers.CustomUserCreateSerializer',
+        'user': 'user_service.serializers.CustomUserSerializer',
+        'current_user': 'user_service.serializers.CustomUserSerializer'
+    },
+    'PERMISSIONS': {
+        'user_update': ['rest_framework.permissions.IsAdminUser'],
+        'user_delete': ['rest_framework.permissions.IsAdminUser'],
+        'user_list': ['rest_framework.permissions.IsAdminUser']
+    },
 }

@@ -10,6 +10,8 @@ A healthcare management application that uses ***Django*** and ***React*** to ke
 
 - [Installation](#installation)
     - [Backend setup](#backend-setup)
+- [Roles](#roles)
+- [User management](#user-management)
 
 ## Installation
 
@@ -52,6 +54,33 @@ A healthcare management application that uses ***Django*** and ***React*** to ke
 
         python manage.py migrate
 
+- Set up admin user by running the py script and providing username, email and password whenever prompted
+
+        python create_superuser.py
+
 - Run the server
 
         python manage.py runserver
+
+
+## Roles
+
+This application supports 2 roles
+
+- Administrator (internally is_staff = True)
+- Doctor (internally is_staff = False)
+
+## User management
+There are 2 ways to create an user in this app
+
+> Request access
+
+- A non user will request access to the application 
+
+- The request can be reviewed by an admin
+
+- The request can be approved or denied
+
+> Create access as admin
+
+- An admin can create user directly
