@@ -1,4 +1,5 @@
 from django_filters.rest_framework import DjangoFilterBackend
+from rest_framework.filters import OrderingFilter
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.viewsets import ModelViewSet
 
@@ -9,7 +10,10 @@ from .serializers import AppointmentSerializer, CreateAppointmentSerializer, Not
 
 class AppointmentViewSet(ModelViewSet):
     permission_classes = [IsAuthenticated]
-    filter_backends = [DjangoFilterBackend]
+    filter_backends = [
+        DjangoFilterBackend,
+        OrderingFilter
+    ]
     filterset_fields = [
         'id',
         'date',
@@ -17,6 +21,15 @@ class AppointmentViewSet(ModelViewSet):
         'visit_type',
         'created_for',
         'is_closed',
+    ]
+    ordering_fields = [
+        'id',
+        'username',
+        'email',
+        'first_name',
+        'last_name',
+        'is_staff',
+        'is_active',
     ]
     pagination_class = CustomPagination
     

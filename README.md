@@ -2,7 +2,7 @@
 
 ## Description
 
-A healthcare management application that uses ***Django*** and ***React*** to keep track appointments 
+A healthcare management application that uses ***Django*** and ***React*** to keep track of appointments 
 
 #### **Note** : the application is using ***PostgreSQL*** as it's database engine. 
 

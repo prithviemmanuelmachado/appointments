@@ -1,9 +1,10 @@
 import './App.css';
+import ErrorBoundary from './components/error-boundry';
 
 function App() {
-  return <>
-  
-  </>;
+  return <ErrorBoundary>
+    
+  </ErrorBoundary>;
 }
 
 export default App;
