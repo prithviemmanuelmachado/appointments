@@ -43,11 +43,11 @@ describe('ModalForm Component', () => {
   });
 
   const renderWithProvider = (component) =>
-    render(
-      <LocalizationProvider dateAdapter={AdapterMoment}>
-        {component}
-      </LocalizationProvider>
-    );
+  render(
+    <LocalizationProvider dateAdapter={AdapterMoment}>
+      {component}
+    </LocalizationProvider>
+  );
 
   it('renders the button to open the modal', () => {
     renderWithProvider(

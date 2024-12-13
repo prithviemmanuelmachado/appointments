@@ -28,7 +28,7 @@ class ErrorBoundary extends React.Component {
             return (
             <Container>
                 <ErrorContainer>
-                <ErrorTitle>Something went wrong. Please try again later.</ErrorTitle>
+                <ErrorTitle>Something went wrong. Please contact site administrator or try again later.</ErrorTitle>
                 <details style={{ whiteSpace: 'pre-wrap' }}>
                     {this.state.error && this.state.error.toString()}
                     <br />

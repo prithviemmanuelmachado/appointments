@@ -23,7 +23,7 @@ describe('ErrorBoundary Component', () => {
       </ErrorBoundary>
     );
     expect(
-      screen.getByText('Something went wrong. Please try again later.')
+      screen.getByText('Something went wrong. Please contact site administrator or try again later.')
     ).toBeInTheDocument();
     expect(screen.getByText(/Test error/i)).toBeInTheDocument();
   });
