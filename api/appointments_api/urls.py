@@ -5,4 +5,5 @@ urlpatterns = [
     path("users/", include('user_service.urls')),
     path("auth/", include('djoser.urls')),
     path("auth/", include('djoser.urls.jwt')),
+    path("appointments/", include('appointments_service.urls'))
 ]

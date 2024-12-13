@@ -42,6 +42,9 @@ INSTALLED_APPS = [
     "django_filters",
     "djoser",
     "rest_framework",
+    
+    "appointments_service",
+    "user_service"
 ]
 
 MIDDLEWARE = [
@@ -138,6 +141,8 @@ EMAIL_USE_TLS = config('EMAIL_USE_TLS')
 EMAIL_HOST_USER = config('EMAIL_HOST_USER')
 EMAIL_HOST_PASSWORD = config('EMAIL_HOST_PASSWORD')
 DEFAULT_FROM_EMAIL= config('DEFAULT_FROM_EMAIL')
+
+AUTH_USER_MODEL = "user_service.User"
 
 REST_FRAMEWORK = {
     "COERCE_DECIMAL_TO_STRING" : False,
