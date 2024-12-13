@@ -1,4 +1,5 @@
 from django.contrib.auth import get_user_model
+from django.utils.timezone import now
 from rest_framework import serializers
 
 from .models import Appointment, Note
@@ -26,6 +27,13 @@ class NoteSerializer(serializers.ModelSerializer):
         note.created_by = user
         note.save()
         return note
+    
+    def update(self, instance: Note, validated_data):        
+        instance.description =  validated_data['description']
+        instance.created_by = self.context['user']
+        instance.created_on = now()        
+        instance.save()
+        return instance
     
     def get_is_editable(self, obj):
         user = self.context['user']

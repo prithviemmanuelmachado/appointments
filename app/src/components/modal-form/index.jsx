@@ -30,6 +30,8 @@ import PasswordInput from "../password-input";
 /**
  * A reusable modal form component built with Material-UI.
  * This component dynamically renders form fields based on the provided configuration.
+ * 
+ * @component
  *
  * @param {Object} props - The properties for the ModalForm component.
  * @param {string} props.buttonLabel - The label for the button that opens the modal.
@@ -44,6 +46,54 @@ import PasswordInput from "../password-input";
  * @param {function} [props.onFormOpen] - Callback triggered when the modal is opened.
  * @param {function} [props.onFormClose] - Callback triggered when the modal is closed.
  * @param {function} [props.onSubmit] - Callback triggered when the form is submitted.
+ * 
+ * @example
+ * 
+ * 
+ *   const formFields = [
+ *     {
+ *       label: "Text Input",
+ *       type: inputTypes.text,
+ *       value: textValue,
+ *       setValue: (e) => setTextValue(e.target.value),
+ *       error: ""
+ *     },
+ *     {
+ *       label: "Select Input",
+ *       type: inputTypes.select,
+ *       value: selectValue,
+ *       setValue: (e) => setSelectValue(e.target.value),
+ *       options: [
+ *         { label: "Option 1", value: "option1" },
+ *         { label: "Option 2", value: "option2" }
+ *       ],
+ *       error: ""
+ *     },
+ *     {
+ *       label: "Date Picker",
+ *       type: inputTypes.date,
+ *       value: dateValue,
+ *       setValue: (value) => setDateValue(value),
+ *       error: ""
+ *     },
+ *     {
+ *       label: "Time Picker",
+ *       type: inputTypes.time,
+ *       value: timeValue,
+ *       setValue: (value) => setTimeValue(value),
+ *       error: ""
+ *     }
+ *   ];
+ * 
+ *   <ModalForm
+ *       buttonLabel="Open Form"
+ *       formTitle="Example Modal Form"
+ *       formFields={formFields}
+ *       onFormOpen={() => console.log("Form opened")}
+ *       onFormClose={() => console.log("Form closed")}
+ *       onSubmit={() => console.log("Form submitted")}
+ *     />
+ * 
  */
 export default function ModalForm(props){
     const {

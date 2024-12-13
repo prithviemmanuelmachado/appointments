@@ -1,7 +1,8 @@
 import './App.css';
 import ErrorBoundary from './components/error-boundry';
 
-function App() {  
+function App() {
+
   return <ErrorBoundary>
   </ErrorBoundary>;
 }
