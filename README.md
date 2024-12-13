@@ -10,13 +10,14 @@ A healthcare management application that uses ***Django*** and ***React*** to ke
 
 - [Installation](#installation)
     - [Backend setup](#backend-setup)
+    - [Frontend setup](#frontend-setup)
 - [Roles](#roles)
 - [User management](#user-management)
 - [Appointment management](#appointment-management)
 
 ## Installation
 
-#### **Prerequisite**: Python 3, Pip, Pipenv
+#### **Prerequisite**: Python 3, Pip, Pipenv, Node, npm
 
 - Clone the repoitory  
     
@@ -63,6 +64,19 @@ A healthcare management application that uses ***Django*** and ***React*** to ke
 
         python manage.py runserver
 
+### Frontend setup
+
+- Open up a command terminal and traverse to `app` folder and install the dependencies
+    
+        npm i
+
+- In the `app` folder create a .env file with the following keys and values
+
+        REACT_APP_API_BASE_URL=<Base url to the api endpoint ex: http://127.0.0.1:8000/>
+
+- Start the devlopment server to serve the react app 
+
+        npm start
 
 ## Roles
 
