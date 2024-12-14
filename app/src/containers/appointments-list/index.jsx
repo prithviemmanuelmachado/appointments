@@ -189,7 +189,7 @@ export default function AppointmentList(props){
     }
 
     const onClick = (data) => {
-        console.log(data);
+        navigate(`appointment-details/${data.id}/`)
     }
     
     useEffect(() => {
@@ -214,7 +214,8 @@ export default function AppointmentList(props){
                     date: moment(data.date).format('DD MMM, YYYY'),
                     time: moment(data.time, "HH:mm:ss").format('hh:mm A'),
                     visit_type: data.visit_type_full,
-                    is_closed: data.is_closed ? 'Closed' : 'Open'
+                    is_closed: data.is_closed ? 'Closed' : 'Open',
+                    created_for: data.created_for_full_name
                 }
             }));
         })

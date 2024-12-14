@@ -80,7 +80,9 @@ class CreateAppointmentSerializer(serializers.ModelSerializer):
         return appointment
     
 class AppointmentSerializer(serializers.ModelSerializer):
-    created_for = serializers.StringRelatedField()
+    User = get_user_model()
+    created_for = serializers.PrimaryKeyRelatedField(queryset=User.objects.all(), allow_null=True)
+    created_for_full_name = serializers.SerializerMethodField()
     visit_type_full = serializers.SerializerMethodField() 
 
     class Meta:
@@ -92,11 +94,15 @@ class AppointmentSerializer(serializers.ModelSerializer):
             'visit_type',
             'visit_type_full',
             'created_for',
+            'created_for_full_name',
             'is_closed',
         ]
         read_only_fields = [
             'created_for',
         ]
+        
+    def get_created_for_full_name(self, obj):
+        return f"{obj.created_for.first_name} {obj.created_for.last_name}"
 
     def get_visit_type_full(self, obj):
         return obj.get_visit_type_display() 
