@@ -42,7 +42,8 @@ const ButtonContainer = styled(Box)(({theme}) => ({
 
 const Container = styled(Box)(({theme}) => ({
     width: '60%',
-    height: '90%',
+    maxHeight: '90%',
+    paddingBlock: '2%',
     display: 'flex',
     justifyContent: 'center',
     alignItems: 'flex-start',

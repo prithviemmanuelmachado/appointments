@@ -35,6 +35,7 @@ import PasswordInput from "../password-input";
  *
  * @param {Object} props - The properties for the ModalForm component.
  * @param {string} props.buttonLabel - The label for the button that opens the modal.
+ * @param {string} props.buttonVariant - The variant for the button that opens the modal.
  * @param {string} props.formTitle - The title displayed at the top of the modal.
  * @param {Array<Object>} props.formFields - Array of form field configurations.
  * @param {string} props.formFields[].label - Label for the input field.
@@ -98,6 +99,7 @@ import PasswordInput from "../password-input";
 export default function ModalForm(props){
     const {
         buttonLabel,
+        buttonVariant,
         formTitle,
         formFields,
         onFormOpen,
@@ -113,8 +115,16 @@ export default function ModalForm(props){
         }
         setVisible(false);
     }
+
+    const handleSubmitClick = () => {
+        onSubmit()
+        .then(() => handleClose())
+        .catch(() => null);
+    }
+
     return <>
         <Button 
+            variant={buttonVariant ?? "contained"}
             onClick={
                 () => {
                     if(onFormOpen){
@@ -122,8 +132,7 @@ export default function ModalForm(props){
                     }
                     setVisible(true);
                 }
-            }
-            variant="contained">
+            }>
             {buttonLabel}
         </Button>
         <Modal
@@ -290,7 +299,7 @@ export default function ModalForm(props){
                 </FormContainer>
                 <ButtonContainer>
                     <Button
-                        onClick={onSubmit}
+                        onClick={handleSubmitClick}
                         variant="contained">
                         Submit
                     </Button>

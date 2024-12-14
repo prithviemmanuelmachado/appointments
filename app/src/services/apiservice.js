@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-const baseURL = process.env.REACT_APP_API_KEY;
+const baseURL = process.env.REACT_APP_API_BASE_URL;
 
 const apiClient = axios.create({
     baseURL: baseURL,
@@ -14,7 +14,7 @@ const refreshTokenEndpoint = 'auth/jwt/refresh';
 
 // Function to get a new token
 const getNewToken = async () => {
-    const refreshToken = localStorage.getItem('refresh');
+    const refreshToken = sessionStorage.getItem('refresh');
     if (!refreshToken) {
         throw new Error('Refresh token not available');
     }
@@ -25,14 +25,14 @@ const getNewToken = async () => {
         });
         const { access } = response.data;
 
-        // Update tokens in localStorage
-        localStorage.setItem('access', access);
+        // Update tokens in sessionStorage
+        sessionStorage.setItem('access', access);
 
         return access;
     } catch (error) {
         console.error('Token refresh failed:', error);
-        localStorage.removeItem('access');
-        localStorage.removeItem('refresh');
+        sessionStorage.removeItem('access');
+        sessionStorage.removeItem('refresh');
         throw error;
     }
 };
@@ -40,7 +40,7 @@ const getNewToken = async () => {
 // Request Interceptor
 apiClient.interceptors.request.use(
     (config) => {
-        const token = localStorage.getItem('access');
+        const token = sessionStorage.getItem('access');
         if (token) {
             config.headers.Authorization = `JWT ${token}`;
         }
@@ -52,8 +52,12 @@ apiClient.interceptors.request.use(
 // Response Interceptor
 apiClient.interceptors.response.use(
   (response) => response,
-  async (error) => {
+  async (error) => {    
     const originalRequest = error.config;
+
+    if (originalRequest.url === 'auth/jwt/create/') {
+        return Promise.reject(error);
+    }
 
     if (error.response && error.response.status === 401 && !originalRequest._retry) {
         // Prevent infinite retry loops
