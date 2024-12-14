@@ -2,10 +2,10 @@ import { Box, styled } from "@mui/material"
 
 const Body = styled(Box)(({theme}) => ({
     flexGrow: 1,
-    width: '90%',
+    width: '95%',
     display: 'flex',
     paddingBlock: '2vh',
-    paddingInline: '5%',
+    paddingInline: '2.5%',
     overflowX: 'hidden',
     overflowY: 'auto',
     flexDirection: 'column'
