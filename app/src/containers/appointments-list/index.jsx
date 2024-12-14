@@ -9,6 +9,9 @@ import { Container } from "./index.style";
 import ModalForm from "../../components/modal-form";
 
 export default function AppointmentList(props){
+    const {
+        navigate
+    } = props;
     const dispatch = useDispatch();
     const profile = useSelector(state => state.profile);
 

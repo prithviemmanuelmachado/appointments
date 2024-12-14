@@ -8,6 +8,9 @@ import ModalForm from "../../components/modal-form";
 import { Container } from "./index.style";
 
 export default function UserManagementList(props){
+    const {
+        navigate
+    } = props;
     const dispatch = useDispatch();
 
     const [username, setUsername] = useState('');
@@ -172,7 +175,7 @@ export default function UserManagementList(props){
             }
         },
         is_active : {
-            label: 'State',
+            label: 'Status',
             align: 'right',
             width: '10%',
             input: {
@@ -269,7 +272,7 @@ export default function UserManagementList(props){
     }
 
     const onClick = (data) => {
-        console.log(data);
+        navigate(`user-details/${data.id}/`)
     }
     
     useEffect(() => {

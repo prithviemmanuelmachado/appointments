@@ -322,7 +322,12 @@ export default function NavBar(props){
 
     return <Container>
         <Left>
-            <Title>Appointments</Title>
+            <PageLink
+                to='/'
+                variant="text"
+                component={Link}>
+                <Title>Appointments</Title>
+            </PageLink>
         </Left>
         <Right>
             {

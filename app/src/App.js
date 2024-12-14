@@ -57,30 +57,30 @@ function App() {
         <Route element = {<ProtectedRoute/>}>
           <Route
             element={
-              <AppointmentList/>
+              <AppointmentList navigate={navigate}/>
             }
             exact path='/appointment-list'/>
         </Route>
         <Route element = {<ProtectedRoute isAdminOnly={true}/>}>
           <Route
             element={
-              <UserManagementList/>
+              <UserManagementList navigate={navigate}/>
             }
             exact path='/user-management-list'/>
         </Route>
         <Route element = {<ProtectedRoute/>}>
           <Route
             element={
-              <AppointmentDetails/>
+              <AppointmentDetails navigate={navigate}/>
             }
-            exact path='/appointment-details'/>
+            exact path='/appointment-details/:id'/>
         </Route>
         <Route element = {<ProtectedRoute isAdminOnly={true}/>}>
           <Route
             element={
-              <UserDetails/>
+              <UserDetails navigate={navigate}/>
             }
-            exact path='/user-details'/>
+            exact path='/user-details/:id'/>
         </Route>
       </Routes>
     </Body>

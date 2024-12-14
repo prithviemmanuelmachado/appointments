@@ -5,6 +5,7 @@ from rest_framework.filters import OrderingFilter
 from rest_framework.permissions import IsAdminUser, IsAuthenticated
 from rest_framework.decorators import action
 from rest_framework.response import Response
+from rest_framework.status import HTTP_204_NO_CONTENT
 from .filters import CustomUserFilter
 from .pagination import CustomPagination
 from .serializers import CustomUserSerializer
@@ -30,6 +31,11 @@ class CustomUserViewSet(UserViewSet):
     ]
     pagination_class = CustomPagination
     permission_classes = [IsAuthenticated, IsAdminUser]
+    
+    def destroy(self, request, *args, **kwargs):
+        instance = self.get_object()
+        self.perform_destroy(instance)
+        return Response(status=HTTP_204_NO_CONTENT)
 
     @action(detail=False, methods=['get'], permission_classes=[IsAuthenticated, IsAdminUser])
     def doctors(self, request, *args, **kwargs):
