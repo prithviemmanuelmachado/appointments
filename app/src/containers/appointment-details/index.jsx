@@ -3,11 +3,12 @@ import { useDispatch, useSelector } from "react-redux";
 import { useParams } from "react-router";
 import { updateToast } from "../../store/toastSlice";
 import { Data, DataContainer, Label, LabelContainer, Row } from "./index.style";
-import { Button } from "@mui/material";
+import { Button, TextField } from "@mui/material";
 import ModalForm from "../../components/modal-form";
 import ApiService from "../../services/apiservice";
 import { inputTypes } from "../../constants";
 import moment from 'moment';
+import EditableCard from "../../components/editable-card";
 
 export default function AppointmentDetails(props){
     const {
@@ -30,6 +31,9 @@ export default function AppointmentDetails(props){
     const [createdForError, setCreatedForError] = useState(null);
 
     const [doctors, setDoctors] = useState([]);
+    const [notes, setNotes] = useState([]);
+
+    const [newNote, setNewNote] = useState('');
 
     useEffect(() => {
         getDetails();
@@ -75,12 +79,36 @@ export default function AppointmentDetails(props){
         setCreatedForError(null);
     }
 
+    const getNotes = () => {
+        ApiService.get(
+            `appointments/${id}/notes/`
+        )
+        .then(res => {
+            setNotes(res.data)
+        })
+        .catch((err) => {
+            if(err.status === 404){
+                dispatch(updateToast({
+                    bodyMessage : 'No such appointment exists',
+                    isVisible : true,
+                    type: 'error'
+                }))
+            }
+            dispatch(updateToast({
+                bodyMessage : err.response.data,
+                isVisible : true,
+                type: 'error'
+            }))
+        })
+    }
+
     const getDetails = () => {
         ApiService.get(
             `appointments/${id}/`
         )
         .then((res) => {
             setData(res.data);
+            getNotes();
         })
         .catch((err) => {
             if(err.status === 404){
@@ -261,6 +289,101 @@ export default function AppointmentDetails(props){
         })
     }
 
+    const addNote = () => {
+        if(newNote !== ''){
+            ApiService.post(
+                `appointments/${id}/notes/`,
+                {
+                    description: newNote
+                }
+            )
+            .then((res) => {
+                dispatch(updateToast({
+                    bodyMessage : 'Note added successfully',
+                    isVisible : true,
+                    type: 'success'
+                }));
+                setNewNote('');
+                getNotes();
+            })
+            .catch((err) => {
+                if(err.status === 404){
+                    dispatch(updateToast({
+                        bodyMessage : 'No such appointment exists',
+                        isVisible : true,
+                        type: 'error'
+                    }))
+                }
+                dispatch(updateToast({
+                    bodyMessage : err.response.data,
+                    isVisible : true,
+                    type: 'error'
+                }))
+            })
+        }
+    }
+
+    const editNote = (desc, noteID) => {
+        ApiService.put(
+            `appointments/${id}/notes/${noteID}/`,
+            {
+                description: desc
+            }
+        )
+        .then((res) => {
+            dispatch(updateToast({
+                bodyMessage : 'Note updated successfully',
+                isVisible : true,
+                type: 'success'
+            }));
+            getDetails();
+            getNotes();
+        })
+        .catch((err) => {
+            if(err.status === 404){
+                dispatch(updateToast({
+                    bodyMessage : 'No such appointment exists',
+                    isVisible : true,
+                    type: 'error'
+                }))
+            }
+            dispatch(updateToast({
+                bodyMessage : err.response.data,
+                isVisible : true,
+                type: 'error'
+            }))
+        })
+    }
+
+    const deleteNote = (noteID) => {
+        ApiService.delete(
+            `appointments/${id}/notes/${noteID}/`
+        )
+        .then((res) => {
+            dispatch(updateToast({
+                bodyMessage : 'Note deleted successfully',
+                isVisible : true,
+                type: 'success'
+            }));
+            getDetails();
+            getNotes();
+        })
+        .catch((err) => {
+            if(err.status === 404){
+                dispatch(updateToast({
+                    bodyMessage : 'No such appointment exists',
+                    isVisible : true,
+                    type: 'error'
+                }))
+            }
+            dispatch(updateToast({
+                bodyMessage : err.response.data,
+                isVisible : true,
+                type: 'error'
+            }))
+        })
+    }
+
     return <>
         <Row>
             <Button
@@ -340,5 +463,39 @@ export default function AppointmentDetails(props){
                 </Data>
             </DataContainer>
         </Row>
+        <Row>
+            <TextField
+                sx={{
+                    width: '100%'
+                }}
+                multiline
+                rows={5}
+                variant='outlined'
+                value={newNote}
+                onChange={(e) => setNewNote(e.target.value)}/>
+        </Row>
+        <Row>
+            <Button
+                onClick={addNote}
+                variant="outlined"
+                color="primary">
+                Create note
+            </Button>
+        </Row>
+        {
+            notes.map((note, index) => {
+                return <Row
+                    key={`note-${id}-${index}`}>
+                    <EditableCard
+                        id={note.id}
+                        description={note.description}
+                        title={note.created_by}
+                        timeStamp={note.created_on}
+                        isEditable={note.is_editable}
+                        onDelete={deleteNote}
+                        onEdit={editNote}/>
+                </Row>
+            })
+        }
     </>
 }

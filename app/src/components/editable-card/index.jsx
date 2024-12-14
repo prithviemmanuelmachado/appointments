@@ -21,7 +21,7 @@ import { useState } from "react";
  * @param {function} [props.onDelete] - Callback function triggered when the user clicks the delete button.
  *
  * @example
- * const handleEdit = (newDesc) => {
+ * const handleEdit = (newDesc, id) => {
  *   console.log("Edited Description:", newDesc);
  * };
  *
@@ -58,14 +58,15 @@ export default function EditableCard(props){
 
     const onSubmit = () => {
         if(onEdit){
-            onEdit(desc);
+            onEdit(desc, id);
         }
         setEdit(false)
     }
 
     return <Card
         sx={{
-            marginBlock: '10px'
+            marginBlock: '10px',
+            width: edit ? '100%' : 'auto'
         }}>
         <CardHeader
             titleTypographyProps={{
