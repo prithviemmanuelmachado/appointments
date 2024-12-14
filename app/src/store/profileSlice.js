@@ -1,10 +1,10 @@
 import { createSlice } from "@reduxjs/toolkit";
 
 const initialState = {
-    email: "prom8273@gmail.com",
-    firstName: "Test",
-    lastName: "User",
-    isStaff: false
+    email: sessionStorage.getItem('email') ?? null,
+    firstName: sessionStorage.getItem('firstName') ?? null,
+    lastName: sessionStorage.getItem('lastName') ?? null,
+    isStaff: sessionStorage.getItem('isStaff') === 'true' ?? null
 }
 
 export const profileSlice = createSlice({
@@ -16,10 +16,16 @@ export const profileSlice = createSlice({
             state.firstName = action.payload.firstName;
             state.lastName = action.payload.lastName;
             state.isStaff = action.payload.isStaff;
+        },
+        clearProfile: (state, action) => {
+            state.email = null;
+            state.firstName = null;
+            state.lastName = null;
+            state.isStaff = false;
         }
     }
 })
 
-export const { updateProfile } = profileSlice.actions;
+export const { updateProfile, clearProfile } = profileSlice.actions;
 
 export default profileSlice.reducer;

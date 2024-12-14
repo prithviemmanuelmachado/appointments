@@ -80,6 +80,7 @@ import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown';
  *   onSortDesc={(key) => console.log(`Descending sort applied on ${key}`)}
  *   sortList={["column_1", "-column_2"]}
  * />
+ * @returns {JSX.Element} A `Table` commponent.
  */
 export default function PaginationTable(props){
     const {

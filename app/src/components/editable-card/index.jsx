@@ -38,6 +38,8 @@ import { useState } from "react";
  *   onEdit={handleEdit}
  *   onDelete={handleDelete}
  * />
+ * 
+ * @returns {JSX.Element} A `Card` commponent.
  */
 
 export default function EditableCard(props){

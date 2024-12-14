@@ -93,7 +93,9 @@ import PasswordInput from "../password-input";
  *       onFormOpen={() => console.log("Form opened")}
  *       onFormClose={() => console.log("Form closed")}
  *       onSubmit={() => console.log("Form submitted")}
- *     />
+ *     />\
+ * 
+ * @returns {JSX.Element} A `Modal` commponent.
  * 
  */
 export default function ModalForm(props){

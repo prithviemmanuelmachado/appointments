@@ -1,4 +1,4 @@
-import { Box, styled, Typography } from "@mui/material"
+import { Box, Button, styled, Typography } from "@mui/material"
 
 const Container = styled(Box)(({theme}) => ({
     backgroundColor: theme.palette.primary.light,
@@ -38,10 +38,16 @@ const Profile = styled(Typography)(({theme}) => ({
     fontSize: 16,
 }))
 
+const PageLink = styled(Button)(({theme, isSelected}) => ({
+    fontSize: 16,
+    textTransform: "none"
+}))
+
 export {
     Container,
     Right,
     Left,
     Title,
-    Profile
+    Profile,
+    PageLink
 }

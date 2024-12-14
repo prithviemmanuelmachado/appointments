@@ -10,20 +10,23 @@ import { ThemeProvider } from '@mui/material/styles';
 import theme from './theme';
 import { LocalizationProvider } from '@mui/x-date-pickers';
 import { AdapterMoment } from '@mui/x-date-pickers/AdapterMoment';
+import { BrowserRouter as Router } from 'react-router';
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
 const queryClient = new QueryClient();
 root.render(
   <React.StrictMode>
-    <QueryClientProvider client={queryClient}>
-      <LocalizationProvider dateAdapter={AdapterMoment}>
-        <Provider store={store}>
-          <ThemeProvider theme={theme}>
-            <App />
-          </ThemeProvider>
-        </Provider>
-      </LocalizationProvider>
-    </QueryClientProvider>
+    <Router>
+      <QueryClientProvider client={queryClient}>
+        <LocalizationProvider dateAdapter={AdapterMoment}>
+          <Provider store={store}>
+            <ThemeProvider theme={theme}>
+              <App />
+            </ThemeProvider>
+          </Provider>
+        </LocalizationProvider>
+      </QueryClientProvider>
+    </Router>
   </React.StrictMode>
 );
 reportWebVitals();

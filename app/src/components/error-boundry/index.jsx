@@ -22,6 +22,14 @@ class ErrorBoundary extends React.Component {
         this.setState({ error, errorInfo });
     }
 
+    handleReset = () => {
+        const { navigate } = this.props;
+        if (navigate) {
+            navigate('/', { replace: true });
+        }
+        this.setState({ hasError: false });
+    };
+
     render() {
         if (this.state.hasError) {
             // Fallback UI
@@ -29,10 +37,12 @@ class ErrorBoundary extends React.Component {
             <Container>
                 <ErrorContainer>
                 <ErrorTitle>Something went wrong. Please contact site administrator or try again later.</ErrorTitle>
+                <button onClick={this.handleReset} style={{ padding: "10px 20px" }}>
+                    Go Home
+                </button>
                 <details style={{ whiteSpace: 'pre-wrap' }}>
                     {this.state.error && this.state.error.toString()}
                     <br />
-                    {this.state.errorInfo?.componentStack}
                 </details>
                 </ErrorContainer>
             </Container>

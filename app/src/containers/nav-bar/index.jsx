@@ -1,4 +1,4 @@
-import { Container, Left, Profile, Right, Title } from "./index.style";
+import { Container, Left, PageLink, Profile, Right, Title } from "./index.style";
 import ModalForm from '../../components/modal-form';
 import { inputTypes } from '../../constants';
 import { useState } from "react";
@@ -6,10 +6,13 @@ import { Button } from "@mui/material";
 import ApiService from "../../services/apiservice";
 import { useDispatch, useSelector } from 'react-redux';
 import { updateToast } from '../../store/toastSlice';
-import { updateProfile } from "../../store/profileSlice";
+import { clearProfile, updateProfile } from "../../store/profileSlice";
+import { Link } from 'react-router';
 
 export default function NavBar(props){
-    const [isLoggedIn, setIsLoggedIn] = useState(false);
+    const {
+        navigate
+    } = props;
     const profile = useSelector(state => state.profile);
 
     const [username, setUsername] = useState('');
@@ -35,7 +38,8 @@ export default function NavBar(props){
         sessionStorage.removeItem('firstName');
         sessionStorage.removeItem('lastName');
         sessionStorage.removeItem('isStaff');
-        setIsLoggedIn(false);
+        dispatch(clearProfile());
+        navigate('/', { replace: true });
     }
 
     const resetField = () => {
@@ -119,11 +123,9 @@ export default function NavBar(props){
 
                     getProfile()
                     .then((data) => {
-                        setIsLoggedIn(true);
                         resolve(data);
                     })
                     .catch((err) => {
-                        handleLogout();
                         reject(err);
                     });
                 })
@@ -319,9 +321,24 @@ export default function NavBar(props){
         </Left>
         <Right>
             {
-                isLoggedIn ?
+                profile.email ?
                 <>
                     <Profile>{`Hi, ${profile.firstName} ${profile.lastName}`}</Profile>
+                    <PageLink
+                        to='/appointment-list'
+                        variant="text"
+                        component={Link}>
+                        Appointments
+                    </PageLink>
+                    {
+                        profile.isStaff &&
+                        <PageLink
+                            to='/user-management-list'
+                            variant="text"
+                            component={Link}>
+                            User mangement
+                        </PageLink>
+                    }
                     <Button
                         variant="outlined"
                         onClick={handleLogout}>

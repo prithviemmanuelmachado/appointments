@@ -1,16 +1,22 @@
 import './App.css';
 import ErrorBoundary from './components/error-boundry';
-import { BrowserRouter as Router, Routes, Route, Link } from 'react-router';
+import { Routes, Route, useNavigate } from 'react-router';
 import Home from './containers/home';
 import { Body, Header } from './App.style';
 import NavBar from './containers/nav-bar';
 import { updateToast } from "./store/toastSlice";
 import { useDispatch, useSelector } from 'react-redux';
 import { Alert, Snackbar } from '@mui/material';
+import AppointmentList from './containers/appointments-list';
+import UserManagementList from './containers/user-management-list';
+import ProtectedRoute from './components/protected-route';
+import UserDetails from './containers/user-details';
+import AppointmentDetails from './containers/appointment-details';
 
 function App() {
   const toast = useSelector(state => state.toast);
   const dispatch = useDispatch();
+  const navigate = useNavigate();
 
   const handleToastClose = () => {
     dispatch(updateToast({
@@ -20,7 +26,7 @@ function App() {
     }))
   };
 
-  return <ErrorBoundary>
+  return <ErrorBoundary navigate={navigate}>
     <Snackbar
       autoHideDuration={6000}
       anchorOrigin={{
@@ -40,18 +46,44 @@ function App() {
       {toast.bodyMessage}
       </Alert>
     </Snackbar>
-    <Router>
-      <Header>
-      <NavBar/>
-      </Header>
-      <Body>
-        <Routes>
+    <Header>
+      <NavBar navigate={navigate}/>
+    </Header>
+    <Body>
+      <Routes>
+        <Route
+          element={<Home/>}
+          exact path='/'/>
+        <Route element = {<ProtectedRoute/>}>
           <Route
-            element={<Home/>}
-            exact path='/'/>
-        </Routes>
-      </Body>
-    </Router>
+            element={
+              <AppointmentList/>
+            }
+            exact path='/appointment-list'/>
+        </Route>
+        <Route element = {<ProtectedRoute isAdminOnly={true}/>}>
+          <Route
+            element={
+              <UserManagementList/>
+            }
+            exact path='/user-management-list'/>
+        </Route>
+        <Route element = {<ProtectedRoute/>}>
+          <Route
+            element={
+              <AppointmentDetails/>
+            }
+            exact path='/appointment-details'/>
+        </Route>
+        <Route element = {<ProtectedRoute isAdminOnly={true}/>}>
+          <Route
+            element={
+              <UserDetails/>
+            }
+            exact path='/user-details'/>
+        </Route>
+      </Routes>
+    </Body>
   </ErrorBoundary>;
 }
 
