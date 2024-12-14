@@ -3,6 +3,7 @@ from rest_framework.filters import OrderingFilter
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.viewsets import ModelViewSet
 
+from .filters import CustomAppointmentFilter
 from .models import Appointment, Note
 from .pagination import CustomPagination
 from .permissions import IsUserAppointmentOrAdmin
@@ -14,14 +15,7 @@ class AppointmentViewSet(ModelViewSet):
         DjangoFilterBackend,
         OrderingFilter
     ]
-    filterset_fields = [
-        'id',
-        'date',
-        'time',
-        'visit_type',
-        'created_for',
-        'is_closed',
-    ]
+    filterset_class = CustomAppointmentFilter
     ordering_fields = [
         'id',
         'username',

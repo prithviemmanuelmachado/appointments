@@ -173,6 +173,7 @@ export default function PaginationTable(props){
                                 {
                                     column.input.type === inputTypes.time &&
                                     <TimePicker
+                                        slotProps={{ textField: { size: 'small' } }}
                                         sx={{width: '96%'}}
                                         variant='outlined'
                                         value={column.input.value}
