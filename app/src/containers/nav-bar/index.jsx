@@ -7,13 +7,14 @@ import ApiService from "../../services/apiservice";
 import { useDispatch, useSelector } from 'react-redux';
 import { updateToast } from '../../store/toastSlice';
 import { clearProfile, updateProfile } from "../../store/profileSlice";
-import { Link } from 'react-router';
+import { Link, useLocation } from 'react-router';
 
 export default function NavBar(props){
     const {
         navigate
     } = props;
     const profile = useSelector(state => state.profile);
+    const location = useLocation();
 
     const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
@@ -89,6 +90,10 @@ export default function NavBar(props){
                 reject(err);
             });
         });
+    }
+
+    const getActiveRoute = (path) => {
+        return location.pathname === path;
     }
 
     const login = () => {
@@ -325,6 +330,7 @@ export default function NavBar(props){
                 <>
                     <Profile>{`Hi, ${profile.firstName} ${profile.lastName}`}</Profile>
                     <PageLink
+                        isSelected={getActiveRoute('/appointment-list')}
                         to='/appointment-list'
                         variant="text"
                         component={Link}>
@@ -333,6 +339,7 @@ export default function NavBar(props){
                     {
                         profile.isStaff &&
                         <PageLink
+                            isSelected={getActiveRoute('/user-management-list')}
                             to='/user-management-list'
                             variant="text"
                             component={Link}>

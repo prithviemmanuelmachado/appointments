@@ -1,4 +1,4 @@
-import { Box, styled, TableCell, Typography } from "@mui/material"
+import { Box, styled, TableCell, TableRow, Typography } from "@mui/material"
 
 const HeaderCell = styled(TableCell)(({theme}) => ({
     backgroundColor: theme.palette.primary.light,
@@ -31,11 +31,19 @@ const SortItem = styled(Box)(({theme}) => ({
     alignItems: 'center'
 }))
 
+const DataRow = styled(TableRow)(({theme, clickable}) => ({
+    cursor: clickable ? 'pointer' : 'default',
+    ':hover': {
+        backgroundColor: clickable && theme.palette.primary.light
+    }
+}))
+
 export {
     HeaderCell,
     FilterContainer,
     HeaderLabel,
     SortContainer,
     SortItem,
-    ButtonRow
+    ButtonRow,
+    DataRow
 }

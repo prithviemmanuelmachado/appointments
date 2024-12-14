@@ -40,7 +40,9 @@ const Profile = styled(Typography)(({theme}) => ({
 
 const PageLink = styled(Button)(({theme, isSelected}) => ({
     fontSize: 16,
-    textTransform: "none"
+    textTransform: "none",
+    borderRadius: 0,
+    borderBottom: isSelected && `3px solid ${theme.palette.primary.main}`
 }))
 
 export {

@@ -1,13 +1,14 @@
 import { Box, styled } from "@mui/material"
 
 const Body = styled(Box)(({theme}) => ({
-    height: '90vh',
-    width: '100%',
+    flexGrow: 1,
+    width: '90%',
     display: 'flex',
-    justifyContent: 'center',
-    alignItems: 'center',
+    paddingBlock: '2vh',
+    paddingInline: '5%',
     overflowX: 'hidden',
-    overflowY: 'auto'
+    overflowY: 'auto',
+    flexDirection: 'column'
 }))
 
 const Header = styled(Box)(({theme}) => ({

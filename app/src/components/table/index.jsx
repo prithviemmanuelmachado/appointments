@@ -13,7 +13,7 @@ import {
     Button,
     TablePagination
 } from "@mui/material";
-import { ButtonRow, FilterContainer, HeaderCell, HeaderLabel, SortContainer, SortItem } from "./index.style";
+import { ButtonRow, DataRow, FilterContainer, HeaderCell, HeaderLabel, SortContainer, SortItem } from "./index.style";
 import { inputTypes } from "../../constants";
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 import { TimePicker } from '@mui/x-date-pickers/TimePicker';
@@ -48,6 +48,7 @@ import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown';
  * @param {Function} props.onSortAsc - Callback function triggered when ascending sort is applied. Receives column key.
  * @param {Function} props.onSortDesc - Callback function triggered when descending sort is applied. Receives column key.
  * @param {Array<string>} props.sortList - List of active sort keys. A key with a `-` prefix indicates descending sort.
+ * @param {Function} props.onRowClick - Callback function triggered when data row is clicked
  * 
  * @example
  * const headers = {
@@ -68,6 +69,10 @@ import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown';
  *   { column_1: "Row 2 Col 1", column_2: "Row 2 Col 2" }
  * ];
  * 
+ * const onClick = (data) => {
+ *  
+ * } 
+ * 
  * <PaginationTable
  *   headers={headers}
  *   data={data}
@@ -78,7 +83,8 @@ import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown';
  *   onReset={() => console.log("Filters and Sort reset")}
  *   onSortAsc={(key) => console.log(`Ascending sort applied on ${key}`)}
  *   onSortDesc={(key) => console.log(`Descending sort applied on ${key}`)}
- *   sortList={["column_1", "-column_2"]}
+ *   sortList={["column_1", "-column_2"]
+ *   onRowClick={onClick}}
  * />
  * @returns {JSX.Element} A `Table` commponent.
  */
@@ -93,7 +99,8 @@ export default function PaginationTable(props){
         onReset,
         onSortAsc,
         onSortDesc,
-        sortList
+        sortList,
+        onRowClick
     } = props;
 
     const keys = Object.keys(headers);
@@ -223,10 +230,17 @@ export default function PaginationTable(props){
             <TableBody>
                 {
                     data.map((item, iindex) => {
-                        return <TableRow key={`row-${item[keys[0]]}-${iindex}`}>
+                        return <DataRow
+                            clickable={onRowClick}
+                            onClick={() => onRowClick(item)}
+                            key={`row-${item[keys[0]]}-${iindex}`}>
                             {
                                 keys.map((key, kindex) => {
                                     return <TableCell
+                                        sx={{
+                                            paddingInline: '2%',
+                                            cursor: 'inherit'
+                                        }}
                                         key={`row-${key}-${iindex}-${kindex}`}
                                         align={headers[key].align}
                                         width={headers[key].width}>
@@ -234,7 +248,7 @@ export default function PaginationTable(props){
                                     </TableCell>
                                 })
                             }
-                        </TableRow>
+                        </DataRow>
                     })
                 }
             </TableBody>
