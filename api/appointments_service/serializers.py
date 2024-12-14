@@ -42,7 +42,7 @@ class NoteSerializer(serializers.ModelSerializer):
 class CreateAppointmentSerializer(serializers.ModelSerializer):
     User = get_user_model()
     notes = NoteSerializer(write_only=True)
-    created_for = serializers.PrimaryKeyRelatedField(queryset=User.objects.all())
+    created_for = serializers.PrimaryKeyRelatedField(queryset=User.objects.all(), allow_null=True)
     created_for_full_name = serializers.SerializerMethodField()
     visit_type_full = serializers.SerializerMethodField()
 

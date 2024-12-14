@@ -18,11 +18,9 @@ class AppointmentViewSet(ModelViewSet):
     filterset_class = CustomAppointmentFilter
     ordering_fields = [
         'id',
-        'username',
-        'email',
-        'first_name',
-        'last_name',
-        'is_staff',
+        'date',
+        'time',
+        'created_for',
         'is_active',
     ]
     pagination_class = CustomPagination
