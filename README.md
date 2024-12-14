@@ -14,6 +14,7 @@ A healthcare management application that uses ***Django*** and ***React*** to ke
 - [Roles](#roles)
 - [User management](#user-management)
 - [Appointment management](#appointment-management)
+- [Demo](#demo)
 
 ## Installation
 
@@ -103,3 +104,6 @@ There are 2 ways to create an user in this app
 ## Appointment management
 
 A doctor can create appointments for themself, but an admin is able to create appointments for any doctor in the system. Similarly a doctor can leave notes on their appointment, but an admin can leave notes on any appointment in the system
+
+## Demo
+[Watch the Video on Vimeo](https://vimeo.com/1039248072)
