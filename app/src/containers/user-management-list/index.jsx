@@ -416,6 +416,11 @@ export default function UserManagementList(props){
                     reject(err);
                 });
             }
+            else{
+                reject({
+                    error: 'Validation error'
+                })
+            }
         });
     }
     

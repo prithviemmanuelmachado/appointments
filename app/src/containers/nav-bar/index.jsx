@@ -2,7 +2,7 @@ import { Container, Left, PageLink, Profile, Right, Title } from "./index.style"
 import ModalForm from '../../components/modal-form';
 import { inputTypes } from '../../constants';
 import { useState } from "react";
-import { Button } from "@mui/material";
+import { Avatar, Button } from "@mui/material";
 import ApiService from "../../services/apiservice";
 import { useDispatch, useSelector } from 'react-redux';
 import { updateToast } from '../../store/toastSlice';
@@ -71,12 +71,14 @@ export default function NavBar(props){
                 sessionStorage.setItem('firstName', res.data.first_name);
                 sessionStorage.setItem('lastName', res.data.last_name);
                 sessionStorage.setItem('isStaff', res.data.is_staff);
+                sessionStorage.setItem('avatar', res.data.avatar.avatar);
 
                 dispatch(updateProfile({
                     email: res.data.email,
                     firstName: res.data.first_name,
                     lastName: res.data.last_name,
-                    isStaff: res.data.is_staff
+                    isStaff: res.data.is_staff,
+                    avatar: res.data.avatar.avatar
                 }));
 
                 resolve(res.data);
@@ -149,6 +151,11 @@ export default function NavBar(props){
                     }))
                     reject(err);
                 });
+            }
+            else{
+                reject({
+                    error: 'Validation error'
+                })
             }
         });
     };
@@ -239,6 +246,11 @@ export default function NavBar(props){
                     reject(err);
                 });
             }
+            else{
+                reject({
+                    error: 'Validation error'
+                })
+            }
         });
     }
 
@@ -326,13 +338,18 @@ export default function NavBar(props){
                 to='/'
                 variant="text"
                 component={Link}>
-                <Title>Appointments</Title>
+                <Title>{process.env.REACT_APP_SITE_NAME}</Title>
             </PageLink>
         </Left>
         <Right>
             {
                 profile.email ?
                 <>
+                    {
+                        profile.avatar ?
+                        <Avatar src={profile.avatar} /> :
+                        <Avatar>{profile.firstName[0]}</Avatar>
+                    }
                     <Profile>{`Hi, ${profile.firstName} ${profile.lastName}`}</Profile>
                     <PageLink
                         isSelected={getActiveRoute('/appointment-list')}

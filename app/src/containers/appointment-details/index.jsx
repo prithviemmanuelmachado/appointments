@@ -258,6 +258,11 @@ export default function AppointmentDetails(props){
                     reject(err);
                 })
             }
+            else{
+                reject({
+                    error: 'Validation error'
+                })
+            }
         })
     }
 

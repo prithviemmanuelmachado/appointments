@@ -41,10 +41,11 @@ A healthcare management application that uses ***Django*** and ***React*** to ke
         DB_PASSWORD=<db_password_here>
         DB_HOST=<db_host_here>
         DB_PORT=<db_port_here>
+        SITE_NAME=<name_of_the_application>
         DEBUG=<based_on_env_set_to_TRUE_or_FALSE>
         SECRET_KEY=<key_for_signing_and_hashing>
-        FRONTEND_BASE_URL=<frontend_base_address ex: http://localhost:3000>
-        RESET_PASSWORD_ENDPOINT=<fronted_url_for_reset_password ex: /reset-password/>
+        FRONTEND_BASE_URL=<frontend_base_address ex: localhost:3000>
+        RESET_PASSWORD_ENDPOINT=<fronted_url_for_reset_password ex: reset-password>
         EMAIL_BACKEND=<email_backend>
         EMAIL_HOST=<smtp_host>
         EMAIL_PORT=<smtp_port>
@@ -74,6 +75,8 @@ A healthcare management application that uses ***Django*** and ***React*** to ke
 - In the `app` folder create a .env file with the following keys and values
 
         REACT_APP_API_BASE_URL=<Base url to the api endpoint ex: http://127.0.0.1:8000/>
+        REACT_APP_SITE_NAME=<name_of_the_application>
+        REACT_APP_TAB_PICTURE=<loctaion_to_the_tab_image>
 
 - Start the devlopment server to serve the react app 
 

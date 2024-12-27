@@ -209,6 +209,14 @@ export default function UserDetails(props){
                         isVisible : true,
                         type: 'success'
                     }))
+                    if(createIsActive && !data.is_already_activated){
+                        ApiService.post(
+                            `auth/users/reset_password/`,
+                            {
+                                "email": createdEmail
+                            }                            
+                        )
+                    }
                     getDetails();
                     resolve(res.data);
                 })
@@ -220,6 +228,11 @@ export default function UserDetails(props){
                     }))
                     reject(err);
                 });
+            }
+            else{
+                reject({
+                    error: 'Validation error'
+                })
             }
         });
     }

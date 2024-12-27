@@ -130,6 +130,27 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/5.1/howto/static-files/
 
 STATIC_URL = "static/"
+MEDIA_URL = 'media/'
+
+AWS_ACCESS_KEY_ID = config('AWS_ACCESS_KEY')
+AWS_SECRET_ACCESS_KEY = config('AWS_SECRET_KEY')
+AWS_STORAGE_BUCKET_NAME = config('AWS_STORAGE_BUCKET_NAME')
+AWS_S3_REGION_NAME = config('AWS_REGION') 
+AWS_S3_CUSTOM_DOMAIN = '%s.s3.amazonaws.com' % AWS_STORAGE_BUCKET_NAME
+AWS_S3_FILE_OVERWRITE = False
+
+STORAGES = {
+
+    # Media file (image) management  
+    "default": {
+        "BACKEND": "storages.backends.s3boto3.S3StaticStorage",
+    },
+   
+    # CSS and JS file management
+    "staticfiles": {
+        "BACKEND": "django.contrib.staticfiles.storage.StaticFilesStorage",
+    },
+}
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.1/ref/settings/#default-auto-field
@@ -164,9 +185,12 @@ CORS_ALLOWED_ORIGINS = [
     "http://127.0.0.1:3000",
 ]
 
+DOMAIN = config('FRONTEND_BASE_URL')
+SITE_NAME = config('SITE_NAME')
+
 DJOSER = {
     'TOKEN_MODEL': None,
-    'PASSWORD_RESET_CONFIRM_URL': config('FRONTEND_BASE_URL') + config('RESET_PASSWORD_ENDPOINT') + '{uid}/{token}/',
+    'PASSWORD_RESET_CONFIRM_URL': config('RESET_PASSWORD_ENDPOINT') + '/{uid}/{token}/',
     'SERIALIZERS': {
         'user_create': 'user_service.serializers.CustomUserCreateSerializer',
         'user': 'user_service.serializers.CustomUserSerializer',

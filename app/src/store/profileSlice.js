@@ -4,7 +4,8 @@ const initialState = {
     email: sessionStorage.getItem('email') ?? null,
     firstName: sessionStorage.getItem('firstName') ?? null,
     lastName: sessionStorage.getItem('lastName') ?? null,
-    isStaff: sessionStorage.getItem('isStaff') === 'true' ?? null
+    isStaff: sessionStorage.getItem('isStaff') === 'true' ?? null,
+    avatar: sessionStorage.getItem('avatar') ?? null
 }
 
 export const profileSlice = createSlice({
@@ -16,12 +17,14 @@ export const profileSlice = createSlice({
             state.firstName = action.payload.firstName;
             state.lastName = action.payload.lastName;
             state.isStaff = action.payload.isStaff;
+            state.avatar = action.payload.avatar;
         },
         clearProfile: (state, action) => {
             state.email = null;
             state.firstName = null;
             state.lastName = null;
             state.isStaff = false;
+            state.avatar = null;
         }
     }
 })

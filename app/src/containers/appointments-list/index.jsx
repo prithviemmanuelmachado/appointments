@@ -390,6 +390,11 @@ export default function AppointmentList(props){
                     reject(err);
                 })
             }
+            else{
+                reject({
+                    error: 'Validation error'
+                })
+            }
         })
     }
     

@@ -12,6 +12,16 @@ import { LocalizationProvider } from '@mui/x-date-pickers';
 import { AdapterMoment } from '@mui/x-date-pickers/AdapterMoment';
 import { BrowserRouter as Router } from 'react-router';
 
+const changeFavicon = () => {
+  const favicon = document.getElementById('icon');
+  if (favicon) {
+    favicon.href = process.env.REACT_APP_TAB_PICTURE;
+  }
+};
+changeFavicon();
+
+document.title = process.env.REACT_APP_SITE_NAME
+
 const root = ReactDOM.createRoot(document.getElementById('root'));
 const queryClient = new QueryClient();
 root.render(

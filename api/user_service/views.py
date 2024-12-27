@@ -2,18 +2,40 @@ from djoser.views import UserViewSet
 from django_filters.rest_framework import DjangoFilterBackend
 from django.contrib.auth import get_user_model
 from rest_framework.filters import OrderingFilter
-from rest_framework.permissions import IsAdminUser, IsAuthenticated
+from rest_framework.permissions import IsAdminUser, IsAuthenticated, AllowAny
 from rest_framework.decorators import action
 from rest_framework.response import Response
 from rest_framework.status import HTTP_204_NO_CONTENT
+from rest_framework.viewsets import ModelViewSet
 from .filters import CustomUserFilter
+from .models import Avatar
 from .pagination import CustomPagination
-from .serializers import CustomUserSerializer
+from .serializers import CustomUserSerializer, AvatarSerializer
 
 User = get_user_model()
 
+class AvatarsViewSet(ModelViewSet):
+    serializer_class = AvatarSerializer
+    permission_classes = []
+    
+    def get_queryset(self):
+        return Avatar.objects.filter(user = self.kwargs['user_id'])
+    
+    def get_serializer_context(self):
+        return {
+            'request': self.request,
+            'user_id': self.kwargs['user_id']
+        }
+    
+    def get_permissions(self):
+        # Restrict PUT and DELETE methods to admin users
+        if self.request.method in ['PUT', 'DELETE']:
+            return [IsAdminUser()]
+        # Allow unrestricted access for other methods
+        return [AllowAny()]
+
 class CustomUserViewSet(UserViewSet):
-    queryset = User.objects.all()
+    queryset = User.objects.select_related('avatar').all()
     serializer_class = CustomUserSerializer
     filter_backends = [
         DjangoFilterBackend,
