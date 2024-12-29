@@ -21,6 +21,10 @@ class Appointment(models.Model):
     is_closed = models.BooleanField(
         default = False
     )
+    description = models.CharField(
+        max_length = 8000,
+        null = True
+    )
     
 class Note(models.Model):
     appointment = models.ForeignKey(

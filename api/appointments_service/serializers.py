@@ -41,7 +41,6 @@ class NoteSerializer(serializers.ModelSerializer):
 
 class CreateAppointmentSerializer(serializers.ModelSerializer):
     User = get_user_model()
-    notes = NoteSerializer(write_only=True)
     created_for = serializers.PrimaryKeyRelatedField(queryset=User.objects.all(), allow_null=True)
     created_for_full_name = serializers.SerializerMethodField()
     visit_type_full = serializers.SerializerMethodField()
@@ -57,7 +56,7 @@ class CreateAppointmentSerializer(serializers.ModelSerializer):
             'created_for', 
             'created_for_full_name',
             'is_closed', 
-            'notes'
+            'description'
         ]
         read_only_fields = [
             'is_closed',
@@ -70,13 +69,10 @@ class CreateAppointmentSerializer(serializers.ModelSerializer):
         return obj.get_visit_type_display() 
 
     def create(self, validated_data):
-        note_data = validated_data.pop('notes', [])
         user = self.context['user']
         if not user.is_staff:
             validated_data['created_for'] = user
         appointment = Appointment.objects.create(**validated_data)
-        if note_data:
-            Note.objects.create(appointment=appointment, created_by=self.context['request'].user, **note_data)
         return appointment
     
 class AppointmentSerializer(serializers.ModelSerializer):
@@ -96,6 +92,7 @@ class AppointmentSerializer(serializers.ModelSerializer):
             'created_for',
             'created_for_full_name',
             'is_closed',
+            'description'
         ]
         read_only_fields = [
             'created_for',
