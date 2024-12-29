@@ -106,3 +106,30 @@ class AppointmentSerializer(serializers.ModelSerializer):
 
     def get_visit_type_full(self, obj):
         return obj.get_visit_type_display() 
+    
+class CalenderSerializer(serializers.ModelSerializer):
+    created_for = serializers.StringRelatedField()
+    created_for_avatar = serializers.SerializerMethodField()
+    
+    class Meta:
+        model = Appointment
+        fields = [
+            'id',
+            'date',
+            'time',
+            'created_for',
+            'created_for_avatar'
+        ]
+        read_only_fields = [
+            'id',
+            'date',
+            'time',
+            'created_for',
+            'created_for_avatar'
+        ]
+        
+    def get_created_for_avatar(self, obj):
+        try:
+            return obj.created_for.avatar.avatar.url
+        except AttributeError:
+            return None

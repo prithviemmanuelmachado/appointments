@@ -1,6 +1,6 @@
 from django.urls import path, include
 from rest_framework_nested import routers
-from .views import AppointmentViewSet, NoteViewSet
+from .views import AppointmentViewSet, NoteViewSet, dashboard, CalenderView
 
 #route for /appointments/
 router = routers.DefaultRouter()
@@ -20,5 +20,7 @@ appointment_router.register(
 
 urlpatterns = [
     path('', include(router.urls)),
-    path('', include(appointment_router.urls))
+    path('', include(appointment_router.urls)),
+    path('calender', CalenderView.as_view()),
+    path('stats', dashboard)
 ]

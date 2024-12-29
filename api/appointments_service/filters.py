@@ -1,6 +1,13 @@
 from django_filters import rest_framework as filters
 from .models import Appointment
 
+class CalenderFilter(filters.FilterSet):
+    class Meta:
+        model = Appointment
+        fields = {
+            'date': ['gt', 'lt'],
+        }
+
 class CustomAppointmentFilter(filters.FilterSet):
     created_for = filters.CharFilter(method='filter_created_for')
 
@@ -8,8 +15,8 @@ class CustomAppointmentFilter(filters.FilterSet):
         model = Appointment
         fields = {
             'id': ['exact'],
-            'date': ['exact'],
-            'time': ['exact'],
+            'date': ['exact', 'gt', 'lt'],
+            'time': ['exact', 'gt', 'lt'],
             'visit_type': ['exact'],
             'is_closed': ['exact'],
         }
