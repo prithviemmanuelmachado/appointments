@@ -24,11 +24,13 @@ export default function AppointmentDetails(props){
     const [createvisitType, setcreateVisitType] = useState(null);
     const [createcreatedFor, setcreateCreatedFor] = useState(null);
     const [isClosed, setIsClosed] = useState(null);
+    const [desc, setDesc] = useState(null);
 
     const [dateError, setDateError] = useState(null);
     const [timeError, setTimeError] = useState(null);
     const [visitTypeError, setVisitTypeError] = useState(null);
     const [createdForError, setCreatedForError] = useState(null);
+    const [descError, setDescError] = useState(null);
 
     const [doctors, setDoctors] = useState([]);
     const [notes, setNotes] = useState([]);
@@ -70,6 +72,7 @@ export default function AppointmentDetails(props){
         setcreateVisitType(data.visit_type);
         setcreateCreatedFor(data.created_for);
         setIsClosed(data.is_closed);
+        setDesc(data.description)
     }
 
     const resetErrors = () => {
@@ -77,6 +80,7 @@ export default function AppointmentDetails(props){
         setTimeError(null);
         setVisitTypeError(null);
         setCreatedForError(null);
+        setDescError(null);
     }
 
     const getNotes = () => {
@@ -194,6 +198,13 @@ export default function AppointmentDetails(props){
             }
         ]  
     })
+    editForm.push({
+        label: 'Description',
+        error: descError,
+        type: inputTypes.textArea,
+        value: desc,
+        setValue: (event) =>  setDesc(event.target.value)
+    })
 
     const editAppointment = () => {
         return new Promise((resolve, reject) => {
@@ -228,6 +239,11 @@ export default function AppointmentDetails(props){
                 noError = false;
             }
 
+            if(!desc){
+                setDescError('Please enter a description');
+                noError = false;
+            }
+
             if(noError){
                 ApiService.put(
                     `appointments/${id}/`,
@@ -236,7 +252,8 @@ export default function AppointmentDetails(props){
                         "time": moment(createtime).format('HH:mm:ss'),
                         "visit_type": createvisitType,
                         "created_for": createcreatedFor,
-                        "is_closed": isClosed
+                        "is_closed": isClosed,
+                        "description": desc
                     }
                     
                 )
@@ -250,8 +267,9 @@ export default function AppointmentDetails(props){
                     resolve(res.data);
                 })
                 .catch((err) => {
+                    const error = err.response.data
                     dispatch(updateToast({
-                        bodyMessage : err.response.data,
+                        bodyMessage : `The user is already booked for ${error.conflicting_slots.join(', ')}`,
                         isVisible : true,
                         type: 'error'
                     }));
@@ -407,6 +425,18 @@ export default function AppointmentDetails(props){
                     resetErrors();
                 }}
                 onSubmit={editAppointment}/>
+        </Row>
+        <Row>
+            <LabelContainer>
+                <Label>
+                    Description
+                </Label>
+            </LabelContainer>
+            <DataContainer>
+                <Data>
+                    {data.description ?? '---'}
+                </Data>
+            </DataContainer>
         </Row>
         <Row>
             <LabelContainer>

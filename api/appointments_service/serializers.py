@@ -3,6 +3,7 @@ from django.utils.timezone import now
 from rest_framework import serializers
 
 from .models import Appointment, Note
+from .validators import validate_appointment_time
 
 class NoteSerializer(serializers.ModelSerializer):
     created_by = serializers.StringRelatedField()
@@ -70,8 +71,12 @@ class CreateAppointmentSerializer(serializers.ModelSerializer):
 
     def create(self, validated_data):
         user = self.context['user']
+        
         if not user.is_staff:
             validated_data['created_for'] = user
+        
+        validate_appointment_time(validated_data)
+        
         appointment = Appointment.objects.create(**validated_data)
         return appointment
     
@@ -103,6 +108,10 @@ class AppointmentSerializer(serializers.ModelSerializer):
 
     def get_visit_type_full(self, obj):
         return obj.get_visit_type_display() 
+    
+    def update(self, instance, validated_data):
+        validate_appointment_time(validated_data)
+        return super().update(instance, validated_data)
     
 class CalenderSerializer(serializers.ModelSerializer):
     created_for = serializers.StringRelatedField()

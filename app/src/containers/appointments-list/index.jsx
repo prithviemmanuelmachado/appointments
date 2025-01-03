@@ -25,6 +25,7 @@ export default function AppointmentList(props){
     const [timeError, setTimeError] = useState(null);
     const [visitTypeError, setVisitTypeError] = useState(null);
     const [createdForError, setCreatedForError] = useState(null);
+    const [descError, setDescError] = useState(null);
 
     const [id, setId] = useState('');
     const [date, setDate] = useState(null);
@@ -241,6 +242,7 @@ export default function AppointmentList(props){
         setTimeError(null);
         setVisitTypeError(null);
         setCreatedForError(null);
+        setDescError(null);
     }
 
     useEffect(() => {
@@ -318,8 +320,8 @@ export default function AppointmentList(props){
     }
 
     createForm.push({
-        label: 'Note',
-        error: false,
+        label: 'Description',
+        error: descError,
         type: inputTypes.textArea,
         value: desc,
         setValue: (event) =>  setDesc(event.target.value)
@@ -358,6 +360,11 @@ export default function AppointmentList(props){
                 noError = false;
             }
 
+            if(!desc){
+                setDescError('Please enter a description');
+                noError = false;
+            }
+
             if(noError){
                 ApiService.post(
                     'appointments/',
@@ -366,9 +373,7 @@ export default function AppointmentList(props){
                         "time": moment(createtime).format('HH:mm:ss'),
                         "visit_type": createvisitType,
                         "created_for": createcreatedFor,
-                        "notes": {
-                            "description": desc
-                        }
+                        "description": desc
                     }
                     
                 )
@@ -382,8 +387,9 @@ export default function AppointmentList(props){
                     resolve(res.data);
                 })
                 .catch((err) => {
+                    const error = err.response.data
                     dispatch(updateToast({
-                        bodyMessage : err.response.data,
+                        bodyMessage : `The user is already booked for ${error.conflicting_slots.join(', ')}`,
                         isVisible : true,
                         type: 'error'
                     }));
