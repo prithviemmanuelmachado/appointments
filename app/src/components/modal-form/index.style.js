@@ -66,6 +66,23 @@ const Label = styled(Typography)(({theme}) => ({
     color: theme.palette.grey[700]
 }))
 
+const FileLabel = styled(Typography)(({theme, isSelected}) => ({
+    cursor: 'default',
+    fontSize: 14,
+    overflow: 'hidden', 
+    textOverflow: 'ellipsis', 
+    whiteSpace: 'nowrap',
+    maxWidth: '40%',
+    color: isSelected ? theme.palette.text : theme.palette.grey[700]
+}))
+
+const Row = styled(Box)(({theme}) => ({
+    display: 'flex',
+    justifyContent: 'flex-start',
+    alignItems: 'center',
+    gap: '10px'
+}))
+
 const ErrorHelperText = styled(FormHelperText)(({theme}) => ({
     color: theme.palette.error.main
 }))
@@ -79,5 +96,7 @@ export {
     Header,
     InputContainer,
     Label,
-    ErrorHelperText
+    ErrorHelperText,
+    FileLabel,
+    Row
 }

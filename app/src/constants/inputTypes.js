@@ -5,7 +5,8 @@ const inputTypes ={
     select: 'select',
     date: 'date',
     time: 'time',
-    password: 'password'
+    password: 'password',
+    image: 'image'
 };
 
 export {

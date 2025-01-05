@@ -3,7 +3,7 @@ import { useParams } from "react-router";
 import ApiService from "../../services/apiservice";
 import { updateToast } from "../../store/toastSlice";
 import { useDispatch } from "react-redux";
-import { Data, DataContainer, Label, LabelContainer, Row } from "./index.style";
+import { CustomAvatar, Data, DataContainer, Label, LabelContainer, Row } from "./index.style";
 import { Button } from "@mui/material";
 import ModalForm from "../../components/modal-form";
 import { inputTypes } from "../../constants";
@@ -329,6 +329,22 @@ export default function UserDetails(props){
             <DataContainer>
                 <Data>
                     {data.last_name ?? '---'}
+                </Data>
+            </DataContainer>
+        </Row>
+        <Row>
+            <LabelContainer>
+                <Label>
+                    Avatar
+                </Label>
+            </LabelContainer>
+            <DataContainer>
+                <Data>
+                    {
+                        data.avatar ?
+                        <CustomAvatar src={data.avatar.avatar} /> :
+                        data.first_name && <CustomAvatar sizes="10rem">{data.first_name[0]}</CustomAvatar>
+                    }
                 </Data>
             </DataContainer>
         </Row>

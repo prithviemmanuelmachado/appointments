@@ -14,7 +14,7 @@ const refreshTokenEndpoint = 'auth/jwt/refresh';
 
 // Function to get a new token
 const getNewToken = async () => {
-    const refreshToken = sessionStorage.getItem('refresh');
+    const refreshToken = localStorage.getItem('refresh');
     if (!refreshToken) {
         throw new Error('Refresh token not available');
     }
@@ -25,14 +25,14 @@ const getNewToken = async () => {
         });
         const { access } = response.data;
 
-        // Update tokens in sessionStorage
-        sessionStorage.setItem('access', access);
+        // Update tokens in localStorage
+        localStorage.setItem('access', access);
 
         return access;
     } catch (error) {
         console.error('Token refresh failed:', error);
-        sessionStorage.removeItem('access');
-        sessionStorage.removeItem('refresh');
+        localStorage.removeItem('access');
+        localStorage.removeItem('refresh');
         throw error;
     }
 };
@@ -40,7 +40,7 @@ const getNewToken = async () => {
 // Request Interceptor
 apiClient.interceptors.request.use(
     (config) => {
-        const token = sessionStorage.getItem('access');
+        const token = localStorage.getItem('access');
         if (token) {
             config.headers.Authorization = `JWT ${token}`;
         }
@@ -79,8 +79,8 @@ apiClient.interceptors.response.use(
 
 const ApiService = {
     get: (url, params = {}) => apiClient.get(url, { params }),
-    post: (url, data) => apiClient.post(url, data),
-    put: (url, data) => apiClient.put(url, data),
+    post: (url, data, config = {}) => apiClient.post(url, data, config),
+    put: (url, data, config = {}) => apiClient.put(url, data, config),
     delete: (url) => apiClient.delete(url),
 };
 

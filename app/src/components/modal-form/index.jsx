@@ -1,5 +1,6 @@
 import { 
     Button, 
+    CircularProgress, 
     FormControl, 
     FormControlLabel, 
     FormHelperText, 
@@ -8,7 +9,8 @@ import {
     Radio, 
     RadioGroup, 
     Select, 
-    TextField } from "@mui/material"
+    TextField, 
+    Tooltip} from "@mui/material"
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 import { TimePicker } from '@mui/x-date-pickers/TimePicker';
 import { inputTypes } from "../../constants";
@@ -22,7 +24,9 @@ import {
     Header,
     InputContainer,
     Label,
-    ErrorHelperText
+    ErrorHelperText,
+    FileLabel,
+    Row
 } from "./index.style";
 import CloseIcon from '@mui/icons-material/Close';
 import PasswordInput from "../password-input";
@@ -46,7 +50,7 @@ import PasswordInput from "../password-input";
  * @param {Array<Object>} [props.formFields[].options] - Options for inputTypes.choice and inputTypes.select input types.
  * @param {function} [props.onFormOpen] - Callback triggered when the modal is opened.
  * @param {function} [props.onFormClose] - Callback triggered when the modal is closed.
- * @param {function} [props.onSubmit] - Callback triggered when the form is submitted.
+ * @param {function} [props.onSubmit] - Promise triggered when the form is submitted.
  * 
  * @example
  * 
@@ -83,7 +87,14 @@ import PasswordInput from "../password-input";
  *       value: timeValue,
  *       setValue: (value) => setTimeValue(value),
  *       error: ""
- *     }
+ *     },
+ *     {
+ *       label: "Image",
+ *       type: inputTypes.image,
+ *       value: file,
+ *       setValue: (file) => setFileValue(file),
+ *       error: ""
+ *     },
  *   ];
  * 
  *   <ModalForm
@@ -92,7 +103,7 @@ import PasswordInput from "../password-input";
  *       formFields={formFields}
  *       onFormOpen={() => console.log("Form opened")}
  *       onFormClose={() => console.log("Form closed")}
- *       onSubmit={() => console.log("Form submitted")}
+ *       onSubmit={new Promise(resolve, reject) => resolve(console.log(("Form submitted"))}
  *     />\
  * 
  * @returns {JSX.Element} A `Modal` commponent.
@@ -110,6 +121,7 @@ export default function ModalForm(props){
     } = props;
 
     const [visible, setVisible] = useState(false);
+    const [isLoading, setIsLoading] = useState(false);
 
     const handleClose = () => {
         if(onFormClose){
@@ -119,10 +131,28 @@ export default function ModalForm(props){
     }
 
     const handleSubmitClick = () => {
+        setIsLoading(true);
         onSubmit()
-        .then(() => handleClose())
-        .catch(() => null);
+        .then(() => {
+            setIsLoading(false);
+            handleClose();
+        })
+        .catch(() => setIsLoading(false));
     }
+
+    const openFileSelect = (label) => {
+        const selector = document.getElementById(`image-select-${label}`);
+        if(selector){
+            selector.click();
+        }
+    }
+
+    const handleFileChange = (event, setValue) => {
+        const file = event.target.files[0];
+        if (file) {
+            setValue(file);
+        }
+    };
 
     return <>
         <Button 
@@ -295,16 +325,48 @@ export default function ModalForm(props){
                                     }
                                 </FormControl>
                             }
+                            {
+                                formItem.type === inputTypes.image &&
+                                <Row>
+                                    <input
+                                        id={`image-select-${formItem.label}`}
+                                        type="file"
+                                        hidden
+                                        accept={'image/*'}
+                                        onChange={(e) => handleFileChange(e, formItem.setValue)}
+                                    />
+                                    <Button
+                                        onClick={() => openFileSelect(formItem.label)}
+                                        variant="outlined">
+                                        {`Select ${formItem.label}`}
+                                    </Button>
+                                    <FileLabel
+                                        isSelected = {formItem.value}>
+                                        {
+                                            formItem.value ? 
+                                            <Tooltip title={formItem.value.name}>
+                                                {formItem.value.name}
+                                            </Tooltip> :
+                                            '...'
+                                        }
+                                    </FileLabel>
+                                </Row>
+                            }
                             </InputContainer>
                         })
                     }
                 </FormContainer>
                 <ButtonContainer>
-                    <Button
-                        onClick={handleSubmitClick}
-                        variant="contained">
-                        Submit
-                    </Button>
+                    {
+                        isLoading ? 
+                        <CircularProgress
+                            size={'2.28rem'}/> :
+                        <Button
+                            onClick={handleSubmitClick}
+                            variant="contained">
+                            Submit
+                        </Button>
+                    }
                 </ButtonContainer>
             </Container>
         </Modal>

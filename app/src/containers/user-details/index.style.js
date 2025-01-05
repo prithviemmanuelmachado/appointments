@@ -1,4 +1,4 @@
-import { Box, styled, Typography } from "@mui/material"
+import { Avatar, Box, styled, Typography } from "@mui/material"
 
 const Row = styled(Box)(({theme}) => ({
     width: '100%',
@@ -13,6 +13,12 @@ const LabelContainer = styled(Box)(({theme}) => ({
     display: 'flex',
     justifyContent: 'flex-end',
     alignItems: 'center'
+}))
+
+const CustomAvatar = styled(Avatar)(({theme}) => ({
+    width: '10rem',
+    height: '10rem',
+    fontSize: '6rem'
 }))
 
 const DataContainer = styled(Box)(({theme}) => ({
@@ -35,5 +41,6 @@ export {
     Label,
     Data,
     LabelContainer,
-    DataContainer
+    DataContainer,
+    CustomAvatar
 }

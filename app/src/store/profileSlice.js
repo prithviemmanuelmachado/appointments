@@ -1,11 +1,11 @@
 import { createSlice } from "@reduxjs/toolkit";
 
 const initialState = {
-    email: sessionStorage.getItem('email') ?? null,
-    firstName: sessionStorage.getItem('firstName') ?? null,
-    lastName: sessionStorage.getItem('lastName') ?? null,
-    isStaff: sessionStorage.getItem('isStaff') === 'true' ?? null,
-    avatar: sessionStorage.getItem('avatar') ?? null
+    email: localStorage.getItem('email') ?? null,
+    firstName: localStorage.getItem('firstName') ?? null,
+    lastName: localStorage.getItem('lastName') ?? null,
+    isStaff: localStorage.getItem('isStaff') === 'true' ?? null,
+    avatar: localStorage.getItem('avatar') ?? null
 }
 
 export const profileSlice = createSlice({
