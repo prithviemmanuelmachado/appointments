@@ -5,18 +5,10 @@ import {
     TableRow,
     TableCell,
     TableBody,
-    TextField,
-    Select,
-    MenuItem,
-    FormControl,
     IconButton,
-    Button,
     TablePagination
 } from "@mui/material";
-import { ButtonRow, DataRow, FilterContainer, HeaderCell, HeaderLabel, SortContainer, SortItem } from "./index.style";
-import { inputTypes } from "../../constants";
-import { DatePicker } from '@mui/x-date-pickers/DatePicker';
-import { TimePicker } from '@mui/x-date-pickers/TimePicker';
+import { DataRow, HeaderCell, HeaderItem, HeaderLabel, SortContainer, SortItem } from "./index.style";
 import ArrowDropUpIcon from '@mui/icons-material/ArrowDropUp';
 import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown';
 
@@ -43,8 +35,6 @@ import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown';
  * @param {number} props.pageNumber - Current page number (zero-based).
  * @param {Function} props.setPageNumber - Function to update the current page number.
  * @param {number} props.totalCount - Total number of items in the dataset.
- * @param {Function} props.onFilter - Callback function triggered when the "Search" button is clicked.
- * @param {Function} props.onReset - Callback function triggered when the "Reset" button is clicked.
  * @param {Function} props.onSortAsc - Callback function triggered when ascending sort is applied. Receives column key.
  * @param {Function} props.onSortDesc - Callback function triggered when descending sort is applied. Receives column key.
  * @param {Array<string>} props.sortList - List of active sort keys. A key with a `-` prefix indicates descending sort.
@@ -56,12 +46,10 @@ import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown';
  *     label: "Column 1",
  *     align: "left",
  *     canSort: true,
- *     input: { type: "text", value: "", setValue: (event) => console.log(event.target.value) }
  *   },
  *   column_2: {
  *     label: "Column 2",
  *     align: "center",
- *     input: { type: "select", value: "Option 1", options: [{ label: "Option 1", value: 1 }], setValue: () => {} }
  *   }
  * };
  * const data = [
@@ -79,8 +67,6 @@ import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown';
  *   pageNumber={0}
  *   setPageNumber={(newPage) => console.log(newPage)}
  *   totalCount={20}
- *   onFilter={() => console.log("Filter applied")}
- *   onReset={() => console.log("Filters and Sort reset")}
  *   onSortAsc={(key) => console.log(`Ascending sort applied on ${key}`)}
  *   onSortDesc={(key) => console.log(`Descending sort applied on ${key}`)}
  *   sortList={["column_1", "-column_2"]
@@ -95,8 +81,6 @@ export default function PaginationTable(props){
         pageNumber,
         setPageNumber,
         totalCount,
-        onFilter,
-        onReset,
         onSortAsc,
         onSortDesc,
         sortList,
@@ -106,10 +90,12 @@ export default function PaginationTable(props){
     const keys = Object.keys(headers);
 
     return <>
-    <TableContainer>
-        <Table 
-            size="small"
-            stickyHeader 
+    <TableContainer
+        sx={{
+            maxHeight: '70%'
+        }}>
+        <Table
+            stickyHeader={true}
             aria-label="sticky table">
             <TableHead>
                 <TableRow>
@@ -118,67 +104,12 @@ export default function PaginationTable(props){
                         return <HeaderCell
                         key={`table-${column.lable}-${index}`}
                         align={column.align}
-                        width={column.width}
+                        cwidth={column.width}
                         >
-                            <HeaderLabel>
-                            {column.label}
-                            </HeaderLabel>
-                            <FilterContainer>
-                                {
-                                    column.input.type === inputTypes.text &&
-                                    <TextField
-                                        size={'small'}
-                                        sx={{
-                                            width: '96%'
-                                        }}
-                                        value = {column.input.value}
-                                        onChange={column.input.setValue}
-                                        variant="outlined" />
-                                }
-                                {
-                                    column.input.type === inputTypes.select &&
-                                    <FormControl
-                                    sx={{ width: '96%' }}
-                                    variant="outlined"
-                                    size="small"
-                                    >
-                                    <Select
-                                    value={column.input.value}
-                                    onChange={column.input.setValue}
-                                    >
-                                    {
-                                        column.input.options.map((option, index) => {
-                                            return(
-                                                <MenuItem 
-                                                    key={`option-${option.label}-${index}`} 
-                                                    value={option.value}>
-                                                    {option.label}
-                                                </MenuItem>
-                                            );
-                                        })
-                                    }
-                                    </Select>
-                                    </FormControl>
-                                }
-                                {
-                                    column.input.type === inputTypes.date &&
-                                    <DatePicker
-                                        slotProps={{ textField: { size: 'small' } }}
-                                        sx={{width: '96%'}}
-                                        variant='outlined'
-                                        value={column.input.value}
-                                        format="DD MMM, YYYY"
-                                        onChange={column.input.setValue}/>
-                                }
-                                {
-                                    column.input.type === inputTypes.time &&
-                                    <TimePicker
-                                        slotProps={{ textField: { size: 'small' } }}
-                                        sx={{width: '96%'}}
-                                        variant='outlined'
-                                        value={column.input.value}
-                                        onChange={column.input.setValue}/>
-                                }
+                            <HeaderItem align={column.align}>
+                                <HeaderLabel>
+                                {column.label}
+                                </HeaderLabel>
                                 {
                                     column.canSort &&
                                     <SortContainer>
@@ -202,30 +133,9 @@ export default function PaginationTable(props){
                                         </SortItem>
                                     </SortContainer>
                                 }
-                            </FilterContainer>
+                            </HeaderItem>
                         </HeaderCell>
                     })}
-                </TableRow>
-                <TableRow>
-                    <ButtonRow colSpan={keys.length} align="right">
-                        <Button 
-                            onClick={onReset}
-                            sx={{
-                                marginInline: '3px'
-                            }}
-                            color="error" 
-                            variant="contained">
-                            Reset
-                        </Button>
-                        <Button 
-                            onClick={onFilter}
-                            sx={{
-                                marginInline: '3px'
-                            }}
-                            variant="contained">
-                            Search
-                        </Button>
-                    </ButtonRow>
                 </TableRow>
             </TableHead>
             <TableBody>
@@ -240,11 +150,11 @@ export default function PaginationTable(props){
                                     return <TableCell
                                         sx={{
                                             paddingInline: '2%',
-                                            cursor: 'inherit'
+                                            cursor: 'inherit',
+                                            minWidth: headers[key].width
                                         }}
                                         key={`row-${key}-${iindex}-${kindex}`}
-                                        align={headers[key].align}
-                                        width={headers[key].width}>
+                                        align={headers[key].align}>
                                         {item[key] ?? '---'}
                                     </TableCell>
                                 })

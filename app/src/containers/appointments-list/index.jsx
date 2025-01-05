@@ -1,12 +1,13 @@
 import { useDispatch, useSelector } from "react-redux";
 import ApiService from "../../services/apiservice";
-import { inputTypes } from "../../constants";
+import { chipVariant, columnWidth, inputTypes } from "../../constants";
 import PaginationTable from "../../components/table";
 import { updateToast } from "../../store/toastSlice";
 import { useState, useEffect } from "react";
 import moment from 'moment';
 import { Container } from "./index.style";
 import ModalForm from "../../components/modal-form";
+import Chip from "../../components/chip";
 
 export default function AppointmentList(props){
     const {
@@ -47,7 +48,7 @@ export default function AppointmentList(props){
           label: '#',
           align: 'left',
           canSort: true,
-          width: '10%',
+          width: columnWidth.xs,
           input: {
             type: inputTypes.text,
             value: id,
@@ -58,7 +59,7 @@ export default function AppointmentList(props){
           label: 'Appointment date',
           align: 'left',
           canSort: true,
-          width: '15%',
+          width: columnWidth.l,
           input: {
             type: inputTypes.date,
             value: date,
@@ -72,7 +73,7 @@ export default function AppointmentList(props){
             label: 'Appointment time',
             align: 'left',
             canSort: true,
-            width: '15%',
+            width: columnWidth.l,
             input: {
                 type: inputTypes.time,
                 value: time,
@@ -85,7 +86,7 @@ export default function AppointmentList(props){
         visit_type : {
             label: 'Visit type',
             align: 'right',
-            width: '15%',
+            width: columnWidth.m,
             input: {
               type: inputTypes.select,
               value: visitType,
@@ -106,7 +107,7 @@ export default function AppointmentList(props){
             label: 'Created for',
             align: 'left',
             canSort: true,
-            width: '30%',
+            width: columnWidth.xl,
             input: {
               type: inputTypes.text,
               value: createdFor,
@@ -116,7 +117,7 @@ export default function AppointmentList(props){
         is_closed : {
             label: 'Status',
             align: 'right',
-            width: '15%',
+            width: columnWidth.m,
             input: {
               type: inputTypes.select,
               value: isClosed,
@@ -214,8 +215,14 @@ export default function AppointmentList(props){
                     ...data,
                     date: moment(data.date).format('DD MMM, YYYY'),
                     time: moment(data.time, "HH:mm:ss").format('hh:mm A'),
-                    visit_type: data.visit_type_full,
-                    is_closed: data.is_closed ? 'Closed' : 'Open',
+                    visit_type: <Chip
+                                    align={'flex-end'}
+                                    label={data.visit_type_full}
+                                    variant={data.visit_type === 'I' ? chipVariant.inPerson : chipVariant.virtual}/>,
+                    is_closed:  <Chip
+                                    align={'flex-end'}
+                                    label={data.is_closed ? 'Closed' : 'Open'}
+                                    variant={data.is_closed ? chipVariant.closed : chipVariant.open}/>,
                     created_for: data.created_for_full_name
                 }
             }));

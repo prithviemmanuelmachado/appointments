@@ -95,7 +95,8 @@ const CustomListOutlinedIcon = styled(ListOutlinedIcon)(({theme, isSelected}) =>
 }))
 
 const Profile = styled(Typography)(({theme}) => ({
-    fontSize: 18,
+    cursor: 'default',
+    fontSize: 16,
 }))
 
 const HeaderLink = styled(Button)(({theme}) => ({

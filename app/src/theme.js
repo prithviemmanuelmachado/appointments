@@ -9,6 +9,9 @@ const theme = createTheme({
       light: indigo[50],
       dark: indigo[900]
     },
+    unfocused: {
+      main: blueGrey[400]
+    }
   },
 });
 

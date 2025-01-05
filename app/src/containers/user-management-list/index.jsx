@@ -1,11 +1,12 @@
 import { useEffect, useState } from "react";
 import ApiService from "../../services/apiservice";
-import { inputTypes } from "../../constants";
+import { chipVariant, columnWidth, inputTypes } from "../../constants";
 import PaginationTable from "../../components/table";
 import { useDispatch } from "react-redux";
 import { updateToast } from "../../store/toastSlice";
 import ModalForm from "../../components/modal-form";
 import { Container } from "./index.style";
+import Chip from "../../components/chip";
 
 export default function UserManagementList(props){
     const {
@@ -123,7 +124,7 @@ export default function UserManagementList(props){
           label: '#',
           align: 'left',
           canSort: true,
-          width: '10%',
+          width: columnWidth.xs,
           input: {
             type: inputTypes.text,
             value: id,
@@ -134,7 +135,7 @@ export default function UserManagementList(props){
           label: 'First name',
           align: 'left',
           canSort: true,
-          width: '15%',
+          width: columnWidth.l,
           input: {
             type: inputTypes.text,
             value: firstName,
@@ -145,7 +146,7 @@ export default function UserManagementList(props){
             label: 'Last name',
             align: 'left',
             canSort: true,
-            width: '15%',
+            width: columnWidth.l,
             input: {
               type: inputTypes.text,
               value: lastName,
@@ -156,7 +157,7 @@ export default function UserManagementList(props){
             label: 'Username',
             align: 'left',
             canSort: true,
-            width: '20%',
+            width: columnWidth.l,
             input: {
               type: inputTypes.text,
               value: username,
@@ -167,7 +168,7 @@ export default function UserManagementList(props){
             label: 'Email',
             align: 'left',
             canSort: true,
-            width: '20%',
+            width: columnWidth.xl,
             input: {
               type: inputTypes.text,
               value: email,
@@ -177,7 +178,7 @@ export default function UserManagementList(props){
         is_active : {
             label: 'Status',
             align: 'right',
-            width: '10%',
+            width: columnWidth.m,
             input: {
               type: inputTypes.select,
               value: isActive,
@@ -197,7 +198,7 @@ export default function UserManagementList(props){
         is_staff : {
             label: 'Role',
             align: 'right',
-            width: '15%',
+            width: columnWidth.m,
             input: {
               type: inputTypes.select,
               value: isStaff,
@@ -295,8 +296,14 @@ export default function UserManagementList(props){
             setData(res.data.results.map((data) => {
                 return {
                     ...data,
-                    is_active: data.is_active ? 'Active' : 'Inactive',
-                    is_staff: data.is_staff ? 'Administrator' : 'Doctor'
+                    is_active: <Chip
+                                align={'flex-end'}
+                                label={data.is_active ? 'Active' : 'Inactive'}
+                                variant={data.is_active ? chipVariant.active : chipVariant.inactive}/>,
+                    is_staff: <Chip
+                                align={'flex-end'}
+                                label={data.is_staff ? 'Administrator' : 'Doctor'}
+                                variant={data.is_staff ? chipVariant.admin : chipVariant.doctor}/>
                 }
             }));
         })
