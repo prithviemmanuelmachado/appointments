@@ -1,20 +1,26 @@
 import { Box, styled } from "@mui/material"
 
-const Body = styled(Box)(({theme}) => ({
+const Container = styled(Box)(({theme, isLoggedin}) => ({
+    display: 'flex',
+    width: '100vw',
+    height: '100vh',
+    flexDirection: isLoggedin ? 'row' : 'column'
+}))
+
+const Body = styled(Box)(({theme, isLoggedin}) => ({
     flexGrow: 1,
     height: '100%',
-    width: '95%',
+    width: isLoggedin ? '98%' : '95%',
     display: 'flex',
-    paddingBlock: '2vh',
-    paddingInline: '2.5%',
+    paddingInline: '1%',
     overflowX: 'hidden',
     overflowY: 'auto',
     flexDirection: 'column',
 }))
 
-const Header = styled(Box)(({theme}) => ({
-    height: '10vh',
-    width: '100%',
+const Header = styled(Box)(({theme, isLoggedin}) => ({
+    height: isLoggedin ? '100%' : '10vh',
+    width: isLoggedin ? '30vw' : '100%',
     display: 'flex',
     justifyContent: 'center',
     alignItems: 'center'
@@ -22,5 +28,6 @@ const Header = styled(Box)(({theme}) => ({
 
 export {
     Body,
-    Header
+    Header,
+    Container
 }

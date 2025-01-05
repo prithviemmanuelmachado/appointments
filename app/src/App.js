@@ -2,7 +2,7 @@ import './App.css';
 import ErrorBoundary from './components/error-boundry';
 import { Routes, Route, useNavigate } from 'react-router';
 import Home from './containers/home';
-import { Body, Header } from './App.style';
+import { Body, Container, Header } from './App.style';
 import NavBar from './containers/nav-bar';
 import { updateToast } from "./store/toastSlice";
 import { useDispatch, useSelector } from 'react-redux';
@@ -15,6 +15,7 @@ import AppointmentDetails from './containers/appointment-details';
 
 function App() {
   const toast = useSelector(state => state.toast);
+  const profile = useSelector(state => state.profile);
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
@@ -46,10 +47,11 @@ function App() {
       {toast.bodyMessage}
       </Alert>
     </Snackbar>
-    <Header>
+    <Container isLoggedin={profile.email}>
+    <Header isLoggedin={profile.email}>
       <NavBar navigate={navigate}/>
     </Header>
-    <Body>
+    <Body isLoggedin={profile.email}>
       <Routes>
         <Route
           element={<Home/>}
@@ -84,6 +86,7 @@ function App() {
         </Route>
       </Routes>
     </Body>
+    </Container>
   </ErrorBoundary>;
 }
 
