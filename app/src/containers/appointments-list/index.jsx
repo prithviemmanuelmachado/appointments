@@ -382,7 +382,7 @@ export default function AppointmentList(props){
                 }
             }
         }
-        if(filterInput.isClosed){
+        if(filterInput.isClosed !== null){
             tempFilter['Status'] = {
                 value: filterInput.isClosed,
                 lookup: '',
@@ -390,7 +390,7 @@ export default function AppointmentList(props){
                     setFilterInput((prevState) => {
                         return {
                             ...prevState,
-                            isClosed: ''
+                            isClosed: null
                         }
                     })
                     setFilter((prevState) => !prevState);

@@ -7,6 +7,7 @@ import { updateToast } from "../../store/toastSlice";
 import ModalForm from "../../components/modal-form";
 import { Container } from "./index.style";
 import Chip from "../../components/chip";
+import Filter from "../../components/filter";
 
 export default function UserManagementList(props){
     const {
@@ -14,108 +15,124 @@ export default function UserManagementList(props){
     } = props;
     const dispatch = useDispatch();
 
-    const [username, setUsername] = useState('');
-    const [firstName, setFirstName] = useState('');
-    const [lastName, setLastName] = useState('');
-    const [email, setEmail] = useState('');
-    const [id, setId] = useState('');
-    const [isActive, setIsActive] = useState(null);
-    const [isStaff, setIsStaff] = useState(null);
-    
-    const [createdUsername, setCreatedUsername] = useState('');
-    const [createdPassword, setCreatedPassword] = useState('');
-    const [createdConfirmPassword, setCreatedConfirmPassword] = useState('');
-    const [createdFirstName, setCreatedFirstName] = useState('');
-    const [createdLastName, setCreatedLastName] = useState('');
-    const [createdEmail, setCreatedEmail] = useState('');
-    const [createRole, setCreateRole] = useState(false);
+    const [filterInput, setFilterInput] = useState({
+        id: '',
+        firstName: '',
+        lastName: '',
+        username: '',
+        email: '',
+        isActive: null,
+        isStaff: null
+    });
 
-    const [usernameError, setUsernameError] = useState(null);
-    const [passwordError, setPasswordError] = useState(null);
-    const [confirmPasswordError, setConfirmPasswordError] = useState(null);
-    const [firstNameError, setFirstNameError] = useState(null);
-    const [lastNameError, setLastNameError] = useState(null);
-    const [emailError, setEmailError] = useState(null);
+    const [formInput, setFormInput] = useState({
+        username: '',
+        firstName: '',
+        lastName: '',
+        email: '',
+        role: false,
+        avatar: null
+    });
+    
+    const [error, setError] = useState({
+        username: null,
+        firstName: null,
+        lastName: null,
+        email: null
+    });
 
     const [page, setPage] = useState(0);
     const [sortList, setSortList] = useState([]);
     const [filter, setFilter] = useState(true);
     const [data, setData] = useState([]);
     const [totalCount, setTotalCount] = useState(0);
+    const [filterChips, setFilterChips] = useState({});
 
-    const createForm = [
+    const filterForm = [
         {
-            label: 'Enter username',
+            label: '#',
             type: inputTypes.text,
-            value: createdUsername,
-            setValue: (event) =>  {
-                setCreatedUsername(event.target.value)
-            },
-            error: usernameError
+            value: filterInput.id,
+            setValue: (event) =>  setFilterInput({
+                ...filterInput,
+                id: event.target.value
+            })
         },
         {
-            label: 'Enter password',
-            type: inputTypes.password,
-            value: createdPassword,
-            setValue: (event) =>  {
-                setCreatedPassword(event.target.value)
-            },
-            error: passwordError
-        },
-        {
-            label: 'Confirm password',
-            type: inputTypes.password,
-            value: createdConfirmPassword,
-            setValue: (event) =>  {
-                setCreatedConfirmPassword(event.target.value)
-            },
-            error: confirmPasswordError
-        },
-        {
-            label: 'Enter email',
+            label: 'First name',
             type: inputTypes.text,
-            value: createdEmail,
-            setValue: (event) =>  {
-                setCreatedEmail(event.target.value)
-            },
-            error: emailError
+            value: filterInput.firstName,
+            setValue: (event) =>  setFilterInput({
+                ...filterInput,
+                firstName: event.target.value
+            })
         },
         {
-            label: 'Enter first name',
+            label: 'Last name',
             type: inputTypes.text,
-            value: createdFirstName,
-            setValue: (event) =>  {
-                setCreatedFirstName(event.target.value)
-            },
-            error: firstNameError
+            value: filterInput.lastName,
+            setValue: (event) =>  setFilterInput({
+                ...filterInput,
+                lastName: event.target.value
+            })
         },
         {
-            label: 'Enter last name',
+            label: 'Username',
             type: inputTypes.text,
-            value: createdLastName,
-            setValue: (event) =>  {
-                setCreatedLastName(event.target.value)
-            },
-            error: lastNameError
+            value: filterInput.username,
+            setValue: (event) =>  setFilterInput({
+                ...filterInput,
+                username: event.target.value
+            })
         },
         {
-            label: 'Select role',
+            label: 'Email',
+            type: inputTypes.text,
+            value: filterInput.email,
+            setValue: (event) =>  setFilterInput({
+                ...filterInput,
+                email: event.target.value
+            })
+        },
+        {
+            label: 'Status',
             type: inputTypes.select,
+            value: filterInput.isActive,
             error: false,
-            value: createRole,
-            setValue: (event) =>  {
-                setCreateRole(event.target.value)
-            },
+            setValue: (event) =>  setFilterInput({
+                ...filterInput,
+                isActive: event.target.value
+            }),
             options: [
-                {
-                  label: 'Doctor',
-                  value: false
-                },
-                {
-                  label: 'Administrator',
-                  value: true
-                }
-            ]  
+              {
+                label: 'Active',
+                value: true
+              },
+              {
+                label: 'Inactive',
+                value: false
+              }
+            ]      
+        },
+        {
+            label: 'Role',
+            type: inputTypes.select,
+            value: filterInput.isStaff,
+            error: false,
+            setValue: (event) =>  setFilterInput({
+                ...filterInput,
+                isStaff: event.target.value
+            }),
+            options: [
+              {
+                label: 'Doctor',
+                value: false
+              },
+              {
+                label: 'Administrator',
+                value: true
+              }
+            ]      
         }
     ];
 
@@ -124,97 +141,42 @@ export default function UserManagementList(props){
           label: '#',
           align: 'left',
           canSort: true,
-          width: columnWidth.xs,
-          input: {
-            type: inputTypes.text,
-            value: id,
-            setValue: (event) =>  setId(event.target.value)
-          }
+          width: columnWidth.xs
         },
         first_name : {
           label: 'First name',
           align: 'left',
           canSort: true,
-          width: columnWidth.l,
-          input: {
-            type: inputTypes.text,
-            value: firstName,
-            setValue: (event) =>  setFirstName(event.target.value)
-          }
+          width: columnWidth.l
         },
         last_name : {
             label: 'Last name',
             align: 'left',
             canSort: true,
-            width: columnWidth.l,
-            input: {
-              type: inputTypes.text,
-              value: lastName,
-              setValue: (event) =>  setLastName(event.target.value)
-            }
+            width: columnWidth.l
         },
         username : {
             label: 'Username',
             align: 'left',
             canSort: true,
-            width: columnWidth.l,
-            input: {
-              type: inputTypes.text,
-              value: username,
-              setValue: (event) =>  setUsername(event.target.value)
-            }
+            width: columnWidth.l
         },
         email : {
             label: 'Email',
             align: 'left',
             canSort: true,
-            width: columnWidth.xl,
-            input: {
-              type: inputTypes.text,
-              value: email,
-              setValue: (event) =>  setEmail(event.target.value)
-            }
+            width: columnWidth.xl
         },
         is_active : {
             label: 'Status',
             align: 'right',
-            width: columnWidth.m,
-            input: {
-              type: inputTypes.select,
-              value: isActive,
-              setValue: (event) =>  setIsActive(event.target.value),
-              options: [
-                {
-                  label: 'Active',
-                  value: true
-                },
-                {
-                  label: 'Inactive',
-                  value: false
-                }
-              ]      
-            }
+            width: columnWidth.m
         },
         is_staff : {
             label: 'Role',
             align: 'right',
-            width: columnWidth.m,
-            input: {
-              type: inputTypes.select,
-              value: isStaff,
-              setValue: (event) =>  setIsStaff(event.target.value),
-              options: [
-                {
-                  label: 'Doctor',
-                  value: false
-                },
-                {
-                  label: 'Administrator',
-                  value: true
-                }
-              ]      
-            }
-        },
+            width: columnWidth.m
+        }
     }
     
     const onSortAsc = (key) => {
@@ -260,16 +222,26 @@ export default function UserManagementList(props){
     }
     
     const resetFilters = () => {
-        setFirstName('');
-        setLastName('');
-        setUsername('');
-        setId('');
-        setEmail('');
-        setIsActive(null);
-        setIsStaff(null);
+        setFilterInput({
+            id: '',
+            firstName: '',
+            lastName: '',
+            username: '',
+            email: '',
+            isActive: null,
+            isStaff: null
+        });
         setPage(0);
         setTotalCount(0);
         setSortList([]);
+        setFilterChips({});
+    }
+
+    const handleFilter = () => {
+        return new Promise((resolve, reject) => {
+            setFilter((prevState) => !prevState);
+            resolve({});
+        });
     }
 
     const onClick = (data) => {
@@ -277,16 +249,126 @@ export default function UserManagementList(props){
     }
     
     useEffect(() => {
+        //set the chips
+        let tempFilter = {};
+        if(filterInput.id){
+            tempFilter['#'] = {
+                value: filterInput.id,
+                lookup: '',
+                onRemove: () => {
+                    setFilterInput((prevState) => {
+                        return {
+                            ...prevState,
+                            id: ''
+                        }
+                    });
+                    setFilter((prevState) => !prevState);
+                }
+            }
+        }
+        if(filterInput.firstName){
+            tempFilter['First name'] = {
+                value: filterInput.firstName,
+                lookup: '',
+                onRemove: () => {
+                    setFilterInput((prevState) => {
+                        return {
+                            ...prevState,
+                            firstName: ''
+                        }
+                    })
+                    setFilter((prevState) => !prevState);
+                }
+            }
+        }
+        if(filterInput.lastName){
+            tempFilter['Last name'] = {
+                value: filterInput.lastName,
+                lookup: '',
+                onRemove: () => {
+                    setFilterInput((prevState) => {
+                        return {
+                            ...prevState,
+                            lastName: ''
+                        }
+                    })
+                    setFilter((prevState) => !prevState);
+                }
+            }
+        }
+        if(filterInput.username){
+            tempFilter['Username'] = {
+                value: filterInput.username,
+                lookup: '',
+                onRemove: () => {
+                    setFilterInput((prevState) => {
+                        return {
+                            ...prevState,
+                            username: ''
+                        }
+                    })
+                    setFilter((prevState) => !prevState);
+                }
+            }
+        }
+        if(filterInput.email){
+            tempFilter['Email'] = {
+                value: filterInput.email,
+                lookup: '',
+                onRemove: () => {
+                    setFilterInput((prevState) => {
+                        return {
+                            ...prevState,
+                            email: ''
+                        }
+                    })
+                    setFilter((prevState) => !prevState);
+                }
+            }
+        }
+        if(filterInput.isStaff !== null){
+            tempFilter['Role'] = {
+                value: filterInput.isStaff ? 'Administrator' : 'Doctor',
+                lookup: '',
+                onRemove: () => {
+                    setFilterInput((prevState) => {
+                        return {
+                            ...prevState,
+                            isStaff: null
+                        }
+                    })
+                    setFilter((prevState) => !prevState);
+                }
+            }
+        }
+        if(filterInput.isActive !== null){
+            tempFilter['Status'] = {
+                value: filterInput.isActive ? 'Active' : 'Inactive',
+                lookup: '',
+                onRemove: () => {
+                    setFilterInput((prevState) => {
+                        return {
+                            ...prevState,
+                            isActive: null
+                        }
+                    })
+                    setFilter((prevState) => !prevState);
+                }
+            }
+        }
+        setFilterChips({...tempFilter});
+
+        //get data
         ApiService.get(
             'users/',
             {
-                username: username,
-                first_name: firstName,
-                last_name: lastName,
-                id: id,
-                email: email,
-                is_active: isActive,
-                is_staff: isStaff,
+                username: filterInput.username,
+                first_name: filterInput.firstName,
+                last_name: filterInput.lastName,
+                id: filterInput.id,
+                email: filterInput.email,
+                is_active: filterInput.isActive,
+                is_staff: filterInput.isStaff,
                 ordering: sortList.join(','),
                 page: page + 1
             }
@@ -317,102 +399,184 @@ export default function UserManagementList(props){
     },[sortList, page, filter]);
     
     const resetField = () => {
-        setCreatedUsername('');
-        setCreatedPassword('');
-        setCreatedConfirmPassword('');
-        setCreatedFirstName('');
-        setCreatedLastName('');
-        setCreatedEmail('');
-        setCreateRole(false);
+        setFormInput({
+            username: '',
+            firstName: '',
+            lastName: '',
+            email: '',
+            role: false,
+            avatar: null
+        });
     }
 
     const resetErrors = () => {
-        setUsernameError(null);
-        setPasswordError(null);
-        setConfirmPasswordError(null);
-        setFirstNameError(null);
-        setLastNameError(null);
-        setEmailError(null);
+        setError({
+            username: null,
+            firstName: null,
+            lastName: null,
+            email: null
+        });
     }
+
+    const createForm = [
+        {
+            label: 'Enter username',
+            type: inputTypes.text,
+            value: formInput.username,
+            setValue: (event) =>  {
+                setFormInput({
+                    ...formInput,
+                    username: event.target.value
+                })
+            },
+            error: error.username
+        },
+        {
+            label: 'Enter email',
+            type: inputTypes.text,
+            value: formInput.email,
+            setValue: (event) =>  {
+                setFormInput({
+                    ...formInput,
+                    email: event.target.value
+                })
+            },
+            error: error.email
+        },
+        {
+            label: 'Enter first name',
+            type: inputTypes.text,
+            value: formInput.firstName,
+            setValue: (event) =>  {
+                setFormInput({
+                    ...formInput,
+                    firstName: event.target.value
+                })
+            },
+            error: error.firstName
+        },
+        {
+            label: 'Enter last name',
+            type: inputTypes.text,
+            value: formInput.lastName,
+            setValue: (event) =>  {
+                setFormInput({
+                    ...formInput,
+                    lastName: event.target.value
+                })
+            },
+            error: error.lastName
+        },
+        {
+            label: 'avatar',
+            type: inputTypes.image,
+            value: formInput.avatar,
+            setValue: (file) =>  {
+                setFormInput({
+                    ...formInput,
+                    avatar: file
+                })
+            },
+            error: null
+        },
+        {
+            label: 'Select role',
+            type: inputTypes.select,
+            error: false,
+            value: formInput.role,
+            setValue: (event) =>  {
+                setFormInput({
+                    ...formInput,
+                    role: event.target.value
+                })
+            },
+            options: [
+                {
+                  label: 'Doctor',
+                  value: false
+                },
+                {
+                  label: 'Administrator',
+                  value: true
+                }
+            ]  
+        }
+    ];
 
     const createUser = () => {
         return new Promise((resolve, reject) => {
             let noError = true;
+            let uError = null;
+            let fError = null;
+            let lError = null;
+            let eError = null;
     
-            if (createdUsername === '') {
-                setUsernameError('Enter a username');
+            if (formInput.firstName === '') {
+                uError = 'Enter a username';
                 noError = false;
-            } else if (!/^.{6,}$/.test(createdUsername)){
-                setUsernameError('Username should be atleast 6 characters');
+            } else if (!/^.{6,}$/.test(formInput.firstName)){
+                uError = 'Username should be atleast 6 characters';
                 noError = false;
-            } else {
-                setUsernameError(null);
-            }
-    
-            if (createdPassword === '') {
-                setPasswordError('Enter a password');
-                noError = false;
-            } else if(!/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/.test(createdPassword)){
-                setPasswordError('Password should be atleast 8 characters, with alteast 1 upper case letter, 1 lower case letter, 1 number and one of these special characters ! @ # $ % ^ & *');
-                noError = false;
-            } else {
-                setPasswordError(null);
             }
 
-            if(createdConfirmPassword === ''){
-                setConfirmPasswordError('Enter a password');
+            if(formInput.email === ''){
+                eError = 'Enter an email';
                 noError = false;
-            } else if (createdPassword !== createdConfirmPassword){
-                setConfirmPasswordError('Does not match entered password');
+            } else if (!/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/.test(formInput.email)){
+                eError = 'Please enter a valid email';
                 noError = false;
-            } else {
-                setConfirmPasswordError(null);
             }
 
-            if(createdEmail === ''){
-                setEmailError('Enter an email');
+            if(formInput.firstName === ''){
+                fError = 'Enter first name';
                 noError = false;
-            } else if (!/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/.test(createdEmail)){
-                setEmailError('Please enter a valid email');
-                noError = false;
-            } else {
-                setEmailError(null);
             }
 
-            if(createdFirstName === ''){
-                setFirstNameError('Enter first name');
+            if(formInput.lastName === ''){
+                lError = 'Enter first name';
                 noError = false;
-            } else {
-                setFirstNameError(null);
-            }
-
-            if(createdLastName === ''){
-                setLastNameError('Enter first name');
-                noError = false;
-            } else {
-                setLastNameError(null);
             }
     
             if (noError) {
                 ApiService.post(
                     'auth/users/',
                     {
-                        username: createdUsername,
-                        password: createdPassword,
-                        first_name: createdFirstName,
-                        last_name: createdLastName,
-                        email: createdEmail,
-                        is_staff: createRole
+                        username: formInput.username,
+                        first_name: formInput.firstName,
+                        last_name: formInput.lastName,
+                        email: formInput.email,
+                        is_staff: formInput.role
                     }
                 )
                 .then((res) => {
-                    dispatch(updateToast({
-                        bodyMessage : 'User created successfully.',
-                        isVisible : true,
-                        type: 'success'
-                    }))
-                    setFilter(!filter);
-                    resolve(res.data);
+                    const form = new FormData();
+                    form.append('avatar', formInput.avatar);
+                    ApiService.post(
+                        `users/${res.data.id}/avatars/`,
+                        form,
+                        {
+                            headers: {
+                                'Content-Type': 'multipart/form-data',
+                            },
+                        }
+                    ).then((ires) => {
+                        dispatch(updateToast({
+                            bodyMessage : 'User created successfully.',
+                            isVisible : true,
+                            type: 'success'
+                        }))
+                        setFilter(!filter);
+                        resolve(res.data);
+                    })
+                    .catch((err) => {
+                        dispatch(updateToast({
+                            bodyMessage : 'User created successfully, but failed to add your avatar.',
+                            isVisible : true,
+                            type: 'success'
+                        }))
+                        setFilter(!filter);
+                        resolve(res.data);
+                    });
                 })
                 .catch((err) => {
                     dispatch(updateToast({
@@ -433,16 +597,23 @@ export default function UserManagementList(props){
     
     return <>
         <Container>
-        <ModalForm
-            buttonLabel={'Create user'}
-            formTitle={'Create user'}
-            buttonVariant="contained"
-            formFields={createForm}
-            onFormClose={() => {
-                resetField();
-                resetErrors();
-            }}
-            onSubmit={createUser}/>
+        <Filter
+            leftButton={
+                <ModalForm
+                buttonLabel={'Create user'}
+                formTitle={'Create user'}
+                buttonVariant="contained"
+                formFields={createForm}
+                onFormClose={() => {
+                    resetField();
+                    resetErrors();
+                }}
+                onSubmit={createUser}/>
+            }
+            onFilter={handleFilter}
+            onReset={resetFilters}
+            filterForm={filterForm}
+            filters={filterChips}/>
         </Container>
         <PaginationTable
         headers = {header}

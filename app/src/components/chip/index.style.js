@@ -8,7 +8,8 @@ const Container = styled(Box)(({theme, align}) => ({
 
 const Pill = styled(Box)(({theme, variant}) => ({
     display: 'flex',
-    padding: '10px',
+    paddingBlock: '3px',
+    paddingInline: '10px',
     border: `2px solid ${variant}`,
     gap: '5px',
     borderRadius: 5,

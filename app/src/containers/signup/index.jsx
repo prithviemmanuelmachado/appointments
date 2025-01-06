@@ -157,7 +157,6 @@ export default function Signup(props){
                     }
                 )
                 .then((res) => {
-                    console.log(res.data)
                     const form = new FormData();
                     form.append('avatar', input.avatar);
                     ApiService.post(
