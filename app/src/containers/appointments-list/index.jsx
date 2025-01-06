@@ -8,6 +8,7 @@ import moment from 'moment';
 import { Container } from "./index.style";
 import ModalForm from "../../components/modal-form";
 import Chip from "../../components/chip";
+import Filter from "../../components/filter";
 
 export default function AppointmentList(props){
     const {
@@ -16,24 +17,34 @@ export default function AppointmentList(props){
     const dispatch = useDispatch();
     const profile = useSelector(state => state.profile);
 
-    const [createdate, setcreateDate] = useState(null);
-    const [createtime, setcreateTime] = useState(null);
-    const [createvisitType, setcreateVisitType] = useState(null);
-    const [createcreatedFor, setcreateCreatedFor] = useState(null);
-    const [desc, setDesc] = useState('');
+    const [filterInput, setFilterInput] = useState({
+        id: '',
+        date: null,
+        time: null,
+        dateLookup: 'e',
+        timeLookup: 'e',
+        visitType: null,
+        createdFor: '',
+        isClosed: null
+    });
 
-    const [dateError, setDateError] = useState(null);
-    const [timeError, setTimeError] = useState(null);
-    const [visitTypeError, setVisitTypeError] = useState(null);
-    const [createdForError, setCreatedForError] = useState(null);
-    const [descError, setDescError] = useState(null);
+    const [filterChips, setFilterChips] = useState({});
 
-    const [id, setId] = useState('');
-    const [date, setDate] = useState(null);
-    const [time, setTime] = useState(null);
-    const [visitType, setVisitType] = useState(null);
-    const [createdFor, setCreatedFor] = useState('');
-    const [isClosed, setIsClosed] = useState(null);
+    const [formInput, setFormInput] = useState({
+        date: null,
+        time: null,
+        visitType: null,
+        createdFor: null,
+        desc: ''
+    });
+    
+    const [error, setError] = useState({
+        date: null,
+        time: null,
+        visitType: null,
+        createdFor: null,
+        desc: null
+    });
 
     const [page, setPage] = useState(0);
     const [sortList, setSortList] = useState([]);
@@ -43,96 +54,179 @@ export default function AppointmentList(props){
 
     const [doctors, setDoctors] = useState([]);
 
+    const filterForm = [
+        {
+            label: '#',
+            type: inputTypes.text,
+            value: filterInput.id,
+            setValue: (event) =>  setFilterInput({
+                ...filterInput,
+                id: event.target.value
+            })
+        },
+        [
+            {
+                width: '40%',
+                error: false,
+                type: inputTypes.select,
+                value: filterInput.dateLookup,
+                setValue: (event) =>  setFilterInput({
+                    ...filterInput,
+                    dateLookup: event.target.value
+                }),
+                options: [
+                  {
+                    label: 'On',
+                    value: 'e'
+                  },
+                  {
+                    label: 'Before',
+                    value: 'lt'
+                  },
+                  {
+                    label: 'After',
+                    value: 'gt'
+                  }
+                ]      
+            },
+            {
+                width: '60%',
+                label: 'Date',
+                type: inputTypes.date,
+                value: filterInput.date,
+                setValue: (value) =>  {
+                    const parsedDate = moment(value);
+                    setFilterInput({
+                        ...filterInput,
+                        date: parsedDate
+                    });
+                }
+            },
+        ],
+        [
+            {
+                width: '40%',
+                error: false,
+                type: inputTypes.select,
+                value: filterInput.timeLookup,
+                setValue: (event) =>  setFilterInput({
+                    ...filterInput,
+                    timeLookup: event.target.value
+                }),
+                options: [
+                  {
+                    label: 'On',
+                    value: 'e'
+                  },
+                  {
+                    label: 'Before',
+                    value: 'lt'
+                  },
+                  {
+                    label: 'After',
+                    value: 'gt'
+                  }
+                ]      
+            },
+            {
+                width: '60%',
+                label: 'Time',
+                type: inputTypes.time,
+                value: filterInput.time,
+                setValue: (value) =>  {
+                    const parsedTime = moment(value);
+                    setFilterInput({
+                        ...filterInput,
+                        time: parsedTime
+                    });
+                }
+            },
+        ],
+        {
+            label: 'Visit type',
+            error: false,
+            type: inputTypes.select,
+            value: filterInput.visitType,
+            setValue: (event) =>  setFilterInput({
+                ...filterInput,
+                visitType: event.target.value
+            }),
+            options: [
+              {
+                label: 'In person',
+                value: 'I'
+              },
+              {
+                label: 'Virtual',
+                value: 'V'
+              }
+            ]      
+        },
+        {
+            label: 'Created for',
+            type: inputTypes.text,
+            value: filterInput.createdFor,
+            setValue: (event) =>  setFilterInput({
+                ...filterInput,
+                createdFor: event.target.value
+            })
+        },
+        {
+            label: 'Status',
+            error: false,
+            type: inputTypes.select,
+            value: filterInput.isClosed,
+            setValue: (event) =>  setFilterInput({
+                ...filterInput,
+                isClosed: event.target.value
+            }),
+            options: [
+              {
+                label: 'Closed',
+                value: true
+              },
+              {
+                label: 'Open',
+                value: false
+              }
+            ]      
+        }
+    ];
+
     const header = {
         id: {
           label: '#',
           align: 'left',
           canSort: true,
-          width: columnWidth.xs,
-          input: {
-            type: inputTypes.text,
-            value: id,
-            setValue: (event) =>  setId(event.target.value)
-          }
+          width: columnWidth.xs
         },
         date : {
           label: 'Appointment date',
           align: 'left',
           canSort: true,
-          width: columnWidth.l,
-          input: {
-            type: inputTypes.date,
-            value: date,
-            setValue: (value) =>  {
-                const parsedDate = moment(value);
-                setDate(parsedDate);
-            }
-          }
+          width: columnWidth.l
         },
         time : {
             label: 'Appointment time',
             align: 'left',
             canSort: true,
-            width: columnWidth.l,
-            input: {
-                type: inputTypes.time,
-                value: time,
-                setValue: (value) =>  {
-                    const parsedTime = moment(value);
-                    setTime(parsedTime);
-                }
-            }
+            width: columnWidth.l
         },
         visit_type : {
             label: 'Visit type',
             align: 'right',
             width: columnWidth.m,
-            input: {
-              type: inputTypes.select,
-              value: visitType,
-              setValue: (event) =>  setVisitType(event.target.value),
-              options: [
-                {
-                  label: 'In person',
-                  value: 'I'
-                },
-                {
-                  label: 'Virtual',
-                  value: 'V'
-                }
-              ]      
-            }
         },
         created_for : {
             label: 'Created for',
             align: 'left',
             canSort: true,
-            width: columnWidth.xl,
-            input: {
-              type: inputTypes.text,
-              value: createdFor,
-              setValue: (event) =>  setCreatedFor(event.target.value)
-            }
+            width: columnWidth.xl
         },
         is_closed : {
             label: 'Status',
             align: 'right',
-            width: columnWidth.m,
-            input: {
-              type: inputTypes.select,
-              value: isClosed,
-              setValue: (event) =>  setIsClosed(event.target.value),
-              options: [
-                {
-                  label: 'Closed',
-                  value: true
-                },
-                {
-                  label: 'Open',
-                  value: false
-                }
-              ]      
-            }
+            width: columnWidth.m
         },
     }
     
@@ -179,15 +273,27 @@ export default function AppointmentList(props){
     }
     
     const resetFilters = () => {
-        setId('');
-        setDate(null);
-        setTime(null);
-        setCreatedFor('');
-        setIsClosed(null);
-        setVisitType(null);
+        setFilterInput({
+            id: '',
+            date: null,
+            time: null,
+            visitType: null,
+            createdFor: '',
+            isClosed: null,
+            dateLookup: 'e',
+            timeLookup: 'e'
+        })
         setPage(0);
         setTotalCount(0);
         setSortList([]);
+        setFilterChips({});
+    }
+
+    const handleFilter = () => {
+        return new Promise((resolve, reject) => {
+            setFilter((prevState) => !prevState);
+            resolve({});
+        });
     }
 
     const onClick = (data) => {
@@ -195,18 +301,140 @@ export default function AppointmentList(props){
     }
     
     useEffect(() => {
+        //set the chips
+        let tempFilter = {};
+        if(filterInput.id){
+            tempFilter['#'] = {
+                value: filterInput.id,
+                lookup: '',
+                onRemove: () => {
+                    setFilterInput((prevState) => {
+                        return {
+                            ...prevState,
+                            id: ''
+                        }
+                    });
+                    setFilter((prevState) => !prevState);
+                }
+            }
+        }
+        if(filterInput.date){
+            tempFilter['Date'] = {
+                value: filterInput.date.format('DD MMM, YYYY'),
+                lookup: filterInput.dateLookup === 'gt' ? 'After' :
+                        filterInput.dateLookup === 'lt' ? 'Before' : '',
+                onRemove: () => {
+                    setFilterInput((prevState) => {
+                        return {
+                            ...prevState,
+                            date: null,
+                            dateLookup: 'e'
+                        }
+                    });
+                    setFilter((prevState) => !prevState);
+                }
+            }
+        }
+        if(filterInput.time){
+            tempFilter['Time'] = {
+                value: filterInput.time.format('hh:mm A'),
+                lookup: filterInput.timeLookup === 'gt' ? 'After' :
+                        filterInput.timeLookup === 'lt' ? 'Before' : '',
+                onRemove: () => {
+                    setFilterInput((prevState) => {
+                        return {
+                            ...prevState,
+                            time: null,
+                            timeLookup: 'e'
+                        }
+                    })
+                    setFilter((prevState) => !prevState);
+                }
+            }
+        }
+        if(filterInput.visitType){
+            tempFilter['Visit type'] = {
+                value: filterInput.visitType === "V" ? "Virtual" : "In Person",
+                lookup: '',
+                onRemove: () => {
+                    setFilterInput((prevState) => {
+                        return {
+                            ...prevState,
+                            visitType: null
+                        }
+                    })
+                    setFilter((prevState) => !prevState);
+                }
+            }
+        }
+        if(filterInput.createdFor){
+            tempFilter['Created for'] = {
+                value: filterInput.createdFor,
+                lookup: '',
+                onRemove: () => {
+                    setFilterInput((prevState) => {
+                        return {
+                            ...prevState,
+                            createdFor: ''
+                        }
+                    })
+                    setFilter((prevState) => !prevState);
+                }
+            }
+        }
+        if(filterInput.isClosed){
+            tempFilter['Status'] = {
+                value: filterInput.isClosed,
+                lookup: '',
+                onRemove: () => {
+                    setFilterInput((prevState) => {
+                        return {
+                            ...prevState,
+                            isClosed: ''
+                        }
+                    })
+                    setFilter((prevState) => !prevState);
+                }
+            }
+        }
+        setFilterChips({...tempFilter});
+
+        //construct params
+        let appointmentParams = {
+            id: filterInput.id,
+            created_for: filterInput.createdFor,
+            is_closed: filterInput.isClosed,
+            visit_type: filterInput.visitType,
+            ordering: sortList.join(','),
+            page: page + 1
+        }
+        if(filterInput.date){
+            if(filterInput.dateLookup === 'e'){
+                appointmentParams['date'] = filterInput.date.format('YYYY-MM-DD');
+            }
+            if(filterInput.dateLookup === 'lt'){
+                appointmentParams['date__lt'] = filterInput.date.format('YYYY-MM-DD');
+            }
+            if(filterInput.dateLookup === 'gt'){
+                appointmentParams['date__gt'] = filterInput.date.format('YYYY-MM-DD');
+            }
+        }
+        if(filterInput.time){
+            if(filterInput.timeLookup === 'e'){
+                appointmentParams['time'] = filterInput.time.format('HH:mm:ss');
+            }
+            if(filterInput.timeLookup === 'lt'){
+                appointmentParams['time__lt'] = filterInput.time.format('HH:mm:ss');
+            }
+            if(filterInput.timeLookup === 'gt'){
+                appointmentParams['time__gt'] = filterInput.time.format('HH:mm:ss');
+            }
+        }
+
+        //ping the server
         ApiService.get(
             'appointments/',
-            {
-                id: id,
-                date: date ? date.format('YYYY-MM-DD') : null,
-                time: time ? time.format('HH:mm:ss') : null,
-                created_for: createdFor,
-                is_closed: isClosed,
-                visit_type: visitType,
-                ordering: sortList.join(','),
-                page: page + 1
-            }
+            appointmentParams
         )
         .then((res) => {
             setTotalCount(res.data.count);
@@ -237,19 +465,23 @@ export default function AppointmentList(props){
     },[sortList, page, filter])
 
     const resetField = () => {
-        setcreateDate(null);
-        setcreateTime(null);
-        setcreateVisitType(null);
-        setcreateCreatedFor(null);
-        setDesc(null);
+        setFormInput({
+            date: null,
+            time: null,
+            visitType: null,
+            createdFor: null,
+            desc: ''
+        });
     }
 
     const resetErrors = () => {
-        setDateError(null);
-        setTimeError(null);
-        setVisitTypeError(null);
-        setCreatedForError(null);
-        setDescError(null);
+        setError({
+            date: null,
+            time: null,
+            visitType: null,
+            createdFor: null,
+            desc: null
+        });
     }
 
     useEffect(() => {
@@ -278,30 +510,39 @@ export default function AppointmentList(props){
     let createForm = [
         {
             label: 'Select appointement date',
-            error: dateError,
+            error: error.date,
             type: inputTypes.date,
-            value: createdate,
+            value: formInput.date,
             setValue: (value) =>  {
                 const parsedDate = moment(value);
-                setcreateDate(parsedDate);
+                setFormInput({
+                    ...formInput,
+                    date: parsedDate
+                });
             }
         },
         {
             label: 'Select appointement time',
-            error: timeError,
+            error: error.time,
             type: inputTypes.time,
-            value: createtime,
+            value: formInput.time,
             setValue: (value) =>  {
                 const parsedTime = moment(value);
-                setcreateTime(parsedTime);
+                setFormInput({
+                    ...formInput,
+                    time: parsedTime
+                });
             }
         },
         {
             label: 'Select visit type',
-            error: visitTypeError,
+            error: error.visitType,
             type: inputTypes.select,
-            value: createvisitType,
-            setValue: (event) =>  setcreateVisitType(event.target.value),
+            value: formInput.visitType,
+            setValue: (event) =>  setFormInput({
+                ...formInput,
+                visitType: event.target.value
+            }),
             options: [
                 {
                   label: 'In person',
@@ -318,69 +559,82 @@ export default function AppointmentList(props){
     if(profile.isStaff){
         createForm.push({
             label: 'Select who the appointment is for',
-            error: createdForError,
+            error: error.createdFor,
             type: inputTypes.select,
-            value: createcreatedFor,
-            setValue: (event) =>  setcreateCreatedFor(event.target.value),
+            value: formInput.createdFor,
+            setValue: (event) =>  setFormInput({
+                ...formInput,
+                createdFor: event.target.value
+            }),
             options: doctors
         })
     }
 
     createForm.push({
         label: 'Description',
-        error: descError,
+        error: error.desc,
         type: inputTypes.textArea,
-        value: desc,
-        setValue: (event) =>  setDesc(event.target.value)
+        value: formInput.desc,
+        setValue: (event) =>  setFormInput({
+            ...formInput,
+            desc: event.target.value
+        })
     })
 
     const createAppointment = () => {
         return new Promise((resolve, reject) => {
             let noError = true;
+            let dtError = null;
+            let tError = null;
+            let vError = null;
+            let cError = null;
+            let dError = null;
 
-            if(createdate === null){
-                setDateError('Please select a date');
+            if(formInput.date === null){
+                dtError = 'Please select a date';
                 noError = false;
-            } else if (moment(createdate).isSameOrBefore(moment().startOf('day'))){
-                setDateError('Please select a date after today');
-                noError = false;
-            } else {
-                setDateError(null);
-            }
-
-            if(createtime === null){
-                setTimeError('Please selecct a time');
-                noError = false;
-            } else {
-                setTimeError(null);
-            }
-
-            if(createcreatedFor === null && profile.isStaff){
-                setCreatedForError('Please select a doctor');
-                noError = false;
-            } else {
-                setCreatedForError(null);
-            }
-
-            if(createvisitType === null){
-                setVisitTypeError('Please select a vist type');
+            } else if (moment(formInput.date).isSameOrBefore(moment().startOf('day'))){
+                dtError = 'Please select a date after today';
                 noError = false;
             }
 
-            if(!desc){
-                setDescError('Please enter a description');
+            if(formInput.time === null){
+                tError = 'Please selecct a time';
                 noError = false;
             }
+
+            if(formInput.createdFor === null && profile.isStaff){
+                cError = 'Please select a doctor';
+                noError = false;
+            }
+
+            if(formInput.visitType === null){
+                vError = 'Please select a vist type';
+                noError = false;
+            }
+
+            if(!formInput.desc){
+                dError = 'Please enter a description';
+                noError = false;
+            }
+
+            setError({
+                date: dtError,
+                time: tError,
+                visitType: vError,
+                createdFor: cError,
+                desc: dError
+            })
 
             if(noError){
                 ApiService.post(
                     'appointments/',
                     {
-                        "date": moment(createdate).format('YYYY-MM-DD'),
-                        "time": moment(createtime).format('HH:mm:ss'),
-                        "visit_type": createvisitType,
-                        "created_for": createcreatedFor,
-                        "description": desc
+                        "date": moment(formInput.date).format('YYYY-MM-DD'),
+                        "time": moment(formInput.time).format('HH:mm:ss'),
+                        "visit_type": formInput.visitType,
+                        "created_for": formInput.createdFor,
+                        "description": formInput.desc
                     }
                     
                 )
@@ -413,16 +667,23 @@ export default function AppointmentList(props){
     
     return <>
         <Container>
-        <ModalForm
-            buttonLabel={'Create appointment'}
-            formTitle={'Create appointment'}
-            buttonVariant="contained"
-            formFields={createForm}
-            onFormClose={() => {
-                resetField();
-                resetErrors();
-            }}
-            onSubmit={createAppointment}/>
+        <Filter
+            leftButton={
+                <ModalForm
+                buttonLabel={'Create appointment'}
+                formTitle={'Create appointment'}
+                buttonVariant="contained"
+                formFields={createForm}
+                onFormClose={() => {
+                    resetField();
+                    resetErrors();
+                }}
+                onSubmit={createAppointment}/>
+            }
+            onFilter={handleFilter}
+            onReset={resetFilters}
+            filterForm={filterForm}
+            filters={filterChips}/>
         </Container>
         <PaginationTable
         headers = {header}

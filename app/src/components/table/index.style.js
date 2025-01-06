@@ -22,6 +22,7 @@ const HeaderLabel = styled(Typography)(({theme}) => ({
     fontSize: 16,
     fontWeight: 'bold',
     color: theme.palette.unfocused.main,
+    cursor: 'default'
 }))
 
 const SortContainer = styled(Box)(({theme}) => ({

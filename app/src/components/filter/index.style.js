@@ -12,6 +12,7 @@ const Container = styled(Box)(({theme}) => ({
 
 const ButtonContainer = styled(Box)(({theme}) => ({
     width: '100%',
+    height: '50%',
     display: 'flex',
     justifyContent: 'center',
     alignItems: 'center',
@@ -34,6 +35,7 @@ const RightButtons = styled(Box)(({theme}) => ({
 
 const ChipContainer = styled(Box)(({theme}) => ({
     maxWidth:'75vw',
+    height: '50%',
     display: 'flex',
     justifyContent: 'flex-start',
     alignItems: 'center',
