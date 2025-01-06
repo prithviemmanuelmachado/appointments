@@ -52,12 +52,14 @@ const Container = styled(Box)(({theme}) => ({
     backgroundColor: theme.palette.background.paper
 }))
 
-const InputContainer = styled(Box)(({theme}) => ({
-    width: '100%',
+const InputContainer = styled(Box)(({theme, width, isRow, noPadding}) => ({
+    width: width ?? '100%',
     display: 'flex',
-    paddingInline: '2%',
+    alignItems: isRow && 'flex-end',
+    paddingInline: noPadding ? 0 : '2%',
+    paddingInlineEnd: noPadding && '2%',
     paddingBlock: '1%',
-    flexDirection: 'column'
+    flexDirection: isRow ? 'row' : 'column'
 }))
 
 const Label = styled(Typography)(({theme}) => ({

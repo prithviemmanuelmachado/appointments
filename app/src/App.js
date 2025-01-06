@@ -6,12 +6,13 @@ import { Body, Container, Header } from './App.style';
 import NavBar from './containers/nav-bar';
 import { updateToast } from "./store/toastSlice";
 import { useDispatch, useSelector } from 'react-redux';
-import { Alert, Snackbar } from '@mui/material';
+import { Alert, GlobalStyles, Snackbar } from '@mui/material';
 import AppointmentList from './containers/appointments-list';
 import UserManagementList from './containers/user-management-list';
 import ProtectedRoute from './components/protected-route';
 import UserDetails from './containers/user-details';
 import AppointmentDetails from './containers/appointment-details';
+import { chipVariant } from './constants';
 
 function App() {
   const toast = useSelector(state => state.toast);
@@ -28,6 +29,20 @@ function App() {
   };
 
   return <ErrorBoundary navigate={navigate}>
+    <GlobalStyles
+        styles={{
+          '*::-webkit-scrollbar': {
+            width: '0.5em',
+            height: '0.5rem',
+          },
+          '*::-webkit-scrollbar-track': {
+            '-webkit-box-shadow': 'inset 0 0 6px rgba(0,0,0,0.00)'
+          },
+          '*::-webkit-scrollbar-thumb': {
+            backgroundColor: chipVariant.primary,
+            outline: chipVariant.primary
+          }
+        }}/>
     <Snackbar
       autoHideDuration={6000}
       anchorOrigin={{

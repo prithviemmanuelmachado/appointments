@@ -92,7 +92,8 @@ export default function PaginationTable(props){
     return <>
     <TableContainer
         sx={{
-            maxHeight: '70%'
+            maxHeight: '75%',
+            minHeight: '75%'
         }}>
         <Table
             stickyHeader={true}
