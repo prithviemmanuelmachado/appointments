@@ -8,6 +8,7 @@ import ModalForm from "../../components/modal-form";
 import { Container } from "./index.style";
 import Chip from "../../components/chip";
 import Filter from "../../components/filter";
+import { useQuery } from '@tanstack/react-query';
 
 export default function UserManagementList(props){
     const {
@@ -44,65 +45,39 @@ export default function UserManagementList(props){
     const [page, setPage] = useState(0);
     const [sortList, setSortList] = useState([]);
     const [filter, setFilter] = useState(true);
-    const [data, setData] = useState([]);
-    const [totalCount, setTotalCount] = useState(0);
     const [filterChips, setFilterChips] = useState({});
 
     const filterForm = [
         {
             label: '#',
             type: inputTypes.text,
-            value: filterInput.id,
-            setValue: (event) =>  setFilterInput({
-                ...filterInput,
-                id: event.target.value
-            })
+            key: 'id',
         },
         {
             label: 'First name',
             type: inputTypes.text,
-            value: filterInput.firstName,
-            setValue: (event) =>  setFilterInput({
-                ...filterInput,
-                firstName: event.target.value
-            })
+            key: 'firstName',
         },
         {
             label: 'Last name',
             type: inputTypes.text,
-            value: filterInput.lastName,
-            setValue: (event) =>  setFilterInput({
-                ...filterInput,
-                lastName: event.target.value
-            })
+            key: 'lastName',
         },
         {
             label: 'Username',
             type: inputTypes.text,
-            value: filterInput.username,
-            setValue: (event) =>  setFilterInput({
-                ...filterInput,
-                username: event.target.value
-            })
+            key: 'username',
         },
         {
             label: 'Email',
             type: inputTypes.text,
-            value: filterInput.email,
-            setValue: (event) =>  setFilterInput({
-                ...filterInput,
-                email: event.target.value
-            })
+            key: 'email',
         },
         {
             label: 'Status',
             type: inputTypes.select,
-            value: filterInput.isActive,
+            key: 'isActive',
             error: false,
-            setValue: (event) =>  setFilterInput({
-                ...filterInput,
-                isActive: event.target.value
-            }),
             options: [
               {
                 label: 'Active',
@@ -117,12 +92,8 @@ export default function UserManagementList(props){
         {
             label: 'Role',
             type: inputTypes.select,
-            value: filterInput.isStaff,
+            key: 'isStaff',
             error: false,
-            setValue: (event) =>  setFilterInput({
-                ...filterInput,
-                isStaff: event.target.value
-            }),
             options: [
               {
                 label: 'Doctor',
@@ -232,7 +203,6 @@ export default function UserManagementList(props){
             isStaff: null
         });
         setPage(0);
-        setTotalCount(0);
         setSortList([]);
         setFilterChips({});
     }
@@ -247,6 +217,59 @@ export default function UserManagementList(props){
     const onClick = (data) => {
         navigate(`user-management-list/${data.id}/`)
     }
+
+    const fetchUserData = ({ queryKey }) => {
+        const [, { sortList, page, filterInput }] = queryKey;
+        return ApiService.get('users/', {
+            username: filterInput.username,
+            first_name: filterInput.firstName,
+            last_name: filterInput.lastName,
+            id: filterInput.id,
+            email: filterInput.email,
+            is_active: filterInput.isActive,
+            is_staff: filterInput.isStaff,
+            ordering: sortList.join(','),
+            page: page + 1,
+        });
+    };
+
+    const { data: userData, isLoading, isError } = useQuery({
+        queryKey: ['userData', { sortList, page, filterInput }],
+        queryFn: fetchUserData,
+        staleTime: 24 * 60 * 60 * 1000, // 1 day in milliseconds
+        cacheTime: 24 * 60 * 60 * 1000, // 1 day in milliseconds
+        select: (res) => {
+            return {
+                totalCount: res.data.count,
+                results: res.data.results.map((data) => ({
+                    ...data,
+                    is_active: (
+                        <Chip
+                            align={'flex-end'}
+                            label={data.is_active ? 'Active' : 'Inactive'}
+                            variant={data.is_active ? chipVariant.active : chipVariant.inactive}
+                        />
+                    ),
+                    is_staff: (
+                        <Chip
+                            align={'flex-end'}
+                            label={data.is_staff ? 'Administrator' : 'Doctor'}
+                            variant={data.is_staff ? chipVariant.admin : chipVariant.doctor}
+                        />
+                    ),
+                })),
+            };
+        },
+        onError: (err) => {
+            dispatch(
+                updateToast({
+                    bodyMessage: err.response?.data || 'An error occurred',
+                    isVisible: true,
+                    type: 'error',
+                })
+            );
+        }
+    });
     
     useEffect(() => {
         //set the chips
@@ -357,46 +380,7 @@ export default function UserManagementList(props){
             }
         }
         setFilterChips({...tempFilter});
-
-        //get data
-        ApiService.get(
-            'users/',
-            {
-                username: filterInput.username,
-                first_name: filterInput.firstName,
-                last_name: filterInput.lastName,
-                id: filterInput.id,
-                email: filterInput.email,
-                is_active: filterInput.isActive,
-                is_staff: filterInput.isStaff,
-                ordering: sortList.join(','),
-                page: page + 1
-            }
-        )
-        .then((res) => {
-            setTotalCount(res.data.count);
-            setData(res.data.results.map((data) => {
-                return {
-                    ...data,
-                    is_active: <Chip
-                                align={'flex-end'}
-                                label={data.is_active ? 'Active' : 'Inactive'}
-                                variant={data.is_active ? chipVariant.active : chipVariant.inactive}/>,
-                    is_staff: <Chip
-                                align={'flex-end'}
-                                label={data.is_staff ? 'Administrator' : 'Doctor'}
-                                variant={data.is_staff ? chipVariant.admin : chipVariant.doctor}/>
-                }
-            }));
-        })
-        .catch((err) => {
-            dispatch(updateToast({
-                bodyMessage : err.response.data,
-                isVisible : true,
-                type: 'error'
-            }))
-        })
-    },[sortList, page, filter]);
+    },[filter]);
     
     const resetField = () => {
         setFormInput({
@@ -422,74 +406,38 @@ export default function UserManagementList(props){
         {
             label: 'Enter username',
             type: inputTypes.text,
-            value: formInput.username,
-            setValue: (event) =>  {
-                setFormInput({
-                    ...formInput,
-                    username: event.target.value
-                })
-            },
+            key: 'username',
             error: error.username
         },
         {
             label: 'Enter email',
             type: inputTypes.text,
-            value: formInput.email,
-            setValue: (event) =>  {
-                setFormInput({
-                    ...formInput,
-                    email: event.target.value
-                })
-            },
+            key: 'email',
             error: error.email
         },
         {
             label: 'Enter first name',
             type: inputTypes.text,
-            value: formInput.firstName,
-            setValue: (event) =>  {
-                setFormInput({
-                    ...formInput,
-                    firstName: event.target.value
-                })
-            },
+            key: 'firstName',
             error: error.firstName
         },
         {
             label: 'Enter last name',
             type: inputTypes.text,
-            value: formInput.lastName,
-            setValue: (event) =>  {
-                setFormInput({
-                    ...formInput,
-                    lastName: event.target.value
-                })
-            },
+            key: 'lastName',
             error: error.lastName
         },
         {
             label: 'avatar',
             type: inputTypes.image,
-            value: formInput.avatar,
-            setValue: (file) =>  {
-                setFormInput({
-                    ...formInput,
-                    avatar: file
-                })
-            },
+            key: 'avatar',
             error: null
         },
         {
             label: 'Select role',
             type: inputTypes.select,
             error: false,
-            value: formInput.role,
-            setValue: (event) =>  {
-                setFormInput({
-                    ...formInput,
-                    role: event.target.value
-                })
-            },
+            key: 'role',
             options: [
                 {
                   label: 'Doctor',
@@ -511,7 +459,7 @@ export default function UserManagementList(props){
             let lError = null;
             let eError = null;
     
-            if (formInput.firstName === '') {
+            if (formInput.username === '') {
                 uError = 'Enter a username';
                 noError = false;
             } else if (!/^.{6,}$/.test(formInput.firstName)){
@@ -533,9 +481,16 @@ export default function UserManagementList(props){
             }
 
             if(formInput.lastName === ''){
-                lError = 'Enter first name';
+                lError = 'Enter last name';
                 noError = false;
             }
+
+            setError({
+                username: uError,
+                lastName: lError,
+                firstName: fError,
+                email: eError
+            })
     
             if (noError) {
                 ApiService.post(
@@ -617,7 +572,7 @@ export default function UserManagementList(props){
         </Container>
         <PaginationTable
         headers = {header}
-        data = {data}
+        data = {userData?.results || []}
         pageNumber = {page}
         setPageNumber = {setPage}
         onFilter = {() => setFilter(!filter)}
@@ -625,7 +580,7 @@ export default function UserManagementList(props){
         onSortAsc = {onSortAsc}
         onSortDesc = {onSortDesc}
         sortList = {sortList}
-        totalCount={totalCount}
+        totalCount={userData?.totalCount || 0}
         onRowClick={onClick}/>
     </>
 }

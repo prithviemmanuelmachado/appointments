@@ -43,8 +43,6 @@ export default function AppointmentList(props){
     const [page, setPage] = useState(0);
     const [sortList, setSortList] = useState([]);
 
-    const [doctors, setDoctors] = useState([]);
-
     const filterForm = [
         {
             label: '#',
@@ -425,28 +423,33 @@ export default function AppointmentList(props){
         });
     }
 
-    useEffect(() => {
-        if(profile.isStaff){
-            ApiService.get(
-                'users/doctors/'
-            )
-            .then((res) => {
-                setDoctors(res.data.map((doctor) => {
-                    return {
-                        label: `${doctor.first_name} ${doctor.last_name}`,
-                        value: doctor.id
-                    }
-                }))
-            })
-            .catch((err) => {
-                dispatch(updateToast({
-                    bodyMessage : err.response.data,
-                    isVisible : true,
-                    type: 'error'
-                }));
-            })
+    const fetchDoctorData = () => {
+        return ApiService.get(
+            'users/doctors/'
+        );
+    };
+    
+    const { data: doctors } = useQuery({
+        queryKey: ['doctors'],
+        queryFn: fetchDoctorData,
+        staleTime: 24 * 60 * 60 * 1000, // 1 day in milliseconds
+        cacheTime: 24 * 60 * 60 * 1000, // 1 day in milliseconds
+        select: (res) => {
+            return res.data.map((data) => ({
+                label: `${data.first_name} ${data.last_name}`,
+                value: data.id
+            }));
+        },
+        onError: (err) => {
+            dispatch(
+                updateToast({
+                    bodyMessage: err.response?.data || 'An error occurred',
+                    isVisible: true,
+                    type: 'error',
+                })
+            );
         }
-    }, [])
+    });
 
     let createForm = [
         {
@@ -484,7 +487,7 @@ export default function AppointmentList(props){
             label: 'Select who the appointment is for',
             error: error.createdFor,
             type: inputTypes.select,
-            options: doctors,
+            options: doctors ?? [],
             key: 'createdFor'
         })
     }
@@ -582,7 +585,6 @@ export default function AppointmentList(props){
 
     const handleFilter = (data) => {
         return new Promise((resolve, reject) => {
-            console.log(data)
             setFilterInput(data)
             resolve(data)
         })

@@ -12,14 +12,13 @@ import { useDrawer } from "../../providers/details-drawer";
 import CloseIcon from '@mui/icons-material/Close';
 import Chip from "../../components/chip";
 import Input from "../../components/input";
-import { useQueryClient } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 
 export default function AppointmentDetails(props){
     const { id } = props;
     const navigate = useNavigate()
     const dispatch = useDispatch();
     const {closeDrawer} = useDrawer();
-    const [data, setData] = useState({});
     const profile = useSelector(state => state.profile);
     const [isEditing, setIsEditing] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
@@ -42,51 +41,35 @@ export default function AppointmentDetails(props){
         desc: null
     });
 
-    const [doctors, setDoctors] = useState([]);
-    const [notes, setNotes] = useState([]);
-
     const [newNote, setNewNote] = useState('');
 
-    useEffect(() => {
-        getDetails();
+    const fetchDoctorData = () => {
+        return ApiService.get(
+            'users/doctors/'
+        );
+    };
 
-        if(profile.isStaff){
-            ApiService.get(
-                'users/doctors/'
-            )
-            .then((res) => {
-                setDoctors(res.data.map((doctor) => {
-                    return {
-                        label: `${doctor.first_name} ${doctor.last_name}`,
-                        value: doctor.id
-                    }
-                }))
-            })
-            .catch((err) => {
-                dispatch(updateToast({
-                    bodyMessage : err.response.data,
-                    isVisible : true,
-                    type: 'error'
-                }));
-            })
+    const { data: doctors } = useQuery({
+        queryKey: ['doctors'],
+        queryFn: fetchDoctorData,
+        staleTime: 24 * 60 * 60 * 1000, // 1 day in milliseconds
+        cacheTime: 24 * 60 * 60 * 1000, // 1 day in milliseconds
+        select: (res) => {
+            return res.data.map((data) => ({
+                label: `${data.first_name} ${data.last_name}`,
+                value: data.id
+            }));
+        },
+        onError: (err) => {
+            dispatch(
+                updateToast({
+                    bodyMessage: err.response?.data || 'An error occurred',
+                    isVisible: true,
+                    type: 'error',
+                })
+            );
         }
-    }, []);
-
-    useEffect(() => {
-        resetField();
-        resetErrors();
-    }, [data]);
-
-    const resetField = () => {
-        setInput({
-            date: moment(data.date),
-            time: moment(data.time, "HH:mm:ss"),
-            visitType: data.visit_type,
-            createdFor: doctors.filter(doctor => doctor.value === data.created_for)[0]?.value ?? null,
-            isClosed: data.is_closed,
-            desc: data.description
-        });
-    }
+    });
 
     const resetErrors = () => {
         setError({
@@ -98,38 +81,22 @@ export default function AppointmentDetails(props){
         });
     }
 
-    const getNotes = () => {
-        ApiService.get(
+    const fetchNotes = () => {
+        return ApiService.get(
             `appointments/${id}/notes/`
         )
-        .then(res => {
-            setNotes(res.data)
-        })
-        .catch((err) => {
-            if(err.status === 404){
-                dispatch(updateToast({
-                    bodyMessage : 'No such appointment exists',
-                    isVisible : true,
-                    type: 'error'
-                }))
-            }
-            dispatch(updateToast({
-                bodyMessage : err.response.data,
-                isVisible : true,
-                type: 'error'
-            }))
-        })
     }
 
-    const getDetails = () => {
-        ApiService.get(
-            `appointments/${id}/`
-        )
-        .then((res) => {
-            setData(res.data);
-            getNotes();
-        })
-        .catch((err) => {
+    const { data: notes, isLoading: notesIsLoading } = useQuery({
+        queryKey: ['notes', id],
+        queryFn: fetchNotes,
+        enabled: !!id,
+        staleTime: 24 * 60 * 60 * 1000, // 1 day in milliseconds
+        cacheTime: 24 * 60 * 60 * 1000, // 1 day in milliseconds
+        select: (res) => {
+            return res.data
+        },
+        onError: (err) => {
             if(err.status === 404){
                 dispatch(updateToast({
                     bodyMessage : 'No such appointment exists',
@@ -142,7 +109,58 @@ export default function AppointmentDetails(props){
                 isVisible : true,
                 type: 'error'
             }))
-        })
+        }
+    });
+
+
+    const fetchDetails = () => {
+        return ApiService.get(
+            `appointments/${id}/`
+        )
+    }
+
+    const { data: appointmentDetails, isLoading: detailsIsLoading } = useQuery({
+        queryKey: ['appointment-details', id],
+        queryFn: fetchDetails,
+        enabled: !!id,
+        staleTime: 24 * 60 * 60 * 1000, // 1 day in milliseconds
+        cacheTime: 24 * 60 * 60 * 1000, // 1 day in milliseconds
+        select: (res) => {
+            console.log(res.data)
+            return res.data
+        },
+        onError: (err) => {
+            if(err.status === 404){
+                dispatch(updateToast({
+                    bodyMessage : 'No such appointment exists',
+                    isVisible : true,
+                    type: 'error'
+                }))
+            }
+            dispatch(updateToast({
+                bodyMessage : err.response.data,
+                isVisible : true,
+                type: 'error'
+            }))
+        }
+    });
+
+    useEffect(() => {
+        if(!detailsIsLoading && !!id){
+            resetField();
+            resetErrors();
+        }
+    }, [appointmentDetails]);
+
+    const resetField = () => {
+        setInput({
+            date: moment(appointmentDetails.date),
+            time: moment(appointmentDetails.time, "HH:mm:ss"),
+            visitType: appointmentDetails.visit_type,
+            createdFor: doctors.filter(doctor => doctor.value === appointmentDetails.created_for)[0]?.value ?? null,
+            isClosed: appointmentDetails.is_closed,
+            desc: appointmentDetails.description
+        });
     }
 
     let editForm = {
@@ -298,7 +316,8 @@ export default function AppointmentDetails(props){
                         isVisible : true,
                         type: 'success'
                     }));
-                    getDetails();
+                    queryClient.invalidateQueries(['notes', id]);
+                    queryClient.invalidateQueries(['appointment-details', id]);
                     resolve(res.data);
                 })
                 .catch((err) => {
@@ -330,6 +349,7 @@ export default function AppointmentDetails(props){
                 type: 'success'
             }))
             queryClient.invalidateQueries(['appointments']);
+            queryClient.invalidateQueries(['appointment-details', id]);
             navigate('/appointment-list');
         })
         .catch((err) => {
@@ -363,7 +383,7 @@ export default function AppointmentDetails(props){
                     type: 'success'
                 }));
                 setNewNote('');
-                getNotes();
+                queryClient.invalidateQueries(['notes', id]);
             })
             .catch((err) => {
                 if(err.status === 404){
@@ -395,8 +415,7 @@ export default function AppointmentDetails(props){
                 isVisible : true,
                 type: 'success'
             }));
-            getDetails();
-            getNotes();
+            queryClient.invalidateQueries(['notes', id]);
         })
         .catch((err) => {
             if(err.status === 404){
@@ -424,8 +443,7 @@ export default function AppointmentDetails(props){
                 isVisible : true,
                 type: 'success'
             }));
-            getDetails();
-            getNotes();
+            queryClient.invalidateQueries(['notes', id]);
         })
         .catch((err) => {
             if(err.status === 404){
@@ -442,6 +460,8 @@ export default function AppointmentDetails(props){
             }))
         })
     }
+
+    console.log(detailsIsLoading)
 
     return <>
         <Row
@@ -500,156 +520,166 @@ export default function AppointmentDetails(props){
                 <CloseIcon/>
             </IconButton>
         </Row>
-        <Row>
-            <LabelContainer top>
-                <Label>
-                    Description
-                </Label>
-            </LabelContainer>
-            <DataContainer top>
-                {
-                    isEditing ?
-                    <Input inputDetails={editForm.desc}/> :
-                    <Data>
-                    {
-                        data.description ?? '---'
-                    }
-                    </Data>
-                }
-            </DataContainer>
-        </Row>
-        <Row>
-            <LabelContainer>
-                <Label>
-                    Date
-                </Label>
-            </LabelContainer>
-            <DataContainer>
-                {
-                    isEditing ?
-                    <Input inputDetails={editForm.date}/> :
-                    <Data>
-                    {data.date ? moment(data.date).format('DD MMM, YYYY') : '---'}
-                    </Data>
-                }
-            </DataContainer>
-        </Row>
-        <Row>
-            <LabelContainer>
-                <Label>
-                    Time
-                </Label>
-            </LabelContainer>
-            <DataContainer>
-                {
-                    isEditing ?
-                    <Input inputDetails={editForm.time}/> :
-                    <Data>
-                    {data.time ? moment(data.time, 'HH:mm:ss').format('hh:mm A') : '---'}
-                    </Data>
-                }
-            </DataContainer>
-        </Row>
-        <Row>
-            <LabelContainer>
-                <Label>
-                    Visit type
-                </Label>
-            </LabelContainer>
-            <DataContainer>
-                {
-                    isEditing ?
-                    <Input inputDetails={editForm.visitType}/> :
-                    <Data>
-                    {
-                        data.visit_type_full ? 
-                        <Chip
-                            label={data.visit_type_full}
-                            variant={
-                                data.visit_type === "I" ? 
-                                chipVariant.inPerson :
-                                chipVariant.virtual
-                            }/> : '---'
-                    }
-                    </Data>
-                }
-            </DataContainer>
-        </Row>
-        <Row>
-            <LabelContainer>
-                <Label>
-                    Created for
-                </Label>
-            </LabelContainer>
-            <DataContainer>
-                {
-                    isEditing && profile.isStaff ?
-                    <Input inputDetails={editForm.createdFor}/> :
-                    <Data>
-                        {data.created_for_full_name ?? '---'}
-                    </Data>
-                }
-            </DataContainer>
-        </Row>
-        <Row>
-            <LabelContainer>
-                <Label>
-                    Status
-                </Label>
-            </LabelContainer>
-            <DataContainer>
-                {
-                    isEditing ?
-                    <Input inputDetails={editForm.status}/> :
-                    <Data>
-                    {
-                        data.is_closed !== null ? 
-                        <Chip
-                            label={data.is_closed ? 'Closed' : 'Open'}
-                            variant={
-                                data.is_closed ? 
-                                chipVariant.closed :
-                                chipVariant.open
-                            }/> : '---'
-                    }
-                    </Data>
-                }
-            </DataContainer>
-        </Row>
-        <Row>
-            <TextField
-                sx={{
-                    width: '100%'
-                }}
-                multiline
-                rows={5}
-                variant='outlined'
-                value={newNote}
-                onChange={(e) => setNewNote(e.target.value)}/>
-        </Row>
-        <Row>
-            <Button
-                onClick={addNote}
-                variant="outlined"
-                color="primary">
-                Create note
-            </Button>
-        </Row>
         {
-            notes.map((note, index) => {
-                return <Row
-                    key={`note-${id}-${index}`}>
-                    <EditableCard
-                        id={note.id}
-                        avatar={note.avatar}
-                        description={note.description}
-                        title={note.created_by}
-                        timeStamp={note.created_on}
-                        isEditable={note.is_editable}
-                        onDelete={deleteNote}
-                        onEdit={editNote}/>
+            detailsIsLoading ?
+            <CircularProgress/> :
+            appointmentDetails &&
+            <>
+                <Row>
+                    <LabelContainer top>
+                        <Label>
+                            Description
+                        </Label>
+                    </LabelContainer>
+                    <DataContainer top>
+                        {
+                            isEditing ?
+                            <Input inputDetails={editForm.desc}/> :
+                            <Data>
+                            {
+                                appointmentDetails.description ?? '---'
+                            }
+                            </Data>
+                        }
+                    </DataContainer>
                 </Row>
-            })
+                <Row>
+                    <LabelContainer>
+                        <Label>
+                            Date
+                        </Label>
+                    </LabelContainer>
+                    <DataContainer>
+                        {
+                            isEditing ?
+                            <Input inputDetails={editForm.date}/> :
+                            <Data>
+                            {appointmentDetails.date ? moment(appointmentDetails.date).format('DD MMM, YYYY') : '---'}
+                            </Data>
+                        }
+                    </DataContainer>
+                </Row>
+                <Row>
+                    <LabelContainer>
+                        <Label>
+                            Time
+                        </Label>
+                    </LabelContainer>
+                    <DataContainer>
+                        {
+                            isEditing ?
+                            <Input inputDetails={editForm.time}/> :
+                            <Data>
+                            {appointmentDetails.time ? moment(appointmentDetails.time, 'HH:mm:ss').format('hh:mm A') : '---'}
+                            </Data>
+                        }
+                    </DataContainer>
+                </Row>
+                <Row>
+                    <LabelContainer>
+                        <Label>
+                            Visit type
+                        </Label>
+                    </LabelContainer>
+                    <DataContainer>
+                        {
+                            isEditing ?
+                            <Input inputDetails={editForm.visitType}/> :
+                            <Data>
+                            {
+                                appointmentDetails.visit_type_full ? 
+                                <Chip
+                                    label={appointmentDetails.visit_type_full}
+                                    variant={
+                                        appointmentDetails.visit_type === "I" ? 
+                                        chipVariant.inPerson :
+                                        chipVariant.virtual
+                                    }/> : '---'
+                            }
+                            </Data>
+                        }
+                    </DataContainer>
+                </Row>
+                <Row>
+                    <LabelContainer>
+                        <Label>
+                            Created for
+                        </Label>
+                    </LabelContainer>
+                    <DataContainer>
+                        {
+                            isEditing && profile.isStaff ?
+                            <Input inputDetails={editForm.createdFor}/> :
+                            <Data>
+                                {appointmentDetails.created_for_full_name ?? '---'}
+                            </Data>
+                        }
+                    </DataContainer>
+                </Row>
+                <Row>
+                    <LabelContainer>
+                        <Label>
+                            Status
+                        </Label>
+                    </LabelContainer>
+                    <DataContainer>
+                        {
+                            isEditing ?
+                            <Input inputDetails={editForm.status}/> :
+                            <Data>
+                            {
+                                appointmentDetails.is_closed !== null ? 
+                                <Chip
+                                    label={appointmentDetails.is_closed ? 'Closed' : 'Open'}
+                                    variant={
+                                        appointmentDetails.is_closed ? 
+                                        chipVariant.closed :
+                                        chipVariant.open
+                                    }/> : '---'
+                            }
+                            </Data>
+                        }
+                    </DataContainer>
+                </Row>
+                <Row>
+                    <TextField
+                        sx={{
+                            width: '100%'
+                        }}
+                        multiline
+                        rows={5}
+                        variant='outlined'
+                        value={newNote}
+                        onChange={(e) => setNewNote(e.target.value)}/>
+                </Row>
+                <Row>
+                    <Button
+                        onClick={addNote}
+                        variant="outlined"
+                        color="primary">
+                        Create note
+                    </Button>
+                </Row>
+                {
+                    notesIsLoading ? 
+                    <CircularProgress/> :
+                    notes &&
+                    notes.map((note, index) => {
+                        return <Row
+                            key={`note-${id}-${index}`}>
+                            <EditableCard
+                                id={note.id}
+                                avatar={note.avatar}
+                                description={note.description}
+                                title={note.created_by}
+                                timeStamp={note.created_on}
+                                isEditable={note.is_editable}
+                                onDelete={deleteNote}
+                                onEdit={editNote}/>
+                        </Row>
+                    })
+                }
+            </>
         }
     </>
 }
