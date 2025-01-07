@@ -12,16 +12,18 @@ import { useDrawer } from "../../providers/details-drawer";
 import CloseIcon from '@mui/icons-material/Close';
 import Chip from "../../components/chip";
 import Input from "../../components/input";
+import { useQueryClient } from "@tanstack/react-query";
 
 export default function AppointmentDetails(props){
     const { id } = props;
     const navigate = useNavigate()
     const dispatch = useDispatch();
-    const {closeDrawer, handleRefresh} = useDrawer();
+    const {closeDrawer} = useDrawer();
     const [data, setData] = useState({});
     const profile = useSelector(state => state.profile);
     const [isEditing, setIsEditing] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
+    const queryClient = useQueryClient();
 
     const [input, setInput] = useState({
         date: null,
@@ -327,7 +329,7 @@ export default function AppointmentDetails(props){
                 isVisible : true,
                 type: 'success'
             }))
-            handleRefresh();
+            queryClient.invalidateQueries(['appointments']);
             navigate('/appointment-list');
         })
         .catch((err) => {
@@ -457,7 +459,7 @@ export default function AppointmentDetails(props){
                                 .then(() => {
                                     setIsLoading(false);
                                     setIsEditing(false);
-                                    handleRefresh();
+                                    queryClient.invalidateQueries(['appointments']);
                                 })
                                 .catch(() => {
                                     setIsLoading(false);

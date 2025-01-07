@@ -39,8 +39,8 @@ import { chipVariant } from "../../constants";
  * };
  * 
  * const filterForm = [
- *   { label: "ID", type: "text", value: "", setValue: (val) => console.log(val) },
- *   { label: "Date", type: "date", value: null, setValue: (val) => console.log(val) },
+ *   { label: "ID", type: "text" },
+ *   { label: "Date", type: "date" },
  * ];
  * 
  * const handleFilter = (data) => {

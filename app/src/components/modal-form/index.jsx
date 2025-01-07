@@ -96,7 +96,7 @@ import { inputTypes } from "../../constants";
  *       formFields={formFields}
  *       onFormOpen={() => console.log("Form opened")}
  *       onFormClose={() => console.log("Form closed")}
- *       onSubmit={new Promise(resolve, reject) => resolve(console.log(("Form submitted"))}
+ *       onSubmit={(data) => {new Promise(resolve, reject) => resolve(console.log(("Form submitted")})}
  *     />\
  * 
  * @returns {JSX.Element} A `Modal` commponent.
@@ -124,6 +124,7 @@ export default function ModalForm(props){
             onFormClose();
         }
         setVisible(false);
+        constructForm();
     }
 
     const handleSubmitClick = () => {
@@ -153,23 +154,24 @@ export default function ModalForm(props){
     }
 
     useEffect(() => {
+        constructForm();
+    }, [])
+
+    const constructForm = () => {
         //construct form input
         let temp = {};
         formFields.forEach((formItem) => {
             if(Array.isArray(formItem)){
                 formItem.forEach((innerFormItem) => {
-                    temp[innerFormItem.key] = null;
+                    temp[innerFormItem.key] = innerFormItem.default ?? null;
                 })
             }
             else{
-                temp[formItem.key] = formItem.type === inputTypes.time ||
-                                     formItem.type === inputTypes.date ||
-                                     formItem.type === inputTypes.image ||
-                                     formItem.type === inputTypes.select ? null : '';
+                temp[formItem.key] = formItem.default ?? null;
             }
         })
         setForm({...temp});
-    }, [])
+    }
 
     return <>
         {

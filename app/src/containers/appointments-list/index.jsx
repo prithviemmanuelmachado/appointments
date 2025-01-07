@@ -9,7 +9,7 @@ import { Container } from "./index.style";
 import ModalForm from "../../components/modal-form";
 import Chip from "../../components/chip";
 import Filter from "../../components/filter";
-import { useDrawer } from "../../providers/details-drawer";
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 
 export default function AppointmentList(props){
     const {
@@ -17,7 +17,7 @@ export default function AppointmentList(props){
     } = props;
     const dispatch = useDispatch();
     const profile = useSelector(state => state.profile);
-    const { refreshList } = useDrawer();
+    const queryClient = useQueryClient();
 
     const [filterInput, setFilterInput] = useState({
         id: '',
@@ -31,14 +31,6 @@ export default function AppointmentList(props){
     });
 
     const [filterChips, setFilterChips] = useState({});
-
-    const [formInput, setFormInput] = useState({
-        date: null,
-        time: null,
-        visitType: null,
-        createdFor: null,
-        desc: ''
-    });
     
     const [error, setError] = useState({
         date: null,
@@ -50,9 +42,6 @@ export default function AppointmentList(props){
 
     const [page, setPage] = useState(0);
     const [sortList, setSortList] = useState([]);
-    const [filter, setFilter] = useState(true);
-    const [data, setData] = useState([]);
-    const [totalCount, setTotalCount] = useState(0);
 
     const [doctors, setDoctors] = useState([]);
 
@@ -60,22 +49,15 @@ export default function AppointmentList(props){
         {
             label: '#',
             type: inputTypes.text,
-            value: filterInput.id,
-            setValue: (event) =>  setFilterInput({
-                ...filterInput,
-                id: event.target.value
-            })
+            key: 'id'
         },
         [
             {
                 width: '40%',
                 error: false,
                 type: inputTypes.select,
-                value: filterInput.dateLookup,
-                setValue: (event) =>  setFilterInput({
-                    ...filterInput,
-                    dateLookup: event.target.value
-                }),
+                key: 'dateLookup',
+                default: 'e',
                 options: [
                   {
                     label: 'On',
@@ -95,14 +77,7 @@ export default function AppointmentList(props){
                 width: '60%',
                 label: 'Date',
                 type: inputTypes.date,
-                value: filterInput.date,
-                setValue: (value) =>  {
-                    const parsedDate = moment(value);
-                    setFilterInput({
-                        ...filterInput,
-                        date: parsedDate
-                    });
-                }
+                key: 'date',
             },
         ],
         [
@@ -110,49 +85,35 @@ export default function AppointmentList(props){
                 width: '40%',
                 error: false,
                 type: inputTypes.select,
-                value: filterInput.timeLookup,
-                setValue: (event) =>  setFilterInput({
-                    ...filterInput,
-                    timeLookup: event.target.value
-                }),
+                key: 'timeLookup',
+                default: 'e',  
                 options: [
-                  {
-                    label: 'On',
-                    value: 'e'
-                  },
-                  {
-                    label: 'Before',
-                    value: 'lt'
-                  },
-                  {
-                    label: 'After',
-                    value: 'gt'
-                  }
-                ]      
+                    {
+                      label: 'On',
+                      value: 'e'
+                    },
+                    {
+                      label: 'Before',
+                      value: 'lt'
+                    },
+                    {
+                      label: 'After',
+                      value: 'gt'
+                    }
+                ]   
             },
             {
                 width: '60%',
                 label: 'Time',
                 type: inputTypes.time,
-                value: filterInput.time,
-                setValue: (value) =>  {
-                    const parsedTime = moment(value);
-                    setFilterInput({
-                        ...filterInput,
-                        time: parsedTime
-                    });
-                }
+                key: 'time',
             },
         ],
         {
             label: 'Visit type',
             error: false,
             type: inputTypes.select,
-            value: filterInput.visitType,
-            setValue: (event) =>  setFilterInput({
-                ...filterInput,
-                visitType: event.target.value
-            }),
+            key: 'visitType',
             options: [
               {
                 label: 'In person',
@@ -167,21 +128,13 @@ export default function AppointmentList(props){
         {
             label: 'Created for',
             type: inputTypes.text,
-            value: filterInput.createdFor,
-            setValue: (event) =>  setFilterInput({
-                ...filterInput,
-                createdFor: event.target.value
-            })
+            key: 'createdFor',
         },
         {
             label: 'Status',
             error: false,
             type: inputTypes.select,
-            value: filterInput.isClosed,
-            setValue: (event) =>  setFilterInput({
-                ...filterInput,
-                isClosed: event.target.value
-            }),
+            key: 'isClosed',
             options: [
               {
                 label: 'Closed',
@@ -286,121 +239,16 @@ export default function AppointmentList(props){
             timeLookup: 'e'
         })
         setPage(0);
-        setTotalCount(0);
         setSortList([]);
         setFilterChips({});
-    }
-
-    const handleFilter = () => {
-        return new Promise((resolve, reject) => {
-            setFilter((prevState) => !prevState);
-            resolve({});
-        });
     }
 
     const onClick = (data) => {
         navigate(`appointment-list/${data.id}/`);
     }
-    
-    useEffect(() => {
-        //set the chips
-        let tempFilter = {};
-        if(filterInput.id){
-            tempFilter['#'] = {
-                value: filterInput.id,
-                lookup: '',
-                onRemove: () => {
-                    setFilterInput((prevState) => {
-                        return {
-                            ...prevState,
-                            id: ''
-                        }
-                    });
-                    setFilter((prevState) => !prevState);
-                }
-            }
-        }
-        if(filterInput.date){
-            tempFilter['Date'] = {
-                value: filterInput.date.format('DD MMM, YYYY'),
-                lookup: filterInput.dateLookup === 'gt' ? 'After' :
-                        filterInput.dateLookup === 'lt' ? 'Before' : '',
-                onRemove: () => {
-                    setFilterInput((prevState) => {
-                        return {
-                            ...prevState,
-                            date: null,
-                            dateLookup: 'e'
-                        }
-                    });
-                    setFilter((prevState) => !prevState);
-                }
-            }
-        }
-        if(filterInput.time){
-            tempFilter['Time'] = {
-                value: filterInput.time.format('hh:mm A'),
-                lookup: filterInput.timeLookup === 'gt' ? 'After' :
-                        filterInput.timeLookup === 'lt' ? 'Before' : '',
-                onRemove: () => {
-                    setFilterInput((prevState) => {
-                        return {
-                            ...prevState,
-                            time: null,
-                            timeLookup: 'e'
-                        }
-                    })
-                    setFilter((prevState) => !prevState);
-                }
-            }
-        }
-        if(filterInput.visitType){
-            tempFilter['Visit type'] = {
-                value: filterInput.visitType === "V" ? "Virtual" : "In Person",
-                lookup: '',
-                onRemove: () => {
-                    setFilterInput((prevState) => {
-                        return {
-                            ...prevState,
-                            visitType: null
-                        }
-                    })
-                    setFilter((prevState) => !prevState);
-                }
-            }
-        }
-        if(filterInput.createdFor){
-            tempFilter['Created for'] = {
-                value: filterInput.createdFor,
-                lookup: '',
-                onRemove: () => {
-                    setFilterInput((prevState) => {
-                        return {
-                            ...prevState,
-                            createdFor: ''
-                        }
-                    })
-                    setFilter((prevState) => !prevState);
-                }
-            }
-        }
-        if(filterInput.isClosed !== null){
-            tempFilter['Status'] = {
-                value: filterInput.isClosed,
-                lookup: '',
-                onRemove: () => {
-                    setFilterInput((prevState) => {
-                        return {
-                            ...prevState,
-                            isClosed: null
-                        }
-                    })
-                    setFilter((prevState) => !prevState);
-                }
-            }
-        }
-        setFilterChips({...tempFilter});
 
+    const fetchAppointmentData = ({ queryKey }) => {
+        const [, { sortList, page, filterInput }] = queryKey;
         //construct params
         let appointmentParams = {
             id: filterInput.id,
@@ -432,16 +280,21 @@ export default function AppointmentList(props){
                 appointmentParams['time__gt'] = filterInput.time.format('HH:mm:ss');
             }
         }
-
-        //ping the server
-        ApiService.get(
+        return ApiService.get(
             'appointments/',
             appointmentParams
-        )
-        .then((res) => {
-            setTotalCount(res.data.count);
-            setData(res.data.results.map((data) => {
-                return {
+        );
+    };
+
+    const { data: appointmentData, isLoading, isError } = useQuery({
+        queryKey: ['appointments', { sortList, page, filterInput }],
+        queryFn: fetchAppointmentData,
+        staleTime: 24 * 60 * 60 * 1000, // 1 day in milliseconds
+        cacheTime: 24 * 60 * 60 * 1000, // 1 day in milliseconds
+        select: (res) => {
+            return {
+                totalCount: res.data.count,
+                results: res.data.results.map((data) => ({
                     ...data,
                     date: moment(data.date).format('DD MMM, YYYY'),
                     time: moment(data.time, "HH:mm:ss").format('hh:mm A'),
@@ -454,27 +307,113 @@ export default function AppointmentList(props){
                                     label={data.is_closed ? 'Closed' : 'Open'}
                                     variant={data.is_closed ? chipVariant.closed : chipVariant.open}/>,
                     created_for: data.created_for_full_name
+                })),
+            };
+        },
+        onError: (err) => {
+            dispatch(
+                updateToast({
+                    bodyMessage: err.response?.data || 'An error occurred',
+                    isVisible: true,
+                    type: 'error',
+                })
+            );
+        }
+    });
+    
+    useEffect(() => {
+        //set the chips
+        let tempFilter = {};
+        if(filterInput.id){
+            tempFilter['#'] = {
+                value: filterInput.id,
+                lookup: '',
+                onRemove: () => {
+                    setFilterInput((prevState) => {
+                        return {
+                            ...prevState,
+                            id: ''
+                        }
+                    });
                 }
-            }));
-        })
-        .catch((err) => {
-            dispatch(updateToast({
-                bodyMessage : err.response.data,
-                isVisible : true,
-                type: 'error'
-            }))
-        })
-    },[sortList, page, filter, refreshList])
-
-    const resetField = () => {
-        setFormInput({
-            date: null,
-            time: null,
-            visitType: null,
-            createdFor: null,
-            desc: ''
-        });
-    }
+            }
+        }
+        if(filterInput.date){
+            tempFilter['Date'] = {
+                value: filterInput.date.format('DD MMM, YYYY'),
+                lookup: filterInput.dateLookup === 'gt' ? 'After' :
+                        filterInput.dateLookup === 'lt' ? 'Before' : '',
+                onRemove: () => {
+                    setFilterInput((prevState) => {
+                        return {
+                            ...prevState,
+                            date: null,
+                            dateLookup: 'e'
+                        }
+                    });
+                }
+            }
+        }
+        if(filterInput.time){
+            tempFilter['Time'] = {
+                value: filterInput.time.format('hh:mm A'),
+                lookup: filterInput.timeLookup === 'gt' ? 'After' :
+                        filterInput.timeLookup === 'lt' ? 'Before' : '',
+                onRemove: () => {
+                    setFilterInput((prevState) => {
+                        return {
+                            ...prevState,
+                            time: null,
+                            timeLookup: 'e'
+                        }
+                    })
+                }
+            }
+        }
+        if(filterInput.visitType){
+            tempFilter['Visit type'] = {
+                value: filterInput.visitType === "V" ? "Virtual" : "In Person",
+                lookup: '',
+                onRemove: () => {
+                    setFilterInput((prevState) => {
+                        return {
+                            ...prevState,
+                            visitType: null
+                        }
+                    })
+                }
+            }
+        }
+        if(filterInput.createdFor){
+            tempFilter['Created for'] = {
+                value: filterInput.createdFor,
+                lookup: '',
+                onRemove: () => {
+                    setFilterInput((prevState) => {
+                        return {
+                            ...prevState,
+                            createdFor: ''
+                        }
+                    })
+                }
+            }
+        }
+        if(filterInput.isClosed !== null){
+            tempFilter['Status'] = {
+                value: filterInput.isClosed,
+                lookup: '',
+                onRemove: () => {
+                    setFilterInput((prevState) => {
+                        return {
+                            ...prevState,
+                            isClosed: null
+                        }
+                    })
+                }
+            }
+        }
+        setFilterChips({...tempFilter});
+    },[filterInput])
 
     const resetErrors = () => {
         setError({
@@ -514,37 +453,19 @@ export default function AppointmentList(props){
             label: 'Select appointement date',
             error: error.date,
             type: inputTypes.date,
-            value: formInput.date,
-            setValue: (value) =>  {
-                const parsedDate = moment(value);
-                setFormInput({
-                    ...formInput,
-                    date: parsedDate
-                });
-            }
+            key: 'date'
         },
         {
             label: 'Select appointement time',
             error: error.time,
             type: inputTypes.time,
-            value: formInput.time,
-            setValue: (value) =>  {
-                const parsedTime = moment(value);
-                setFormInput({
-                    ...formInput,
-                    time: parsedTime
-                });
-            }
+            key: 'time'
         },
         {
             label: 'Select visit type',
             error: error.visitType,
             type: inputTypes.select,
-            value: formInput.visitType,
-            setValue: (event) =>  setFormInput({
-                ...formInput,
-                visitType: event.target.value
-            }),
+            key: 'visitType',
             options: [
                 {
                   label: 'In person',
@@ -563,12 +484,8 @@ export default function AppointmentList(props){
             label: 'Select who the appointment is for',
             error: error.createdFor,
             type: inputTypes.select,
-            value: formInput.createdFor,
-            setValue: (event) =>  setFormInput({
-                ...formInput,
-                createdFor: event.target.value
-            }),
-            options: doctors
+            options: doctors,
+            key: 'createdFor'
         })
     }
 
@@ -576,14 +493,10 @@ export default function AppointmentList(props){
         label: 'Description',
         error: error.desc,
         type: inputTypes.textArea,
-        value: formInput.desc,
-        setValue: (event) =>  setFormInput({
-            ...formInput,
-            desc: event.target.value
-        })
+        key: 'desc'
     })
 
-    const createAppointment = () => {
+    const createAppointment = (data) => {
         return new Promise((resolve, reject) => {
             let noError = true;
             let dtError = null;
@@ -592,30 +505,30 @@ export default function AppointmentList(props){
             let cError = null;
             let dError = null;
 
-            if(formInput.date === null){
+            if(data.date === null){
                 dtError = 'Please select a date';
                 noError = false;
-            } else if (moment(formInput.date).isSameOrBefore(moment().startOf('day'))){
+            } else if (moment(data.date).isSameOrBefore(moment().startOf('day'))){
                 dtError = 'Please select a date after today';
                 noError = false;
             }
 
-            if(formInput.time === null){
+            if(data.time === null){
                 tError = 'Please selecct a time';
                 noError = false;
             }
 
-            if(formInput.createdFor === null && profile.isStaff){
+            if(data.createdFor === null && profile.isStaff){
                 cError = 'Please select a doctor';
                 noError = false;
             }
 
-            if(formInput.visitType === null){
+            if(data.visitType === null){
                 vError = 'Please select a vist type';
                 noError = false;
             }
 
-            if(!formInput.desc){
+            if(!data.desc){
                 dError = 'Please enter a description';
                 noError = false;
             }
@@ -632,11 +545,11 @@ export default function AppointmentList(props){
                 ApiService.post(
                     'appointments/',
                     {
-                        "date": moment(formInput.date).format('YYYY-MM-DD'),
-                        "time": moment(formInput.time).format('HH:mm:ss'),
-                        "visit_type": formInput.visitType,
-                        "created_for": formInput.createdFor,
-                        "description": formInput.desc
+                        "date": moment(data.date).format('YYYY-MM-DD'),
+                        "time": moment(data.time).format('HH:mm:ss'),
+                        "visit_type": data.visitType,
+                        "created_for": data.createdFor,
+                        "description": data.desc
                     }
                     
                 )
@@ -646,7 +559,7 @@ export default function AppointmentList(props){
                         isVisible : true,
                         type: 'success'
                     }));
-                    setFilter(!filter);
+                    queryClient.invalidateQueries(['appointments']);
                     resolve(res.data);
                 })
                 .catch((err) => {
@@ -666,6 +579,14 @@ export default function AppointmentList(props){
             }
         })
     }
+
+    const handleFilter = (data) => {
+        return new Promise((resolve, reject) => {
+            console.log(data)
+            setFilterInput(data)
+            resolve(data)
+        })
+    }
     
     return <>
         <Container>
@@ -677,7 +598,6 @@ export default function AppointmentList(props){
                 buttonVariant="contained"
                 formFields={createForm}
                 onFormClose={() => {
-                    resetField();
                     resetErrors();
                 }}
                 onSubmit={createAppointment}/>
@@ -689,15 +609,14 @@ export default function AppointmentList(props){
         </Container>
         <PaginationTable
         headers = {header}
-        data = {data}
+        data = {appointmentData?.results || []}
         pageNumber = {page}
         setPageNumber = {setPage}
-        onFilter = {() => setFilter(!filter)}
         onReset = {resetFilters}
         onSortAsc = {onSortAsc}
         onSortDesc = {onSortDesc}
         sortList = {sortList}
-        totalCount={totalCount}
+        totalCount={appointmentData?.totalCount || 0}
         onRowClick={onClick}/>
     </>
 }
