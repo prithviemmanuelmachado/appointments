@@ -10,9 +10,8 @@ import { Alert, GlobalStyles, Snackbar } from '@mui/material';
 import AppointmentList from './containers/appointments-list';
 import UserManagementList from './containers/user-management-list';
 import ProtectedRoute from './components/protected-route';
-import UserDetails from './containers/user-details';
-import AppointmentDetails from './containers/appointment-details';
 import { chipVariant } from './constants';
+import { DrawerProvider } from './providers/details-drawer';
 
 function App() {
   const toast = useSelector(state => state.toast);
@@ -63,44 +62,46 @@ function App() {
       </Alert>
     </Snackbar>
     <Container isLoggedin={profile.email}>
-    <Header isLoggedin={profile.email}>
-      <NavBar navigate={navigate}/>
-    </Header>
-    <Body isLoggedin={profile.email}>
-      <Routes>
-        <Route
-          element={<Home/>}
-          exact path='/'/>
-        <Route element = {<ProtectedRoute/>}>
+      <DrawerProvider>
+      <Header isLoggedin={profile.email}>
+        <NavBar navigate={navigate}/>
+      </Header>
+      <Body isLoggedin={profile.email}>
+        <Routes>
           <Route
-            element={
-              <AppointmentList navigate={navigate}/>
-            }
-            exact path='/appointment-list'/>
-        </Route>
-        <Route element = {<ProtectedRoute isAdminOnly={true}/>}>
-          <Route
-            element={
-              <UserManagementList navigate={navigate}/>
-            }
-            exact path='/user-management-list'/>
-        </Route>
-        <Route element = {<ProtectedRoute/>}>
-          <Route
-            element={
-              <AppointmentDetails navigate={navigate}/>
-            }
-            exact path='/appointment-details/:id'/>
-        </Route>
-        <Route element = {<ProtectedRoute isAdminOnly={true}/>}>
-          <Route
-            element={
-              <UserDetails navigate={navigate}/>
-            }
-            exact path='/user-details/:id'/>
-        </Route>
-      </Routes>
-    </Body>
+            element={<Home/>}
+            exact path='/'/>
+          <Route element = {<ProtectedRoute/>}>
+            <Route
+              element={
+                <AppointmentList navigate={navigate}/>
+              }
+              exact path='/appointment-list'/>
+          </Route>
+          <Route element = {<ProtectedRoute isAdminOnly={true}/>}>
+            <Route
+              element={
+                <UserManagementList navigate={navigate}/>
+              }
+              exact path='/user-management-list'/>
+          </Route>
+          <Route element = {<ProtectedRoute/>}>
+            <Route
+              element={
+                <AppointmentList navigate={navigate}/>
+              }
+              exact path='/appointment-list/:id'/>
+          </Route>
+          <Route element = {<ProtectedRoute isAdminOnly={true}/>}>
+            <Route
+              element={
+                <UserManagementList navigate={navigate}/>
+              }
+              exact path='/user-management-list/:id'/>
+          </Route>
+        </Routes>
+      </Body>
+      </DrawerProvider>
     </Container>
   </ErrorBoundary>;
 }

@@ -245,7 +245,7 @@ export default function UserManagementList(props){
     }
 
     const onClick = (data) => {
-        navigate(`user-details/${data.id}/`)
+        navigate(`user-management-list/${data.id}/`)
     }
     
     useEffect(() => {

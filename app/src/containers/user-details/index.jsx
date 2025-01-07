@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useParams } from "react-router";
+import { useNavigate, useParams } from "react-router";
 import ApiService from "../../services/apiservice";
 import { updateToast } from "../../store/toastSlice";
 import { useDispatch } from "react-redux";
@@ -9,12 +9,10 @@ import ModalForm from "../../components/modal-form";
 import { inputTypes } from "../../constants";
 
 export default function UserDetails(props){
-    const {
-        navigate
-    } = props;
-
-    const { id } = useParams();
+    const { id } = props;
+    const navigate = useNavigate();
     const dispatch = useDispatch();
+    
     const [data, setData] = useState({});
 
     const [createdUsername, setCreatedUsername] = useState(data.username);

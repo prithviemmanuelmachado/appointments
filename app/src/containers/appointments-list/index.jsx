@@ -297,7 +297,7 @@ export default function AppointmentList(props){
     }
 
     const onClick = (data) => {
-        navigate(`appointment-details/${data.id}/`)
+        navigate(`appointment-list/${data.id}/`);
     }
     
     useEffect(() => {

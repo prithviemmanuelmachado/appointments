@@ -27,7 +27,7 @@ export default function NavBar(props){
     }
 
     const getActiveRoute = (path) => {
-        return location.pathname === path;
+        return location.pathname.includes(path);
     }
 
     return <Container isLoggedin={profile.email}>

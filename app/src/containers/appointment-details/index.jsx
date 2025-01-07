@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { useParams } from "react-router";
+import { useNavigate, useParams } from "react-router-dom";
 import { updateToast } from "../../store/toastSlice";
 import { Data, DataContainer, Label, LabelContainer, Row } from "./index.style";
 import { Button, TextField } from "@mui/material";
@@ -11,10 +11,8 @@ import moment from 'moment';
 import EditableCard from "../../components/editable-card";
 
 export default function AppointmentDetails(props){
-    const {
-        navigate
-    } = props;
-    const { id } = useParams();
+    const { id } = props;
+    const navigate = useNavigate()
     const dispatch = useDispatch();
     const [data, setData] = useState({});
     const profile = useSelector(state => state.profile);
