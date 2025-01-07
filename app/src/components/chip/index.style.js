@@ -17,7 +17,8 @@ const Pill = styled(Box)(({theme, variant}) => ({
 }));
 
 const Label = styled(Typography)(({theme, variant}) => ({
-    color: variant
+    color: variant,
+    cursor: 'default'
 }));
 
 const CustomCloseOutlinedIcon = styled(CloseOutlinedIcon)(({theme, variant}) => ({

@@ -55,12 +55,13 @@ class NoteViewSet(ModelViewSet):
     def get_queryset(self):
         user = self.request.user 
         if user.is_staff:
-            return Note.objects.filter(appointment = self.kwargs['appointment_pk']).select_related('created_by', 'appointment')
+            return Note.objects.filter(appointment = self.kwargs['appointment_pk'])\
+                   .select_related('created_by__avatar', 'appointment')
         else:
             return Note.objects.filter(
                 appointment = self.kwargs['appointment_pk'],
                 appointment__created_for = user
-            ).select_related('created_by', 'appointment')
+            ).select_related('created_by__avatar', 'appointment')
     
     def get_serializer_context(self):
         return {

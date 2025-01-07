@@ -1,20 +1,9 @@
 import { 
     Button, 
     CircularProgress, 
-    FormControl, 
-    FormControlLabel, 
-    FormHelperText, 
     IconButton, 
-    MenuItem, 
-    Modal, 
-    Radio, 
-    RadioGroup, 
-    Select, 
-    TextField, 
-    Tooltip} from "@mui/material"
-import { DatePicker } from '@mui/x-date-pickers/DatePicker';
-import { TimePicker } from '@mui/x-date-pickers/TimePicker';
-import { inputTypes } from "../../constants";
+    Modal
+} from "@mui/material"
 import { Component, useState } from "react";
 import { 
     Container,
@@ -24,13 +13,9 @@ import {
     ButtonContainer,
     Header,
     InputContainer,
-    Label,
-    ErrorHelperText,
-    FileLabel,
-    Row
 } from "./index.style";
 import CloseIcon from '@mui/icons-material/Close';
-import PasswordInput from "../password-input";
+import Input from "../input";
 
 /**
  * A reusable modal form component built with Material-UI.
@@ -185,175 +170,9 @@ export default function ModalForm(props){
         .catch(() => setIsLoading(false));
     }
 
-    const openFileSelect = (label) => {
-        const selector = document.getElementById(`image-select-${label}`);
-        if(selector){
-            selector.click();
-        }
-    }
-
-    const handleFileChange = (event, setValue) => {
-        const file = event.target.files[0];
-        if (file) {
-            setValue(file);
-        }
-    };
-
     const getInput = (formItem, formTitle, index, noPadding = false) => {
         return <InputContainer key={`form-${formTitle}-${index}`} width={formItem.width} noPadding={noPadding}>
-        {
-            (
-                formItem.type === inputTypes.textArea ||
-                formItem.type === inputTypes.choice ||
-                formItem.type === inputTypes.select ||
-                formItem.type === inputTypes.date ||
-                formItem.type === inputTypes.time
-            ) &&
-            <Label>{formItem.label}</Label>
-        }
-        {
-            formItem.type === inputTypes.text &&
-            <TextField
-                sx={{width: '96%'}}
-                error = {formItem.error}
-                value = {formItem.value}
-                onChange={formItem.setValue}
-                label={formItem.label} 
-                helperText = {formItem.error}
-                variant="outlined" />
-        }
-        {
-            formItem.type === inputTypes.textArea &&
-            <TextField
-                sx={{width: '96%'}}
-                multiline
-                rows={5}
-                variant='outlined'
-                value={formItem.value}
-                onChange={formItem.setValue}
-                error={formItem.error}
-                helperText={formItem.error}/>
-        }
-        {
-            formItem.type === inputTypes.password &&
-            <PasswordInput
-                error = {formItem.error}
-                value = {formItem.value}
-                onChange={formItem.setValue}
-                label={formItem.label} 
-                helperText = {formItem.error}/>
-        }
-        {
-            formItem.type === inputTypes.choice &&
-            <FormControl>
-                <RadioGroup
-                    row
-                    value={formItem.value}
-                    onChange={formItem.setValue}>
-                    {
-                        formItem.options.map((option, index) => {
-                            return <FormControlLabel
-                            key={`radio-${index}-${option.value}`}
-                            value={option.value}
-                            control={<Radio />}
-                            label={option.label}/>
-                        })
-                    }
-                </RadioGroup>
-                {
-                    formItem.error &&
-                    <ErrorHelperText>
-                        {formItem.error}
-                    </ErrorHelperText>
-                }
-            </FormControl>
-        }
-        {
-            formItem.type === inputTypes.select &&
-            <FormControl fullWidth error>
-                <Select
-                sx={{width: '96%'}}
-                variant='outlined'
-                error={formItem.error}
-                value={formItem.value}
-                onChange={formItem.setValue}
-                >
-                {
-                    formItem.options.map((option, index) => {
-                        return(
-                            <MenuItem 
-                                key={`option-${option.label}-${index}`} 
-                                value={option.value}>
-                                {option.label}
-                            </MenuItem>
-                        );
-                    })
-                }
-                </Select>
-                {
-                    formItem.error &&
-                    <FormHelperText>{formItem.error}</FormHelperText>
-                }
-            </FormControl>
-        }
-        {
-            formItem.type === inputTypes.date &&
-            <FormControl>
-                <DatePicker
-                sx={{width: '96%'}}
-                variant='outlined'
-                error={formItem.error}
-                value={formItem.value}
-                format="DD MMM, YYYY"
-                onChange={formItem.setValue}/>
-                {
-                    formItem.error &&
-                    <ErrorHelperText>{formItem.error}</ErrorHelperText>
-                }
-            </FormControl>
-        }
-        {
-            formItem.type === inputTypes.time &&
-            <FormControl>
-                <TimePicker
-                sx={{width: '96%'}}
-                variant='outlined'
-                error={formItem.error}
-                value={formItem.value}
-                onChange={formItem.setValue}/>
-                {
-                    formItem.error &&
-                    <ErrorHelperText>{formItem.error}</ErrorHelperText>
-                }
-            </FormControl>
-        }
-        {
-            formItem.type === inputTypes.image &&
-            <Row>
-                <input
-                    id={`image-select-${formItem.label}`}
-                    type="file"
-                    hidden
-                    accept={'image/*'}
-                    onChange={(e) => handleFileChange(e, formItem.setValue)}
-                />
-                <Button
-                    onClick={() => openFileSelect(formItem.label)}
-                    variant="outlined">
-                    {`Select ${formItem.label}`}
-                </Button>
-                <FileLabel
-                    isSelected = {formItem.value}>
-                    {
-                        formItem.value ? 
-                        <Tooltip title={formItem.value.name}>
-                            {formItem.value.name}
-                        </Tooltip> :
-                        '...'
-                    }
-                </FileLabel>
-            </Row>
-        }
+        <Input inputDetails={formItem}/>
         </InputContainer>
     }
 
@@ -394,7 +213,7 @@ export default function ModalForm(props){
                     <TitleContainer>
                         <Title>{formTitle}</Title>
                     </TitleContainer>
-                    <Button 
+                    <IconButton 
                         aria-label="close"
                         style={{
                             flexGrow: 1
@@ -403,7 +222,7 @@ export default function ModalForm(props){
                         onClick={handleClose}
                     >
                         <CloseIcon/>
-                    </Button>
+                    </IconButton>
                 </Header>
                 <FormContainer>
                     {

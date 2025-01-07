@@ -4,6 +4,8 @@ import { ButtonContainer } from "./index.style";
 import DeleteIcon from '@mui/icons-material/Delete';
 import EditIcon from '@mui/icons-material/Edit';
 import { useState } from "react";
+import Avatar from "../avatar";
+import { avatarSize } from "../../constants";
 
 /**
  * EditableCard Component
@@ -13,6 +15,7 @@ import { useState } from "react";
  *
  * @param {Object} props - The properties for the EditableCard component.
  * @param {string} props.id - Unique identifier for the card.
+ * @param {string} props.avatar - The avatar to be displayed for the card.
  * @param {string} props.description - The main content or description of the card.
  * @param {string} props.title - The title displayed on the card.
  * @param {Date} props.timeStamp - Timestamp displayed as a subheader in the card.
@@ -45,6 +48,7 @@ import { useState } from "react";
 export default function EditableCard(props){
     const {
         id,
+        avatar,
         description,
         title,
         timeStamp,
@@ -69,9 +73,15 @@ export default function EditableCard(props){
             width: edit ? '100%' : 'auto'
         }}>
         <CardHeader
+            avatar={
+                <Avatar
+                    avatar={avatar}
+                    size={avatarSize.s}
+                    alt={title[0]?? '-'}/>
+            }
             titleTypographyProps={{
                 sx: {
-                    fontSize: 18
+                    fontSize: 17
                 }
             }}
             title={title ?? '---'}

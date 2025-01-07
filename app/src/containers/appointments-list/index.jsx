@@ -9,6 +9,7 @@ import { Container } from "./index.style";
 import ModalForm from "../../components/modal-form";
 import Chip from "../../components/chip";
 import Filter from "../../components/filter";
+import { useDrawer } from "../../providers/details-drawer";
 
 export default function AppointmentList(props){
     const {
@@ -16,6 +17,7 @@ export default function AppointmentList(props){
     } = props;
     const dispatch = useDispatch();
     const profile = useSelector(state => state.profile);
+    const { refreshList } = useDrawer();
 
     const [filterInput, setFilterInput] = useState({
         id: '',
@@ -462,7 +464,7 @@ export default function AppointmentList(props){
                 type: 'error'
             }))
         })
-    },[sortList, page, filter])
+    },[sortList, page, filter, refreshList])
 
     const resetField = () => {
         setFormInput({

@@ -5,6 +5,8 @@ import { clearProfile } from "../../store/profileSlice";
 import { Link, useLocation } from 'react-router';
 import Login from "../login";
 import Signup from "../signup";
+import { avatarSize } from "../../constants";
+import Avatar from "../../components/avatar";
 
 export default function NavBar(props){
     const {
@@ -57,9 +59,10 @@ export default function NavBar(props){
                     </HeaderLink>
                     <Row>
                     {
-                        profile.avatar ?
-                        <ProfileAvatar src={profile.avatar} /> :
-                        <ProfileAvatar>{profile.firstName[0]}</ProfileAvatar>
+                        <Avatar
+                            avatar={profile.avatar}
+                            alt={profile.firstName[0]}
+                            size={avatarSize.s}/>
                     }
                     <Profile>{`Hi, ${profile.firstName} ${profile.lastName}`}</Profile>
                     </Row>

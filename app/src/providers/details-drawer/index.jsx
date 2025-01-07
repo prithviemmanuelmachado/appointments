@@ -10,6 +10,7 @@ const DrawerContext = createContext();
 export const DrawerProvider = ({ children }) => {
   const navigate = useNavigate();
   const location = useLocation();
+  const [refreshList, setRefreshList] = useState(false);
 
   //extract id from location
   const pathname = location.pathname;
@@ -31,8 +32,12 @@ export const DrawerProvider = ({ children }) => {
     navigate(-1);
   };
 
+  const handleRefresh = () => {
+    setRefreshList(!refreshList)
+  }
+
   return (
-    <DrawerContext.Provider value={{ closeDrawer }}>
+    <DrawerContext.Provider value={{ closeDrawer, refreshList, handleRefresh }}>
       {children}
       <Drawer
         open={drawerOpen}

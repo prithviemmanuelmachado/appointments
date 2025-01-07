@@ -8,6 +8,7 @@ from .validators import validate_appointment_time
 class NoteSerializer(serializers.ModelSerializer):
     created_by = serializers.StringRelatedField()
     is_editable = serializers.SerializerMethodField()
+    avatar = serializers.SerializerMethodField()
      
     class Meta:
         model = Note
@@ -15,6 +16,7 @@ class NoteSerializer(serializers.ModelSerializer):
             'id',
             'description',
             'created_by',
+            'avatar',
             'created_on',
             'is_editable'
         ]
@@ -39,6 +41,11 @@ class NoteSerializer(serializers.ModelSerializer):
     def get_is_editable(self, obj):
         user = self.context['user']
         return user.is_staff or obj.created_by == user
+    
+    def get_avatar(self, obj):
+        if obj.created_by and obj.created_by.avatar:
+            return obj.created_by.avatar.avatar.url
+        return None
 
 class CreateAppointmentSerializer(serializers.ModelSerializer):
     User = get_user_model()
@@ -75,7 +82,7 @@ class CreateAppointmentSerializer(serializers.ModelSerializer):
         if not user.is_staff:
             validated_data['created_for'] = user
         
-        validate_appointment_time(validated_data)
+        validate_appointment_time(validated_data, None)
         
         appointment = Appointment.objects.create(**validated_data)
         return appointment
@@ -110,7 +117,7 @@ class AppointmentSerializer(serializers.ModelSerializer):
         return obj.get_visit_type_display() 
     
     def update(self, instance, validated_data):
-        validate_appointment_time(validated_data)
+        validate_appointment_time(validated_data, instance.id)
         return super().update(instance, validated_data)
     
 class CalenderSerializer(serializers.ModelSerializer):

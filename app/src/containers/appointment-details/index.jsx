@@ -1,34 +1,44 @@
 import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { useNavigate, useParams } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { updateToast } from "../../store/toastSlice";
-import { Data, DataContainer, Label, LabelContainer, Row } from "./index.style";
-import { Button, TextField } from "@mui/material";
-import ModalForm from "../../components/modal-form";
+import { Data, DataContainer, Label, LabelContainer, Row, Title } from "./index.style";
+import { Button, CircularProgress, IconButton, TextField } from "@mui/material";
 import ApiService from "../../services/apiservice";
-import { inputTypes } from "../../constants";
+import { chipVariant, inputTypes } from "../../constants";
 import moment from 'moment';
 import EditableCard from "../../components/editable-card";
+import { useDrawer } from "../../providers/details-drawer";
+import CloseIcon from '@mui/icons-material/Close';
+import Chip from "../../components/chip";
+import Input from "../../components/input";
 
 export default function AppointmentDetails(props){
     const { id } = props;
     const navigate = useNavigate()
     const dispatch = useDispatch();
+    const {closeDrawer, handleRefresh} = useDrawer();
     const [data, setData] = useState({});
     const profile = useSelector(state => state.profile);
+    const [isEditing, setIsEditing] = useState(false);
+    const [isLoading, setIsLoading] = useState(false);
 
-    const [createdate, setcreateDate] = useState(null);
-    const [createtime, setcreateTime] = useState(null);
-    const [createvisitType, setcreateVisitType] = useState(null);
-    const [createcreatedFor, setcreateCreatedFor] = useState(null);
-    const [isClosed, setIsClosed] = useState(null);
-    const [desc, setDesc] = useState(null);
+    const [input, setInput] = useState({
+        date: null,
+        time: null,
+        visitType: null,
+        createdFor: null,
+        isClosed: null,
+        desc: null
+    });
 
-    const [dateError, setDateError] = useState(null);
-    const [timeError, setTimeError] = useState(null);
-    const [visitTypeError, setVisitTypeError] = useState(null);
-    const [createdForError, setCreatedForError] = useState(null);
-    const [descError, setDescError] = useState(null);
+    const [error, setError] = useState({
+        date: null,
+        time: null,
+        visitType: null,
+        createdFor: null,
+        desc: null
+    });
 
     const [doctors, setDoctors] = useState([]);
     const [notes, setNotes] = useState([]);
@@ -62,23 +72,28 @@ export default function AppointmentDetails(props){
 
     useEffect(() => {
         resetField();
+        resetErrors();
     }, [data]);
 
     const resetField = () => {
-        setcreateDate(moment(data.date));
-        setcreateTime(moment(data.time, "HH:mm:ss"));
-        setcreateVisitType(data.visit_type);
-        setcreateCreatedFor(data.created_for);
-        setIsClosed(data.is_closed);
-        setDesc(data.description)
+        setInput({
+            date: moment(data.date),
+            time: moment(data.time, "HH:mm:ss"),
+            visitType: data.visit_type,
+            createdFor: doctors.filter(doctor => doctor.value === data.created_for)[0]?.value ?? null,
+            isClosed: data.is_closed,
+            desc: data.description
+        });
     }
 
     const resetErrors = () => {
-        setDateError(null);
-        setTimeError(null);
-        setVisitTypeError(null);
-        setCreatedForError(null);
-        setDescError(null);
+        setError({
+            date: null,
+            time: null,
+            visitType: null,
+            createdFor: null,
+            desc: null
+        });
     }
 
     const getNotes = () => {
@@ -128,33 +143,39 @@ export default function AppointmentDetails(props){
         })
     }
 
-    let editForm = [
-        {
-            label: 'Select appointement date',
-            error: dateError,
+    let editForm = {
+        date: {
+            error: error.date,
             type: inputTypes.date,
-            value: createdate,
+            value: input.date,
             setValue: (value) =>  {
                 const parsedDate = moment(value);
-                setcreateDate(parsedDate);
+                setInput({
+                    ...input,
+                    date: parsedDate
+                });
             }
         },
-        {
-            label: 'Select appointement time',
-            error: timeError,
+        time: {
+            error: error.time,
             type: inputTypes.time,
-            value: createtime,
+            value: input.time,
             setValue: (value) =>  {
                 const parsedTime = moment(value);
-                setcreateTime(parsedTime);
+                setInput({
+                    ...input,
+                    time: parsedTime
+                });
             }
         },
-        {
-            label: 'Select visit type',
-            error: visitTypeError,
+        visitType: {
+            error: error.visitType,
             type: inputTypes.select,
-            value: createvisitType,
-            setValue: (event) =>  setcreateVisitType(event.target.value),
+            value: input.visitType,
+            setValue: (event) =>  setInput({
+                ...input,
+                visitType: event.target.value
+            }),
             options: [
                 {
                   label: 'In person',
@@ -166,25 +187,29 @@ export default function AppointmentDetails(props){
                 }
             ]  
         }
-    ]
+    };
 
     if(profile.isStaff){
-        editForm.push({
-            label: 'Select who the appointment is for',
-            error: createdForError,
+        editForm['createdFor'] = {
+            error: error.createdFor,
             type: inputTypes.select,
-            value: createcreatedFor,
-            setValue: (event) =>  setcreateCreatedFor(event.target.value),
+            value: input.createdFor,
+            setValue: (event) =>  setInput({
+                ...input,
+                createdFor: event.target.value
+            }),
             options: doctors
-        })
+        };
     }
 
-    editForm.push({
-        label: 'Select appointment status',
+    editForm['status'] = {
         type: inputTypes.select,
-        value: isClosed,
+        value: input.isClosed,
         error: false,
-        setValue: (event) =>  setIsClosed(event.target.value),
+        setValue: (event) =>  setInput({
+            ...input,
+            isClosed: event.target.value
+        }),
         options: [
             {
               label: 'Close',
@@ -195,63 +220,73 @@ export default function AppointmentDetails(props){
               value: false
             }
         ]  
-    })
-    editForm.push({
-        label: 'Description',
-        error: descError,
+    };
+    editForm['desc'] = {
+        error: error.desc ,
         type: inputTypes.textArea,
-        value: desc,
-        setValue: (event) =>  setDesc(event.target.value)
-    })
+        value: input.desc,
+        setValue: (event) =>  setInput({
+            ...input,
+            desc: event.target.value
+        })
+    };
 
     const editAppointment = () => {
         return new Promise((resolve, reject) => {
+            setIsLoading(true);
             let noError = true;
+            let dtError = null;
+            let tError = null;
+            let vError = null;
+            let cError = null;
+            let dError = null;
 
-            if(createdate === null){
-                setDateError('Please select a date');
+            if(input.date === null){
+                dtError = 'Please select a date';
                 noError = false;
-            } else if (moment(createdate).isSameOrBefore(moment().startOf('day'))){
-                setDateError('Please select a date after today');
-                noError = false;
-            } else {
-                setDateError(null);
-            }
-
-            if(createtime === null){
-                setTimeError('Please selecct a time');
-                noError = false;
-            } else {
-                setTimeError(null);
-            }
-
-            if(createcreatedFor === null && profile.isStaff){
-                setCreatedForError('Please select a doctor');
-                noError = false;
-            } else {
-                setCreatedForError(null);
-            }
-
-            if(createvisitType === null){
-                setVisitTypeError('Please select a vist type');
+            } else if (moment(input.date).isSameOrBefore(moment().startOf('day'))){
+                dtError = 'Please select a date after today';
                 noError = false;
             }
 
-            if(!desc){
-                setDescError('Please enter a description');
+            if(input.time === null){
+                tError = 'Please selecct a time';
                 noError = false;
             }
+
+            if(input.createdFor === null && profile.isStaff){
+                cError = 'Please select a doctor';
+                noError = false;
+            }
+
+            if(input.visitType === null){
+                vError = 'Please select a vist type';
+                noError = false;
+            }
+
+            if(!input.desc){
+                dError = 'Please enter a description';
+                noError = false;
+            }
+
+            setError({
+                date: dtError,
+                time: tError,
+                visitType: vError,
+                createdFor: cError,
+                desc: dError
+            })
 
             if(noError){
                 ApiService.put(
                     `appointments/${id}/`,
                     {
-                        "date": moment(createdate).format('YYYY-MM-DD'),
-                        "time": moment(createtime).format('HH:mm:ss'),
-                        "visit_type": createvisitType,
-                        "created_for": createcreatedFor,
-                        "is_closed": isClosed,
-                        "description": desc
+                        "date": moment(input.date).format('YYYY-MM-DD'),
+                        "time": moment(input.time).format('HH:mm:ss'),
+                        "visit_type": input.visitType,
+                        "created_for": input.createdFor,
+                        "is_closed": input.isClosed,
+                        "description": input.desc
                     }
                     
                 )
@@ -292,6 +327,7 @@ export default function AppointmentDetails(props){
                 isVisible : true,
                 type: 'success'
             }))
+            handleRefresh();
             navigate('/appointment-list');
         })
         .catch((err) => {
@@ -406,34 +442,78 @@ export default function AppointmentDetails(props){
     }
 
     return <>
-        <Row>
-            <Button
-                onClick={deleteAppointment}
-                variant="contained"
-                color="error">
-                Delete
-            </Button>
-            <ModalForm
-                buttonLabel={'Edit appointment'}
-                formTitle={'Edit appointment'}
-                buttonVariant="contained"
-                formFields={editForm}
-                onFormClose={() => {
-                    resetField();
-                    resetErrors();
-                }}
-                onSubmit={editAppointment}/>
+        <Row
+            sticky>
+            <Title>#{id}</Title>
+            {
+                isEditing ? 
+                <>
+                    {
+                        isLoading ?
+                        <CircularProgress/> :
+                        <Button
+                            onClick={() => {
+                                editAppointment()
+                                .then(() => {
+                                    setIsLoading(false);
+                                    setIsEditing(false);
+                                    handleRefresh();
+                                })
+                                .catch(() => {
+                                    setIsLoading(false);
+                                })
+                            }}
+                            variant="contained">
+                            Update
+                        </Button>
+                    }
+                    <Button
+                        onClick={() => {
+                            setIsEditing(false);
+                            resetField();
+                        }}
+                        variant="outlined">
+                        Back
+                    </Button>
+                </>:
+                <>
+                    <Button
+                        onClick={() => {setIsEditing(true)}}
+                        variant="contained">
+                        Edit
+                    </Button>
+                    <Button
+                        onClick={deleteAppointment}
+                        variant="outlined"
+                        color="error">
+                        Delete
+                    </Button>
+                </>
+            }
+            <IconButton 
+                aria-label="close"
+                color="error"
+                onClick={closeDrawer}
+            >
+                <CloseIcon/>
+            </IconButton>
         </Row>
         <Row>
-            <LabelContainer>
+            <LabelContainer top>
                 <Label>
                     Description
                 </Label>
             </LabelContainer>
-            <DataContainer>
-                <Data>
-                    {data.description ?? '---'}
-                </Data>
+            <DataContainer top>
+                {
+                    isEditing ?
+                    <Input inputDetails={editForm.desc}/> :
+                    <Data>
+                    {
+                        data.description ?? '---'
+                    }
+                    </Data>
+                }
             </DataContainer>
         </Row>
         <Row>
@@ -443,9 +523,13 @@ export default function AppointmentDetails(props){
                 </Label>
             </LabelContainer>
             <DataContainer>
-                <Data>
+                {
+                    isEditing ?
+                    <Input inputDetails={editForm.date}/> :
+                    <Data>
                     {data.date ? moment(data.date).format('DD MMM, YYYY') : '---'}
-                </Data>
+                    </Data>
+                }
             </DataContainer>
         </Row>
         <Row>
@@ -455,9 +539,13 @@ export default function AppointmentDetails(props){
                 </Label>
             </LabelContainer>
             <DataContainer>
-                <Data>
+                {
+                    isEditing ?
+                    <Input inputDetails={editForm.time}/> :
+                    <Data>
                     {data.time ? moment(data.time, 'HH:mm:ss').format('hh:mm A') : '---'}
-                </Data>
+                    </Data>
+                }
             </DataContainer>
         </Row>
         <Row>
@@ -467,9 +555,22 @@ export default function AppointmentDetails(props){
                 </Label>
             </LabelContainer>
             <DataContainer>
-                <Data>
-                    {data.visit_type_full ?? '---'}
-                </Data>
+                {
+                    isEditing ?
+                    <Input inputDetails={editForm.visitType}/> :
+                    <Data>
+                    {
+                        data.visit_type_full ? 
+                        <Chip
+                            label={data.visit_type_full}
+                            variant={
+                                data.visit_type === "I" ? 
+                                chipVariant.inPerson :
+                                chipVariant.virtual
+                            }/> : '---'
+                    }
+                    </Data>
+                }
             </DataContainer>
         </Row>
         <Row>
@@ -479,9 +580,13 @@ export default function AppointmentDetails(props){
                 </Label>
             </LabelContainer>
             <DataContainer>
-                <Data>
-                    {data.created_for_full_name ?? '---'}
-                </Data>
+                {
+                    isEditing && profile.isStaff ?
+                    <Input inputDetails={editForm.createdFor}/> :
+                    <Data>
+                        {data.created_for_full_name ?? '---'}
+                    </Data>
+                }
             </DataContainer>
         </Row>
         <Row>
@@ -491,9 +596,22 @@ export default function AppointmentDetails(props){
                 </Label>
             </LabelContainer>
             <DataContainer>
-                <Data>
-                    {data.is_closed ? 'Closed' : 'Open'}
-                </Data>
+                {
+                    isEditing ?
+                    <Input inputDetails={editForm.status}/> :
+                    <Data>
+                    {
+                        data.is_closed !== null ? 
+                        <Chip
+                            label={data.is_closed ? 'Closed' : 'Open'}
+                            variant={
+                                data.is_closed ? 
+                                chipVariant.closed :
+                                chipVariant.open
+                            }/> : '---'
+                    }
+                    </Data>
+                }
             </DataContainer>
         </Row>
         <Row>
@@ -521,6 +639,7 @@ export default function AppointmentDetails(props){
                     key={`note-${id}-${index}`}>
                     <EditableCard
                         id={note.id}
+                        avatar={note.avatar}
                         description={note.description}
                         title={note.created_by}
                         timeStamp={note.created_on}
