@@ -4,7 +4,7 @@ import {
     IconButton, 
     Modal
 } from "@mui/material"
-import { Component, useState } from "react";
+import { Component, useEffect, useState } from "react";
 import { 
     Container,
     Title,
@@ -16,6 +16,7 @@ import {
 } from "./index.style";
 import CloseIcon from '@mui/icons-material/Close';
 import Input from "../input";
+import { inputTypes } from "../../constants";
 
 /**
  * A reusable modal form component built with Material-UI.
@@ -32,8 +33,6 @@ import Input from "../input";
  * @param {Array<Object>} props.formFields - Array of form field configurations.
  * @param {string} props.formFields[].label - Label for the input field.
  * @param {string} props.formFields[].type - Type of input field (refer inputTypes in constants).
- * @param {any} props.formFields[].value - Current value of the input field.
- * @param {function} props.formFields[].setValue - Callback function to update the input field value.
  * @param {string} [props.formFields[].error] - Error message for the input field.
  * @param {Array<Object>} [props.formFields[].options] - Options for inputTypes.choice and inputTypes.select input types.
  * @param {function} [props.onFormOpen] - Callback triggered when the modal is opened.
@@ -47,40 +46,17 @@ import Input from "../input";
  *     {
  *       label: "Text Input",
  *       type: inputTypes.text,
- *       value: textValue,
- *       setValue: (e) => setTextValue(e.target.value),
+ *       key: 'textInput'
  *       error: ""
  *     },
  *     {
  *       label: "Select Input",
  *       type: inputTypes.select,
- *       value: selectValue,
- *       setValue: (e) => setSelectValue(e.target.value),
+ *       key: 'selectInput',
  *       options: [
  *         { label: "Option 1", value: "option1" },
  *         { label: "Option 2", value: "option2" }
  *       ],
- *       error: ""
- *     },
- *     {
- *       label: "Date Picker",
- *       type: inputTypes.date,
- *       value: dateValue,
- *       setValue: (value) => setDateValue(value),
- *       error: ""
- *     },
- *     {
- *       label: "Time Picker",
- *       type: inputTypes.time,
- *       value: timeValue,
- *       setValue: (value) => setTimeValue(value),
- *       error: ""
- *     },
- *     {
- *       label: "Image",
- *       type: inputTypes.image,
- *       value: file,
- *       setValue: (file) => setFileValue(file),
  *       error: ""
  *     },
  *      [ //for multiple inputs in sthe same line
@@ -88,11 +64,7 @@ import Input from "../input";
  *                width: '40%',
  *                error: false,
  *                type: inputTypes.select,
- *                value: filterInput.dateLookup,
- *                setValue: (event) =>  setFilterInput({
- *                    ...filterInput,
- *                    dateLookup: event.target.value
- *                }),
+ *                key: 'dateLookup',
  *                options: [
  *                  {
  *                    label: 'On',
@@ -112,14 +84,7 @@ import Input from "../input";
  *                width: '60%',
  *                label: 'Date',
  *                type: inputTypes.date,
- *                value: filterInput.date,
- *                setValue: (value) =>  {
- *                    const parsedDate = moment(value);
- *                    setFilterInput({
- *                        ...filterInput,
- *                        date: parsedDate
- *                    });
- *                }
+ *                key: 'date'
  *            },
  *        ],
  *   ];
@@ -152,6 +117,7 @@ export default function ModalForm(props){
 
     const [visible, setVisible] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
+    const [form, setForm] = useState({});
 
     const handleClose = () => {
         if(onFormClose){
@@ -162,7 +128,7 @@ export default function ModalForm(props){
 
     const handleSubmitClick = () => {
         setIsLoading(true);
-        onSubmit()
+        onSubmit(form)
         .then(() => {
             setIsLoading(false);
             handleClose();
@@ -172,9 +138,38 @@ export default function ModalForm(props){
 
     const getInput = (formItem, formTitle, index, noPadding = false) => {
         return <InputContainer key={`form-${formTitle}-${index}`} width={formItem.width} noPadding={noPadding}>
-        <Input inputDetails={formItem}/>
+        <Input inputDetails={{
+            ...formItem,
+            value: form[formItem.key],
+            setValue: (e) => setForm((prevState) => {
+                const temp = {...prevState}
+                temp[formItem.key] = formItem.type === inputTypes.time ||
+                                     formItem.type === inputTypes.date ||
+                                     formItem.type === inputTypes.image ? e : e.target.value
+                return temp;
+            })
+        }}/>
         </InputContainer>
     }
+
+    useEffect(() => {
+        //construct form input
+        let temp = {};
+        formFields.forEach((formItem) => {
+            if(Array.isArray(formItem)){
+                formItem.forEach((innerFormItem) => {
+                    temp[innerFormItem.key] = null;
+                })
+            }
+            else{
+                temp[formItem.key] = formItem.type === inputTypes.time ||
+                                     formItem.type === inputTypes.date ||
+                                     formItem.type === inputTypes.image ||
+                                     formItem.type === inputTypes.select ? null : '';
+            }
+        })
+        setForm({...temp});
+    }, [])
 
     return <>
         {

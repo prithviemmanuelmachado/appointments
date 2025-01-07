@@ -9,11 +9,6 @@ import ModalForm from "../../components/modal-form";
 export default function Login(props){
     const dispatch = useDispatch();
 
-    const [input, setInput] = useState({
-        username: '',
-        password: ''
-    });
-
     const [error, setError] = useState({
         username: null,
         password: null
@@ -23,35 +18,16 @@ export default function Login(props){
         {
             label: 'Enter username',
             type: inputTypes.text,
-            value: input.username,
-            setValue: (event) =>  {
-                setInput({
-                    ...input,
-                    username: event.target.value
-                })
-            },
+            key: 'username',
             error: error.username
         },
         {
             label: 'Enter password',
             type: inputTypes.password,
-            value: input.password,
-            setValue: (event) =>  {
-                setInput({
-                    ...input,
-                    password: event.target.value
-                })
-            },
+            key: 'password',
             error: error.password
         }
     ];
-
-    const resetField = () => {
-        setInput({
-            username: '',
-            password: ''
-        })
-    }
 
     const resetErrors = () => {
         setError({
@@ -93,18 +69,18 @@ export default function Login(props){
         });
     }
 
-    const login = () => {
+    const login = (data) => {
         return new Promise((resolve, reject) => {
             let noError = true;
             let uError = null;
             let pError = null;
     
-            if (input.username === '') {
+            if (data.username === '') {
                 uError = 'Enter a username';
                 noError = false;
             }
     
-            if (input.password === '') {
+            if (data.password === '') {
                 pError = 'Enter a password';
                 noError = false;
             }
@@ -118,8 +94,8 @@ export default function Login(props){
                 ApiService.post(
                     'auth/jwt/create/',
                     {
-                        username: input.username,
-                        password: input.password,
+                        username: data.username,
+                        password: data.password,
                     }
                 )
                 .then((res) => {
@@ -163,7 +139,6 @@ export default function Login(props){
                 formTitle={'LOGIN'}
                 formFields={loginForm}
                 onFormClose={() => {
-                    resetField();
                     resetErrors();
                 }}
                 onSubmit={login}/>

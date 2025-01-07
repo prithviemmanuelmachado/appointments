@@ -8,14 +8,6 @@ import ModalForm from "../../components/modal-form";
 export default function Signup(props){
     const dispatch = useDispatch();
 
-    const [input, setInput] = useState({
-        username: '',
-        firstName: '',
-        lastName: '',
-        email: '',
-        avatar: null
-    });
-
     const [error, setError] = useState({
         username: null,
         firstName: null,
@@ -27,74 +19,34 @@ export default function Signup(props){
         {
             label: 'Enter username',
             type: inputTypes.text,
-            value: input.username,
-            setValue: (event) =>  {
-                setInput({
-                    ...input,
-                    username: event.target.value
-                })
-            },
+            key: 'username',
             error: error.username
         },
         {
             label: 'Enter email',
             type: inputTypes.text,
-            value: input.email,
-            setValue: (event) =>  {
-                setInput({
-                    ...input,
-                    email: event.target.value
-                })
-            },
+            key: 'email',
             error: error.email
         },
         {
             label: 'Enter first name',
             type: inputTypes.text,
-            value: input.firstName,
-            setValue: (event) =>  {
-                setInput({
-                    ...input,
-                    firstName: event.target.value
-                })
-            },
+            key: 'firstName',
             error: error.firstName
         },
         {
             label: 'Enter last name',
             type: inputTypes.text,
-            value: input.lastName,
-            setValue: (event) =>  {
-                setInput({
-                    ...input,
-                    lastName: event.target.value
-                })
-            },
+            key: 'lastName',
             error: error.lastName
         },
         {
             label: 'avatar',
             type: inputTypes.image,
-            value: input.avatar,
-            setValue: (file) =>  {
-                setInput({
-                    ...input,
-                    avatar: file
-                })
-            },
+            key: 'avatar',
             error: null
         }
     ];
-
-    const resetField = () => {
-        setInput({
-            username: '',
-            firstName: '',
-            lastName: '',
-            email: '',
-            avatar: null
-        });
-    }
 
     const resetErrors = () => {
         setError({
@@ -105,7 +57,7 @@ export default function Signup(props){
         });
     }
 
-    const signup = () => {
+    const signup = (data) => {
         return new Promise((resolve, reject) => {
             let noError = true;
             let uError = null;
@@ -113,28 +65,28 @@ export default function Signup(props){
             let fError = null;
             let lError = null;
     
-            if (!input.username) {
+            if (!data.username) {
                 uError = 'Enter a username';
                 noError = false;
-            } else if (!/^.{6,}$/.test(input.username)){
+            } else if (!/^.{6,}$/.test(data.username)){
                 uError = 'Username should be atleast 6 characters';
                 noError = false;
             }
 
-            if(!input.email){
+            if(!data.email){
                 eError = 'Enter an email';
                 noError = false;
-            } else if (!/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/.test(input.email)){
+            } else if (!/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/.test(data.email)){
                 eError = 'Please enter a valid email';
                 noError = false;
             }
 
-            if(!input.firstName){
+            if(!data.firstName){
                 fError = 'Enter first name';
                 noError = false;
             }
 
-            if(!input.lastName){
+            if(!data.lastName){
                 lError = 'Enter first name';
                 noError = false;
             }
@@ -150,15 +102,15 @@ export default function Signup(props){
                 ApiService.post(
                     'auth/users/',
                     {
-                        username: input.username,
-                        first_name: input.firstName,
-                        last_name: input.lastName,
-                        email: input.email 
+                        username: data.username,
+                        first_name: data.firstName,
+                        last_name: data.lastName,
+                        email: data.email 
                     }
                 )
                 .then((res) => {
                     const form = new FormData();
-                    form.append('avatar', input.avatar);
+                    form.append('avatar', data.avatar);
                     ApiService.post(
                         `users/${res.data.id}/avatars/`,
                         form,
@@ -207,7 +159,6 @@ export default function Signup(props){
     buttonVariant="outlined"
     formFields={signupForm}
     onFormClose={() => {
-        resetField();
         resetErrors();
     }}
     onSubmit={signup}/>
