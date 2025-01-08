@@ -45,15 +45,14 @@ const Header = styled(Box)(({theme}) => ({
 }))
 
 const Footer = styled(Box)(({theme}) => ({
-    height: '15%',
+    height: '20%',
     width: '90%',
     display: 'flex',
     justifyContent: 'center',
     alignItems: 'flex-start',
-    paddingInline: '3%',
     flexDirection: 'column',
     paddingInline: '5%',
-    gap: '10px'
+    gap: '20px'
 }))
 
 const Row = styled(Box)(({theme}) => ({
@@ -69,7 +68,6 @@ const Body = styled(Box)(({theme}) => ({
     display: 'flex',
     justifyContent: 'flex-start',
     alignItems: 'flex-start',
-    paddingInline: '3%',
     columnGap: '10px',
     flexDirection: 'column',
     paddingInline: '5%'

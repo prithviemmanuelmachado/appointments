@@ -4,12 +4,14 @@ import UserDetails from "../../containers/user-details";
 import AppointmentDetails from "../../containers/appointment-details";
 import { Drawer } from "@mui/material";
 import { Contianer } from "./index.style";
+import { useSelector } from "react-redux";
 
 const DrawerContext = createContext();
 
 export const DrawerProvider = ({ children }) => {
   const navigate = useNavigate();
   const location = useLocation();
+  const isStaff = useSelector(state => state.profile.isStaff);
   const [refreshList, setRefreshList] = useState(false);
 
   //extract id from location
@@ -46,13 +48,14 @@ export const DrawerProvider = ({ children }) => {
       >
         <Contianer>
         {
-            pathname.includes('appointment-list')&&
-            <AppointmentDetails id={id}/>
+          pathname.includes('appointment-list')&&
+          <AppointmentDetails id={id}/>
 
         }
         {
-            pathname.includes('user-management-list')&&
-            <UserDetails id={id}/>
+          pathname.includes('user-management-list')&&
+          isStaff &&
+          <UserDetails id={id}/>
         }
         </Contianer>
       </Drawer>

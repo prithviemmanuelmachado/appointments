@@ -537,7 +537,7 @@ export default function UserManagementList(props){
             leftButton={
                 <ModalForm
                 buttonLabel={'Create user'}
-                formTitle={'Create user'}
+                formTitle={'CREATE USER'}
                 buttonVariant="contained"
                 formFields={createForm}
                 onFormClose={() => {

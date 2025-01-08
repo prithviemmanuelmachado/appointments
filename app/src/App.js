@@ -12,6 +12,7 @@ import UserManagementList from './containers/user-management-list';
 import ProtectedRoute from './components/protected-route';
 import { chipVariant } from './constants';
 import { DrawerProvider } from './providers/details-drawer';
+import ResetPassword from './containers/reset-password';
 
 function App() {
   const toast = useSelector(state => state.toast);
@@ -70,7 +71,12 @@ function App() {
         <Routes>
           <Route
             element={<Home/>}
-            exact path='/'/>
+            path='/'/>
+          <Route
+            element={
+              <ResetPassword navigate={navigate}/>
+            }
+            exact path='/reset-password/:uid/:token'/>
           <Route element = {<ProtectedRoute/>}>
             <Route
               element={

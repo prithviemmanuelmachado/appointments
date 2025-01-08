@@ -1,12 +1,14 @@
-import { Body, Container, CustomListOutlinedIcon, CustomManageAccountsIcon, Footer, Header, HeaderLink, Left, PageLabel, PageLink, Profile, ProfileAvatar, Right, Row, Title, Version } from "./index.style";
-import { Button } from "@mui/material";
+import { Body, Container, CustomListOutlinedIcon, CustomManageAccountsIcon, Footer, Header, HeaderLink, Left, PageLabel, PageLink, Profile, Right, Row, Title, Version } from "./index.style";
+import { Button, Link as MUILink } from "@mui/material";
 import { useDispatch, useSelector } from 'react-redux';
 import { clearProfile } from "../../store/profileSlice";
-import { Link, useLocation } from 'react-router';
+import { useLocation, Link } from 'react-router';
 import Login from "../login";
 import Signup from "../signup";
 import { avatarSize } from "../../constants";
 import Avatar from "../../components/avatar";
+import { updateToast } from "../../store/toastSlice";
+import ApiService from "../../services/apiservice";
 
 export default function NavBar(props){
     const {
@@ -31,6 +33,36 @@ export default function NavBar(props){
     const getActiveRoute = (path) => {
         return location.pathname.includes(path);
     }
+
+    const resetPassword = () => {
+        ApiService.post(
+            '/auth/users/reset_password/',
+            {
+                email: profile.email
+            }
+        )
+        .then((res) => {
+            dispatch(updateToast({
+                bodyMessage : 'Reset email sent to the registered user.',
+                isVisible : true,
+                type: 'success'
+            }))
+        })
+        .catch((err) => {
+            let message = ''
+            if(err.response.data.detail){
+                message = err.response.data.detail
+            }
+            else{
+                message = "Error while sending reset email"
+            }
+            dispatch(updateToast({
+                bodyMessage : message,
+                isVisible : true,
+                type: 'error'
+            }))
+        });
+    };
 
     return <Container isLoggedin={profile.email}>
         {
@@ -95,6 +127,13 @@ export default function NavBar(props){
                     }
                 </Body>
                 <Footer>
+                    <MUILink
+                        variant="button"
+                        underline={'none'}
+                        component="button"
+                        onClick={resetPassword}>
+                    Reset password
+                    </MUILink>
                     <Button
                         variant="outlined"
                         onClick={handleLogout}>

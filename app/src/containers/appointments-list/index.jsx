@@ -596,7 +596,7 @@ export default function AppointmentList(props){
             leftButton={
                 <ModalForm
                 buttonLabel={'Create appointment'}
-                formTitle={'Create appointment'}
+                formTitle={'CREATE APPOINTMENT'}
                 buttonVariant="contained"
                 formFields={createForm}
                 onFormClose={() => {

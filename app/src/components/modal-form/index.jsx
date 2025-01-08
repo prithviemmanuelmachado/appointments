@@ -2,6 +2,7 @@ import {
     Button, 
     CircularProgress, 
     IconButton, 
+    Link, 
     Modal
 } from "@mui/material"
 import { Component, useEffect, useState } from "react";
@@ -13,6 +14,7 @@ import {
     ButtonContainer,
     Header,
     InputContainer,
+    LinkContainer,
 } from "./index.style";
 import CloseIcon from '@mui/icons-material/Close';
 import Input from "../input";
@@ -25,6 +27,8 @@ import { inputTypes } from "../../constants";
  * @component
  *
  * @param {Object} props - The properties for the ModalForm component.
+ * @param {function} onFooterClick - The function that is called when footer link is clicked
+ * @param {string} footerLinkText - The text on the footer link
  * @param {Component} props.buttonIcon - The icon for the button that opens the modal.
  * @param {string} props.buttonLabel - The label for the button that opens the modal.
  * @param {string} props.buttonVariant - The variant for the button that opens the modal. Same as the variant for MIUI Button.
@@ -38,6 +42,8 @@ import { inputTypes } from "../../constants";
  * @param {function} [props.onFormOpen] - Callback triggered when the modal is opened.
  * @param {function} [props.onFormClose] - Callback triggered when the modal is closed.
  * @param {function} [props.onSubmit] - Promise triggered when the form is submitted.
+ * @param {boolean} [props.forceClose] - Set to true if parent wants to force close Modal form
+ * @param {boolean} [props.forceOpen] - Set to true if parent wants to force open Modal form
  * 
  * @example
  * 
@@ -104,6 +110,8 @@ import { inputTypes } from "../../constants";
  */
 export default function ModalForm(props){
     const {
+        onFooterClick,
+        footerLinkText,
         buttonIcon,
         buttonLabel,
         buttonVariant,
@@ -112,7 +120,9 @@ export default function ModalForm(props){
         formFields,
         onFormOpen,
         onFormClose,
-        onSubmit
+        onSubmit,
+        forceClose,
+        forceOpen
     } = props;
 
     const [visible, setVisible] = useState(false);
@@ -136,6 +146,18 @@ export default function ModalForm(props){
         })
         .catch(() => setIsLoading(false));
     }
+
+    useEffect(() => {
+        if(forceClose === true){
+            handleClose();
+        }
+    }, [forceClose])
+
+    useEffect(() => {
+        if(forceOpen === true){
+            setVisible(true);
+        }
+    }, [forceOpen])
 
     const getInput = (formItem, formTitle, index, noPadding = false) => {
         return <InputContainer key={`form-${formTitle}-${index}`} width={formItem.width} noPadding={noPadding}>
@@ -238,6 +260,18 @@ export default function ModalForm(props){
                     }
                 </FormContainer>
                 <ButtonContainer>
+                    <LinkContainer>
+                        {
+                            footerLinkText &&
+                            onFooterClick &&
+                            <Link
+                            underline="none"
+                            component="button"
+                            onClick={onFooterClick}>
+                            {footerLinkText}
+                            </Link>
+                        }
+                    </LinkContainer>
                     {
                         isLoading ? 
                         <CircularProgress

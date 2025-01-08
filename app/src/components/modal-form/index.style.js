@@ -1,4 +1,4 @@
-import { Box, FormHelperText, styled, Typography } from "@mui/material"
+import { Box, FormHelperText, Link, styled, Typography } from "@mui/material"
 
 const Title = styled(Typography)(({theme}) => ({
     fontSize: 28,
@@ -40,6 +40,12 @@ const ButtonContainer = styled(Box)(({theme}) => ({
     borderTop: `3px solid ${theme.palette.primary.light}`
 }))
 
+const LinkContainer = styled(Box)(({theme}) => ({
+    flexGrow: 1,
+    display: 'flex',
+    alignItems: 'center'
+}))
+
 const Container = styled(Box)(({theme}) => ({
     width: '60%',
     maxHeight: '90%',
@@ -69,5 +75,6 @@ export {
     FormContainer,
     ButtonContainer,
     Header,
+    LinkContainer,
     InputContainer
 }

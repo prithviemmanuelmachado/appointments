@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
 import { inputTypes } from "../../constants";
 import ApiService from "../../services/apiservice";
@@ -13,6 +13,11 @@ export default function Login(props){
         username: null,
         password: null
     });
+    const [forgotPassError, setForgotPassError] = useState({
+        email: null
+    });
+    const [forceClose, setForceClose] = useState(false);
+    const [forceOpen, setForceOpen] = useState(false);
 
     const loginForm = [
         {
@@ -29,10 +34,25 @@ export default function Login(props){
         }
     ];
 
+    const forgotPassForm = [
+        {
+            label: 'Enter email',
+            type: inputTypes.text,
+            key: 'email',
+            error: forgotPassError.email
+        }
+    ];
+
     const resetErrors = () => {
         setError({
             username: null,
             password: null
+        })
+    }
+
+    const resetForgotPassErrors = () => {
+        setError({
+            email: null
         })
     }
 
@@ -134,12 +154,95 @@ export default function Login(props){
         });
     };
 
-    return <ModalForm
-                buttonLabel={'Login'}
-                formTitle={'LOGIN'}
-                formFields={loginForm}
-                onFormClose={() => {
-                    resetErrors();
-                }}
-                onSubmit={login}/>
+    const resetPassword = (data) => {
+        return new Promise((resolve, reject) => {
+            let noError = true;
+            let eError = null;
+    
+            if(!data.email){
+                eError = 'Enter an email';
+                noError = false;
+            } else if (!/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/.test(data.email)){
+                eError = 'Please enter a valid email';
+                noError = false;
+            }
+
+            setForgotPassError({
+                email: eError
+            })
+    
+            if (noError) {
+                ApiService.post(
+                    '/auth/users/reset_password/',
+                    {
+                        email: data.email
+                    }
+                )
+                .then((res) => {
+                    dispatch(updateToast({
+                        bodyMessage : 'Reset email sent to the registered user.',
+                        isVisible : true,
+                        type: 'success'
+                    }))
+                    resolve(data);
+                })
+                .catch((err) => {
+                    let message = ''
+                    if(err.response.data.detail){
+                        message = err.response.data.detail
+                    }
+                    else{
+                        message = err.response.data
+                    }
+                    dispatch(updateToast({
+                        bodyMessage : message,
+                        isVisible : true,
+                        type: 'error'
+                    }))
+                    reject(err);
+                });
+            }
+            else{
+                reject({
+                    error: 'Validation error'
+                })
+            }
+        });
+    };
+
+    const openForgotPassword = () => {
+        setForceClose(true);
+        setForceOpen(true);
+    }
+
+    useEffect(() => {
+        setForceClose(false);
+    },[forceClose])
+
+    useEffect(() => {
+        setForceOpen(false);
+    },[forceOpen])
+
+
+    return <>
+        <ModalForm
+            onFooterClick={openForgotPassword}
+            footerLinkText={'Forgot password'}
+            buttonLabel={'Login'}
+            formTitle={'LOGIN'}
+            formFields={loginForm}
+            onFormClose={() => {
+                resetErrors();
+            }}
+            onSubmit={login}
+            forceClose={forceClose}/>
+        <ModalForm
+            formTitle={'FORGOT PASSWORD'}
+            formFields={forgotPassForm}
+            onFormClose={() => {
+                resetForgotPassErrors();
+            }}
+            onSubmit={resetPassword}
+            forceOpen={forceOpen}/>
+    </>
 }
