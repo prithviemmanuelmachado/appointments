@@ -8,13 +8,14 @@ import ModalForm from "../../components/modal-form";
 import { Container } from "./index.style";
 import Chip from "../../components/chip";
 import Filter from "../../components/filter";
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 
 export default function UserManagementList(props){
     const {
         navigate
     } = props;
     const dispatch = useDispatch();
+    const queryClient = useQueryClient();
 
     const [filterInput, setFilterInput] = useState({
         id: '',
@@ -24,15 +25,6 @@ export default function UserManagementList(props){
         email: '',
         isActive: null,
         isStaff: null
-    });
-
-    const [formInput, setFormInput] = useState({
-        username: '',
-        firstName: '',
-        lastName: '',
-        email: '',
-        role: false,
-        avatar: null
     });
     
     const [error, setError] = useState({
@@ -381,17 +373,6 @@ export default function UserManagementList(props){
         }
         setFilterChips({...tempFilter});
     },[filter]);
-    
-    const resetField = () => {
-        setFormInput({
-            username: '',
-            firstName: '',
-            lastName: '',
-            email: '',
-            role: false,
-            avatar: null
-        });
-    }
 
     const resetErrors = () => {
         setError({
@@ -451,7 +432,7 @@ export default function UserManagementList(props){
         }
     ];
 
-    const createUser = () => {
+    const createUser = (data) => {
         return new Promise((resolve, reject) => {
             let noError = true;
             let uError = null;
@@ -459,28 +440,28 @@ export default function UserManagementList(props){
             let lError = null;
             let eError = null;
     
-            if (formInput.username === '') {
+            if (!data.username) {
                 uError = 'Enter a username';
                 noError = false;
-            } else if (!/^.{6,}$/.test(formInput.firstName)){
+            } else if (!/^.{6,}$/.test(data.firstName)){
                 uError = 'Username should be atleast 6 characters';
                 noError = false;
             }
 
-            if(formInput.email === ''){
+            if(!data.email){
                 eError = 'Enter an email';
                 noError = false;
-            } else if (!/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/.test(formInput.email)){
+            } else if (!/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/.test(data.email)){
                 eError = 'Please enter a valid email';
                 noError = false;
             }
 
-            if(formInput.firstName === ''){
+            if(!data.firstName){
                 fError = 'Enter first name';
                 noError = false;
             }
 
-            if(formInput.lastName === ''){
+            if(!data.lastName){
                 lError = 'Enter last name';
                 noError = false;
             }
@@ -496,16 +477,16 @@ export default function UserManagementList(props){
                 ApiService.post(
                     'auth/users/',
                     {
-                        username: formInput.username,
-                        first_name: formInput.firstName,
-                        last_name: formInput.lastName,
-                        email: formInput.email,
-                        is_staff: formInput.role
+                        username: data.username,
+                        first_name: data.firstName,
+                        last_name: data.lastName,
+                        email: data.email,
+                        is_staff: data.role
                     }
                 )
                 .then((res) => {
                     const form = new FormData();
-                    form.append('avatar', formInput.avatar);
+                    form.append('avatar', data.avatar);
                     ApiService.post(
                         `users/${res.data.id}/avatars/`,
                         form,
@@ -520,7 +501,7 @@ export default function UserManagementList(props){
                             isVisible : true,
                             type: 'success'
                         }))
-                        setFilter(!filter);
+                        queryClient.invalidateQueries(['userData']);
                         resolve(res.data);
                     })
                     .catch((err) => {
@@ -529,7 +510,7 @@ export default function UserManagementList(props){
                             isVisible : true,
                             type: 'success'
                         }))
-                        setFilter(!filter);
+                        queryClient.invalidateQueries(['userData']);
                         resolve(res.data);
                     });
                 })
@@ -560,7 +541,6 @@ export default function UserManagementList(props){
                 buttonVariant="contained"
                 formFields={createForm}
                 onFormClose={() => {
-                    resetField();
                     resetErrors();
                 }}
                 onSubmit={createUser}/>

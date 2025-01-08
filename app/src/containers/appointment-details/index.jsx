@@ -126,7 +126,6 @@ export default function AppointmentDetails(props){
         staleTime: 24 * 60 * 60 * 1000, // 1 day in milliseconds
         cacheTime: 24 * 60 * 60 * 1000, // 1 day in milliseconds
         select: (res) => {
-            console.log(res.data)
             return res.data
         },
         onError: (err) => {
@@ -316,7 +315,6 @@ export default function AppointmentDetails(props){
                         isVisible : true,
                         type: 'success'
                     }));
-                    queryClient.invalidateQueries(['notes', id]);
                     queryClient.invalidateQueries(['appointment-details', id]);
                     resolve(res.data);
                 })
@@ -460,8 +458,6 @@ export default function AppointmentDetails(props){
             }))
         })
     }
-
-    console.log(detailsIsLoading)
 
     return <>
         <Row

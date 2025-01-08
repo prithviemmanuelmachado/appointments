@@ -1,39 +1,42 @@
-import { Avatar, Box, styled, Typography } from "@mui/material"
+import { Box, styled, Typography } from "@mui/material"
 
-const Row = styled(Box)(({theme}) => ({
+const Row = styled(Box)(({theme, sticky}) => ({
     width: '100%',
     paddingBlock: '15px',
     display: 'flex',
     flexDirection: 'row',
-    columnGap: '10px'
+    columnGap: '10px',
+    position: sticky && 'sticky',
+    top: 0,
+    backgroundColor: sticky && '#FFFFFF',
+    zIndex: sticky && 3
 }))
 
-const LabelContainer = styled(Box)(({theme}) => ({
+const LabelContainer = styled(Box)(({theme, top}) => ({
     width: '30%',
+    paddingInline: 10,
     display: 'flex',
     justifyContent: 'flex-end',
-    alignItems: 'center'
+    alignItems: top ? 'flex-start' : 'center',
 }))
 
-const CustomAvatar = styled(Avatar)(({theme}) => ({
-    width: '10rem',
-    height: '10rem',
-    fontSize: '6rem'
-}))
-
-const DataContainer = styled(Box)(({theme}) => ({
+const DataContainer = styled(Box)(({theme, top}) => ({
     width: '70%',
     display: 'flex',
     justifyContent: 'flex-start',
-    alignItems: 'center'
+    alignItems: top ? 'flex-start' : 'center',
 }))
 
 const Label = styled(Typography)(({theme}) => ({
-    width: '30%'
 }))
 
 const Data = styled(Typography)(({theme}) => ({
-    width: '70%'
+}))
+
+const Title = styled(Typography)(({theme}) => ({
+    flexGrow: 1,
+    fontSize: '1.2rem',
+    fontWeight: 'bold'
 }))
 
 export {
@@ -42,5 +45,5 @@ export {
     Data,
     LabelContainer,
     DataContainer,
-    CustomAvatar
+    Title
 }

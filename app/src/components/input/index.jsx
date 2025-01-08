@@ -107,6 +107,14 @@ export default function Input(props){
         }
     };
 
+    const getFileName = (value) => {
+        if(value instanceof File){
+            return value.name;
+        }
+        const parts = inputDetails.value.split('/');
+        return parts[parts.length-1];
+    }
+
     return <>
         {
             (
@@ -253,8 +261,8 @@ export default function Input(props){
                     isSelected = {inputDetails.value}>
                     {
                         inputDetails.value ? 
-                        <Tooltip title={inputDetails.value.name}>
-                            {inputDetails.value.name}
+                        <Tooltip title={getFileName(inputDetails.value)}>
+                            {getFileName(inputDetails.value)}
                         </Tooltip> :
                         '...'
                     }

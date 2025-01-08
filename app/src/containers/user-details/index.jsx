@@ -1,77 +1,99 @@
 import { useEffect, useState } from "react";
-import { useNavigate, useParams } from "react-router";
+import { useNavigate } from "react-router";
 import ApiService from "../../services/apiservice";
 import { updateToast } from "../../store/toastSlice";
 import { useDispatch } from "react-redux";
-import { CustomAvatar, Data, DataContainer, Label, LabelContainer, Row } from "./index.style";
-import { Button } from "@mui/material";
-import ModalForm from "../../components/modal-form";
-import { inputTypes } from "../../constants";
+import { Data, DataContainer, Label, LabelContainer, Row, Title } from "./index.style";
+import { Button, CircularProgress, IconButton } from "@mui/material";
+import { avatarSize, chipVariant, inputTypes } from "../../constants";
+import { useDrawer } from "../../providers/details-drawer";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
+import CloseIcon from '@mui/icons-material/Close';
+import Avatar from "../../components/avatar";
+import Chip from "../../components/chip";
+import Input from "../../components/input";
 
 export default function UserDetails(props){
     const { id } = props;
     const navigate = useNavigate();
     const dispatch = useDispatch();
-    
-    const [data, setData] = useState({});
+    const [isEditing, setIsEditing] = useState(false);
+    const [isLoading, setIsLoading] = useState(false);
+    const {closeDrawer} = useDrawer();
+    const queryClient = useQueryClient();
 
-    const [createdUsername, setCreatedUsername] = useState(data.username);
-    const [createdFirstName, setCreatedFirstName] = useState(data.first_name);
-    const [createdLastName, setCreatedLastName] = useState(data.last_name);
-    const [createdEmail, setCreatedEmail] = useState(data.email);
-    const [createRole, setCreateRole] = useState(data.is_staff);
-    const [createIsActive, setCreateIsActive] = useState(data.is_active);
+    const [input, setInput] = useState({
+        username: null,
+        firstName: null,
+        lastName: null,
+        email: null,
+        role: null,
+        isActive: null,
+        avatar: null
+    })
 
-    const [usernameError, setUsernameError] = useState(null);
-    const [firstNameError, setFirstNameError] = useState(null);
-    const [lastNameError, setLastNameError] = useState(null);
-    const [emailError, setEmailError] = useState(null);
+    const [error, setError] = useState({
+        username: null,
+        firstName: null,
+        lastName: null,
+        email: null
+    })
 
-    const editForm = [
-        {
-            label: 'Enter username',
+    const editForm = {
+        username: {
             type: inputTypes.text,
-            value: createdUsername,
+            value: input.username,
             setValue: (event) =>  {
-                setCreatedUsername(event.target.value)
+                setInput({
+                    ...input,
+                    username: event.target.value
+                })
             },
-            error: usernameError
+            error: error.username
         },
-        {
-            label: 'Enter email',
+        email: {
             type: inputTypes.text,
-            value: createdEmail,
+            value: input.email,
             setValue: (event) =>  {
-                setCreatedEmail(event.target.value)
+                setInput({
+                    ...input,
+                    email: event.target.value
+                })
             },
-            error: emailError
+            error: error.email
         },
-        {
-            label: 'Enter first name',
+        firstName: {
             type: inputTypes.text,
-            value: createdFirstName,
+            value: input.firstName,
             setValue: (event) =>  {
-                setCreatedFirstName(event.target.value)
+                setInput({
+                    ...input,
+                    firstName: event.target.value
+                })
             },
-            error: firstNameError
+            error: error.firstName
         },
-        {
-            label: 'Enter last name',
+        lastName: {
             type: inputTypes.text,
-            value: createdLastName,
+            value: input.lastName,
             setValue: (event) =>  {
-                setCreatedLastName(event.target.value)
+                setInput({
+                    ...input,
+                    lastName: event.target.value
+                })
             },
-            error: lastNameError
+            error: error.lastName
         },
-        {
-            label: 'Select role',
+        role: {
             type: inputTypes.select,
-            error: false,
-            value: createRole,
+            value: input.role,
             setValue: (event) =>  {
-                setCreateRole(event.target.value)
+                setInput({
+                    ...input,
+                    role: event.target.value
+                })
             },
+            error: false,
             options: [
                 {
                   label: 'Doctor',
@@ -83,59 +105,56 @@ export default function UserDetails(props){
                 }
             ]  
         },
-        {
-            label: 'Select status',
+        isActive: {
             type: inputTypes.select,
-            error: false,
-            value: createIsActive,
+            value: input.isActive,
             setValue: (event) =>  {
-                setCreateIsActive(event.target.value)
+                setInput({
+                    ...input,
+                    isActive: event.target.value
+                })
             },
+            error: false,
             options: [
                 {
-                  label: 'Inactive',
-                  value: false
+                    label: 'Inactive',
+                    value: false
                 },
                 {
-                  label: 'Active',
-                  value: true
+                    label: 'Active',
+                    value: true
                 }
             ]  
+        },
+        avatar: {
+            label: 'avatar',
+            type: inputTypes.image,
+            value: input.avatar,
+            setValue: (file) =>  {
+                setInput({
+                    ...input,
+                    avatar: file
+                })
+            },
         }
-    ];
+    };
 
-    const resetField = () => {
-        setCreatedUsername(data.username);
-        setCreatedFirstName(data.first_name);
-        setCreatedLastName(data.last_name);
-        setCreatedEmail(data.email);
-        setCreateRole(data.is_staff);
-        setCreateIsActive(data.is_active);
-    }
-
-    const resetErrors = () => {
-        setUsernameError(null);
-        setFirstNameError(null);
-        setLastNameError(null);
-        setEmailError(null);
-    }
-
-    useEffect(() => {
-        getDetails();
-    }, []);
-
-    useEffect(() => {
-        resetField();
-    }, [data]);
-
-    const getDetails = () => {
-        ApiService.get(
+    const fetchDetails = () => {
+        return ApiService.get(
             `auth/users/${id}/`
         )
-        .then((res) => {
-            setData(res.data);
-        })
-        .catch((err) => {
+    }
+
+    const { data: userDetails, isLoading: userIsLoading } = useQuery({
+        queryKey: ['user-details', id],
+        queryFn: fetchDetails,
+        enabled: !!id,
+        staleTime: 24 * 60 * 60 * 1000, // 1 day in milliseconds
+        cacheTime: 24 * 60 * 60 * 1000, // 1 day in milliseconds
+        select: (res) => {
+            return res.data
+        },
+        onError: (err) => {
             if(err.status === 404){
                 dispatch(updateToast({
                     bodyMessage : 'No such user exists',
@@ -148,75 +167,157 @@ export default function UserDetails(props){
                 isVisible : true,
                 type: 'error'
             }))
+        }
+    });
+
+    const resetField = () => {
+        setInput({
+            username: userDetails.username,
+            firstName: userDetails.first_name,
+            lastName: userDetails.last_name,
+            email: userDetails.email,
+            role: userDetails.is_staff,
+            isActive: userDetails.is_active,
+            avatar: userDetails.avatar?.avatar ?? null
         })
+    }
+
+    const resetErrors = () => {
+        setError({
+            username: null,
+            firstName: null,
+            lastName: null,
+            email: null
+        })
+    }
+
+    useEffect(() => {
+        if(!userIsLoading && !!id){
+            resetField();
+            resetErrors();
+        }
+    }, [userDetails]);
+
+    const callAvatar = () => {
+        const form = new FormData();
+        form.append('avatar', input.avatar);
+        if(userDetails.avatar){
+            return ApiService.put(
+                `users/${id}/avatars/${id}`,
+                form,
+                {
+                    headers: {
+                        'Content-Type': 'multipart/form-data',
+                    },
+                }
+            )
+        }
+        else{
+            return ApiService.post(
+                `users/${id}/avatars/`,
+                form,
+                {
+                    headers: {
+                        'Content-Type': 'multipart/form-data',
+                    },
+                }
+            )
+        }
     }
 
     const editUser = () => {
         return new Promise((resolve, reject) => {
             let noError = true;
+            let uError = null;
+            let eError = null;
+            let fError = null;
+            let lError = null;
     
-            if (createdUsername === '') {
-                setUsernameError('Enter a username');
+            if (!input.username) {
+                uError = 'Enter a username';
                 noError = false;
-            } else if (!/^.{6,}$/.test(createdUsername)){
-                setUsernameError('Username should be atleast 6 characters');
+            } else if (!/^.{6,}$/.test(input.username)){
+                uError = 'Username should be atleast 6 characters';
                 noError = false;
-            } else {
-                setUsernameError(null);
             }
 
-            if(createdEmail === ''){
-                setEmailError('Enter an email');
+            if(!input.email){
+                eError = 'Enter an email';
                 noError = false;
-            } else if (!/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/.test(createdEmail)){
-                setEmailError('Please enter a valid email');
+            } else if (!/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/.test(input.email)){
+                eError = 'Please enter a valid email';
                 noError = false;
-            } else {
-                setEmailError(null);
             }
 
-            if(createdFirstName === ''){
-                setFirstNameError('Enter first name');
+            if(!input.firstName){
+                fError = 'Enter first name';
                 noError = false;
-            } else {
-                setFirstNameError(null);
             }
 
-            if(createdLastName === ''){
-                setLastNameError('Enter first name');
+            if(!input.lastName){
+                lError = 'Enter first name';
                 noError = false;
-            } else {
-                setLastNameError(null);
             }
+
+            setError({
+                username: uError,
+                lastName: lError,
+                firstName: fError,
+                email: eError
+            })
     
             if (noError) {
                 ApiService.put(
                     `auth/users/${id}/`,
                     {
-                        username: createdUsername,
-                        first_name: createdFirstName,
-                        last_name: createdLastName,
-                        email: createdEmail,
-                        is_staff: createRole,
-                        is_active: createIsActive
+                        username: input.username,
+                        first_name: input.firstName,
+                        last_name: input.lastName,
+                        email: input.email,
+                        is_staff: input.role,
+                        is_active: input.isActive
                     }
                 )
                 .then((res) => {
-                    dispatch(updateToast({
-                        bodyMessage : 'User updated successfully.',
-                        isVisible : true,
-                        type: 'success'
-                    }))
-                    if(createIsActive && !data.is_already_activated){
+                    if(input.avatar instanceof File && input.avatar !== null){
+                        callAvatar()                        
+                        .then((ires) => {
+                            dispatch(updateToast({
+                                bodyMessage : 'User updated successfully.',
+                                isVisible : true,
+                                type: 'success'
+                            }))
+                            queryClient.invalidateQueries(['user-details', id]);
+                            resolve(res.data);
+                        })
+                        .catch((err) => {
+                            dispatch(updateToast({
+                                bodyMessage : 'User updated successfully, but failed to add your avatar.',
+                                isVisible : true,
+                                type: 'success'
+                            }))
+                            queryClient.invalidateQueries(['user-details', id]);
+                            resolve(res.data);
+                        })
+                    }
+                    else{
+                        dispatch(updateToast({
+                            bodyMessage : 'User updated successfully.',
+                            isVisible : true,
+                            type: 'success'
+                        }))
+                        resolve(res.data)
+                        queryClient.invalidateQueries(['user-details', id]);
+                    }
+                    
+                    if(input.isActive && !userDetails.is_already_activated){
                         ApiService.post(
                             `auth/users/reset_password/`,
                             {
-                                "email": createdEmail
+                                "email": input.email
                             }                            
                         )
                     }
-                    getDetails();
-                    resolve(res.data);
                 })
                 .catch((err) => {
                     dispatch(updateToast({
@@ -245,6 +346,8 @@ export default function UserDetails(props){
                 isVisible : true,
                 type: 'success'
             }))
+            queryClient.invalidateQueries(['userData']);
+            queryClient.invalidateQueries(['user-details', id]);
             navigate('/user-management-list');
         })
         .catch((err) => {
@@ -264,123 +367,211 @@ export default function UserDetails(props){
     }
     
     return <>
-        <Row>
-            <Button
-                onClick={deleteUser}
-                variant="contained"
-                color="error">
-                Delete
-            </Button>
-            <ModalForm
-                buttonLabel={'Edit user'}
-                formTitle={'Edit user'}
-                buttonVariant="contained"
-                formFields={editForm}
-                onFormClose={() => {
-                    resetField();
-                    resetErrors();
-                }}
-                onSubmit={editUser}/>
-        </Row>
-        <Row>
-            <LabelContainer>
-                <Label>
-                    Username
-                </Label>
-            </LabelContainer>
-            <DataContainer>
-                <Data>
-                    {data.username ?? '---'}
-                </Data>
-            </DataContainer>
-        </Row>
-        <Row>
-            <LabelContainer>
-                <Label>
-                    Email
-                </Label>
-            </LabelContainer>
-            <DataContainer>
-                <Data>
-                    {data.email ?? '---'}
-                </Data>
-            </DataContainer>
-        </Row>
-        <Row>
-            <LabelContainer>
-                <Label>
-                    First name
-                </Label>
-            </LabelContainer>
-            <DataContainer>
-                <Data>
-                    {data.first_name ?? '---'}
-                </Data>
-            </DataContainer>
-        </Row>
-        <Row>
-            <LabelContainer>
-                <Label>
-                    Last name
-                </Label>
-            </LabelContainer>
-            <DataContainer>
-                <Data>
-                    {data.last_name ?? '---'}
-                </Data>
-            </DataContainer>
-        </Row>
-        <Row>
-            <LabelContainer>
-                <Label>
-                    Avatar
-                </Label>
-            </LabelContainer>
-            <DataContainer>
-                <Data>
+        <Row
+            sticky>
+            <Title>#{id}</Title>
+            {
+                isEditing ? 
+                <>
                     {
-                        data.avatar ?
-                        <CustomAvatar src={data.avatar.avatar} /> :
-                        data.first_name && <CustomAvatar sizes="10rem">{data.first_name[0]}</CustomAvatar>
+                        isLoading ?
+                        <CircularProgress/> :
+                        <Button
+                            onClick={() => {
+                                editUser()
+                                .then(() => {
+                                    setIsLoading(false);
+                                    setIsEditing(false);
+                                    queryClient.invalidateQueries(['userData']);
+                                })
+                                .catch(() => {
+                                    setIsLoading(false);
+                                })
+                            }}
+                            variant="contained">
+                            Update
+                        </Button>
                     }
-                </Data>
-            </DataContainer>
+                    <Button
+                        onClick={() => {
+                            setIsEditing(false);
+                            resetField();
+                        }}
+                        variant="outlined">
+                        Back
+                    </Button>
+                </>:
+                <>
+                    <Button
+                        onClick={() => {setIsEditing(true)}}
+                        variant="contained">
+                        Edit
+                    </Button>
+                    <Button
+                        onClick={deleteUser}
+                        variant="outlined"
+                        color="error">
+                        Delete
+                    </Button>
+                </>
+            }
+            <IconButton 
+                aria-label="close"
+                color="error"
+                onClick={closeDrawer}
+            >
+                <CloseIcon/>
+            </IconButton>
         </Row>
-        <Row>
-            <LabelContainer>
-                <Label>
-                    Status
-                </Label>
-            </LabelContainer>
-            <DataContainer>
-                <Data>
-                    {
-                        data.is_active === null || data.is_active === undefined ? 
-                            '---' :
-                            data.is_active ?
-                                'Active' : 
-                                'Inactive'
-                    }
-                </Data>
-            </DataContainer>
-        </Row>
-        <Row>
-            <LabelContainer>
-                <Label>
-                    Role
-                </Label>
-            </LabelContainer>
-            <DataContainer>
-                <Data>
-                    {
-                        data.is_staff === null || data.is_active === undefined ? 
-                        '---' : 
-                        data.is_staff ? 
-                            'Administrator' : 
-                            'Doctor'
-                    }
-                </Data>
-            </DataContainer>
-        </Row>
+        {
+            userIsLoading ? 
+            <CircularProgress/> :
+            userDetails &&
+            <>
+                <Row>
+                    <LabelContainer>
+                        <Label>
+                            Username
+                        </Label>
+                    </LabelContainer>
+                    <DataContainer>
+                        {
+                            <Data>
+                                {userDetails.username ?? '---'}
+                            </Data>
+                        }
+                    </DataContainer>
+                </Row>
+                <Row>
+                    <LabelContainer>
+                        <Label>
+                            Email
+                        </Label>
+                    </LabelContainer>
+                    <DataContainer>
+                        {
+                            isEditing ?
+                            <Input inputDetails={editForm.email}/> :
+                            <Data>
+                                {userDetails.email ?? '---'}
+                            </Data>
+                        }
+                    </DataContainer>
+                </Row>
+                <Row>
+                    <LabelContainer>
+                        <Label>
+                            First name
+                        </Label>
+                    </LabelContainer>
+                    <DataContainer>
+                        {
+                            isEditing ?
+                            <Input inputDetails={editForm.firstName}/> :
+                            <Data>
+                                {userDetails.first_name ?? '---'}
+                            </Data>
+                        }
+                    </DataContainer>
+                </Row>
+                <Row>
+                    <LabelContainer>
+                        <Label>
+                            Last name
+                        </Label>
+                    </LabelContainer>
+                    <DataContainer>
+                        {
+                            isEditing ?
+                            <Input inputDetails={editForm.lastName}/> :
+                            <Data>
+                                {userDetails.last_name ?? '---'}
+                            </Data>
+                        }
+                    </DataContainer>
+                </Row>
+                <Row>
+                    <LabelContainer top={!isEditing}>
+                        <Label>
+                            Avatar
+                        </Label>
+                    </LabelContainer>
+                    <DataContainer top={!isEditing}>
+                        {
+                            isEditing ?
+                            <Input inputDetails={editForm.avatar}/> :
+                            <Data>
+                                {
+                                    <Avatar
+                                    avatar={userDetails.avatar?.avatar ?? null}
+                                    alt={userDetails.first_name[0]}
+                                    size={avatarSize.l}/>
+                                }
+                            </Data>
+                        }
+                    </DataContainer>
+                </Row>
+                <Row>
+                    <LabelContainer>
+                        <Label>
+                            Status
+                        </Label>
+                    </LabelContainer>
+                    <DataContainer>
+                        {
+                            isEditing ?
+                            <Input inputDetails={editForm.isActive}/> :
+                            <Data>
+                                {
+                                    userDetails.is_active === null || userDetails.is_active === undefined ? 
+                                        '---' :
+                                        <Chip
+                                            label={
+                                                userDetails.is_active ?
+                                                'Active' : 
+                                                'Inactive'
+                                            }
+                                            variant={
+                                                userDetails.is_active ? 
+                                                chipVariant.active :
+                                                chipVariant.inactive
+                                            }/>
+                                }
+                            </Data>
+                        }
+                    </DataContainer>
+                </Row>
+                <Row>
+                    <LabelContainer>
+                        <Label>
+                            Role
+                        </Label>
+                    </LabelContainer>
+                    <DataContainer>
+                        {
+                            isEditing ?
+                            <Input inputDetails={editForm.role}/> :
+                            <Data>
+                                {
+                                    userDetails.is_staff === null || userDetails.is_active === undefined ? 
+                                    '---' : 
+                                    <Chip
+                                        label={
+                                            userDetails.is_staff ? 
+                                            'Administrator' : 
+                                            'Doctor'
+                                        }
+                                        variant={
+                                            userDetails.is_staff ? 
+                                            chipVariant.admin :
+                                            chipVariant.doctor
+                                        }/>
+                                }
+                            </Data>
+                        }
+                    </DataContainer>
+                </Row>
+            </>
+        }
     </>
 }
