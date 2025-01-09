@@ -28,15 +28,18 @@ const DataContainer = styled(Box)(({theme, top}) => ({
 }))
 
 const Label = styled(Typography)(({theme}) => ({
+    cursor: 'default'
 }))
 
 const Data = styled(Typography)(({theme}) => ({
+    cursor: 'default'
 }))
 
 const Title = styled(Typography)(({theme}) => ({
     flexGrow: 1,
     fontSize: '1.2rem',
-    fontWeight: 'bold'
+    fontWeight: 'bold',
+    cursor: 'default'
 }))
 
 export {

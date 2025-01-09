@@ -12,6 +12,7 @@ import { Navigate, Outlet } from "react-router-dom";
  * @param {Object} props - Properties passed to the ProtectedRoute component.
  * @param {boolean} [props.isAdminOnly=false] - If true, restricts access to users with admin privileges (`profile.isStaff` must be true).
  * @param {boolean} [props.isLoginRequired=true] - If true, restricts access to logged-in users (`profile.email` must not be null).
+ * @param {boolean} [props.isNotAdminOnly=false] - If true, restricts access to users not with admin privileges (`profile.isStaff` must be false).
  * 
  * @example
  * // Protecting a route that requires login:
@@ -37,13 +38,15 @@ export default function ProtectedRoute(props) {
     const {
         isAdminOnly = false,
         isLoginRequired = true,
+        isNotAdminOnly = false,
     } = props;
 
     const profile = useSelector(state => state.profile);
 
     if(
         (isLoginRequired && profile.email === null) ||
-        (isAdminOnly && profile.isStaff === false)
+        (isAdminOnly && profile.isStaff === false) ||
+        (isNotAdminOnly && profile.isStaff === true )
     ){
         return <Navigate to="/" replace/>
     }

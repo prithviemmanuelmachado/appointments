@@ -1,6 +1,5 @@
 import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { useNavigate } from "react-router-dom";
 import { updateToast } from "../../store/toastSlice";
 import { Data, DataContainer, Label, LabelContainer, Row, Title } from "./index.style";
 import { Button, CircularProgress, IconButton, TextField } from "@mui/material";
@@ -16,7 +15,6 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 
 export default function AppointmentDetails(props){
     const { id } = props;
-    const navigate = useNavigate()
     const dispatch = useDispatch();
     const {closeDrawer} = useDrawer();
     const profile = useSelector(state => state.profile);
@@ -52,6 +50,7 @@ export default function AppointmentDetails(props){
     const { data: doctors } = useQuery({
         queryKey: ['doctors'],
         queryFn: fetchDoctorData,
+        enabled: profile.isStaff,
         staleTime: 24 * 60 * 60 * 1000, // 1 day in milliseconds
         cacheTime: 24 * 60 * 60 * 1000, // 1 day in milliseconds
         select: (res) => {
@@ -156,7 +155,7 @@ export default function AppointmentDetails(props){
             date: moment(appointmentDetails.date),
             time: moment(appointmentDetails.time, "HH:mm:ss"),
             visitType: appointmentDetails.visit_type,
-            createdFor: doctors.filter(doctor => doctor.value === appointmentDetails.created_for)[0]?.value ?? null,
+            createdFor: doctors?.filter(doctor => doctor.value === appointmentDetails.created_for)[0]?.value ?? null,
             isClosed: appointmentDetails.is_closed,
             desc: appointmentDetails.description
         });
@@ -263,13 +262,22 @@ export default function AppointmentDetails(props){
             if(input.date === null){
                 dtError = 'Please select a date';
                 noError = false;
-            } else if (moment(input.date).isSameOrBefore(moment().startOf('day'))){
+            } else if (
+                moment(input.date).isSameOrBefore(moment().startOf('day')) &&
+                input.time !== null && 
+                moment(input.time, 'HH:mm').isSameOrBefore(moment())
+            ){
                 dtError = 'Please select a date after today';
                 noError = false;
-            }
-
+            }   
             if(input.time === null){
                 tError = 'Please selecct a time';
+                noError = false;
+            } else if (
+                moment(input.date).isSame(moment().startOf('day')) &&
+                moment(input.time, 'HH:mm').isSameOrBefore(moment())
+            ){
+                tError = 'Please select a time after now';
                 noError = false;
             }
 
@@ -316,16 +324,30 @@ export default function AppointmentDetails(props){
                         type: 'success'
                     }));
                     queryClient.invalidateQueries(['appointment-details', id]);
+                    queryClient.invalidateQueries(['appointments-today']);
+
                     resolve(res.data);
                 })
                 .catch((err) => {
                     const error = err.response.data
-                    dispatch(updateToast({
-                        bodyMessage : `The user is already booked for ${error.conflicting_slots.join(', ')}`,
-                        isVisible : true,
-                        type: 'error'
-                    }));
-                    reject(err);
+                    if(error instanceof Object){
+                        let message = '';
+                        Object.keys(error).map((key) => {
+                            message += `${key.replaceAll('_', ' ').toUpperCase()}: ${error[key].join(', ')}`;
+                        })
+                        dispatch(updateToast({
+                            bodyMessage : message,
+                            isVisible : true,
+                            type: 'error'
+                        }));
+                    } else {
+                        dispatch(updateToast({
+                            bodyMessage : `An unkown error has occured`,
+                            isVisible : true,
+                            type: 'error'
+                        }));
+                    }
+                    reject();
                 })
             }
             else{
@@ -347,8 +369,8 @@ export default function AppointmentDetails(props){
                 type: 'success'
             }))
             queryClient.invalidateQueries(['appointments']);
+            queryClient.invalidateQueries(['appointments-today']);
             queryClient.invalidateQueries(['appointment-details', id]);
-            navigate('/appointment-list');
         })
         .catch((err) => {
             if(err.status === 404){

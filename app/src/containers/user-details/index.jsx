@@ -1,5 +1,4 @@
 import { useEffect, useState } from "react";
-import { useNavigate } from "react-router";
 import ApiService from "../../services/apiservice";
 import { updateToast } from "../../store/toastSlice";
 import { useDispatch } from "react-redux";
@@ -15,7 +14,6 @@ import Input from "../../components/input";
 
 export default function UserDetails(props){
     const { id } = props;
-    const navigate = useNavigate();
     const dispatch = useDispatch();
     const [isEditing, setIsEditing] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
@@ -348,7 +346,6 @@ export default function UserDetails(props){
             }))
             queryClient.invalidateQueries(['userData']);
             queryClient.invalidateQueries(['user-details', id]);
-            navigate('/user-management-list');
         })
         .catch((err) => {
             if(err.status === 404){

@@ -10,14 +10,15 @@ import ModalForm from "../../components/modal-form";
 import Chip from "../../components/chip";
 import Filter from "../../components/filter";
 import { useQuery, useQueryClient } from '@tanstack/react-query';
+import { useNavigate, useParams } from "react-router-dom";
 
 export default function AppointmentList(props){
-    const {
-        navigate
-    } = props;
+    const navigate = useNavigate();
     const dispatch = useDispatch();
     const profile = useSelector(state => state.profile);
     const queryClient = useQueryClient();
+
+    const {id} = useParams();
 
     const [filterInput, setFilterInput] = useState({
         id: '',
@@ -242,7 +243,7 @@ export default function AppointmentList(props){
     }
 
     const onClick = (data) => {
-        navigate(`appointment-list/${data.id}/`);
+        navigate(`${data.id}/`);
     }
 
     const fetchAppointmentData = ({ queryKey }) => {
@@ -318,6 +319,64 @@ export default function AppointmentList(props){
             );
         }
     });
+
+    useEffect(() => {
+        if(isNaN(id)){
+            if(id === 'today_open'){
+                setFilterInput({
+                    ...filterInput,
+                    date: moment(),
+                    time: moment(),
+                    dateLookup: 'e',
+                    timeLookup: 'gt',
+                    isClosed: false
+                })
+            }
+            if(id === 'today_closed'){
+                setFilterInput({
+                    ...filterInput,
+                    date: moment(),
+                    time: null,
+                    dateLookup: 'e',
+                    timeLookup: 'e',
+                    isClosed: true
+                })
+            }
+            if(id === 'today_past_due'){
+                setFilterInput({
+                    ...filterInput,
+                    date: moment(),
+                    time: moment(),
+                    dateLookup: 'e',
+                    timeLookup: 'lt',
+                    isClosed: false
+                })
+            }
+            if(id === 'lifetime_open'){
+                setFilterInput({
+                    ...filterInput,
+                    date: moment().subtract(1, 'days'),
+                    dateLookup: 'gt',
+                    isClosed: false
+                })
+            }
+            if(id === 'lifetime_closed'){
+                setFilterInput({
+                    ...filterInput,
+                    isClosed: true
+                })                
+            }
+            if(id === 'lifetime_past_due'){
+                setFilterInput({
+                    ...filterInput,
+                    date: moment(),
+                    dateLookup: 'lt',
+                    isClosed: false
+                })
+            }
+            navigate('/appointment-list/');
+        }
+    }, [id]);
     
     useEffect(() => {
         //set the chips
@@ -398,7 +457,7 @@ export default function AppointmentList(props){
         }
         if(filterInput.isClosed !== null){
             tempFilter['Status'] = {
-                value: filterInput.isClosed,
+                value: filterInput.isClosed === false ? 'Open' : 'Closed',
                 lookup: '',
                 onRemove: () => {
                     setFilterInput((prevState) => {
@@ -432,6 +491,7 @@ export default function AppointmentList(props){
     const { data: doctors } = useQuery({
         queryKey: ['doctors'],
         queryFn: fetchDoctorData,
+        enabled: profile.isStaff,
         staleTime: 24 * 60 * 60 * 1000, // 1 day in milliseconds
         cacheTime: 24 * 60 * 60 * 1000, // 1 day in milliseconds
         select: (res) => {
@@ -511,13 +571,23 @@ export default function AppointmentList(props){
             if(data.date === null){
                 dtError = 'Please select a date';
                 noError = false;
-            } else if (moment(data.date).isSameOrBefore(moment().startOf('day'))){
+            } else if (
+                moment(data.date).isSameOrBefore(moment().startOf('day')) &&
+                data.time !== null && 
+                moment(data.time, 'HH:mm').isSameOrBefore(moment())
+            ){
                 dtError = 'Please select a date after today';
                 noError = false;
             }
 
             if(data.time === null){
                 tError = 'Please selecct a time';
+                noError = false;
+            } else if (
+                moment(data.date).isSame(moment().startOf('day')) &&
+                moment(data.time, 'HH:mm').isSameOrBefore(moment())
+            ){
+                tError = 'Please select a time after now';
                 noError = false;
             }
 
@@ -567,11 +637,24 @@ export default function AppointmentList(props){
                 })
                 .catch((err) => {
                     const error = err.response.data
-                    dispatch(updateToast({
-                        bodyMessage : `The user is already booked for ${error.conflicting_slots.join(', ')}`,
-                        isVisible : true,
-                        type: 'error'
-                    }));
+                    if(error instanceof Object){
+                        let message = '';
+                        Object.keys(error).map((key) => {
+                            message += `${key.replaceAll('_', ' ').toUpperCase()}: ${error[key].join(', ')}`;
+                        })
+                        dispatch(updateToast({
+                            bodyMessage : message,
+                            isVisible : true,
+                            type: 'error'
+                        }));
+                    } else {
+                        dispatch(updateToast({
+                            bodyMessage : `An unkown error has occured`,
+                            isVisible : true,
+                            type: 'error'
+                        }));
+                    }
+                    
                     reject(err);
                 })
             }

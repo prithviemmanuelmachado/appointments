@@ -1,6 +1,7 @@
 import { Avatar, Box, Button, styled, Typography } from "@mui/material"
 import ManageAccountsOutlinedIcon from '@mui/icons-material/ManageAccountsOutlined';
 import ListOutlinedIcon from '@mui/icons-material/ListOutlined';
+import DonutLargeOutlinedIcon from '@mui/icons-material/DonutLargeOutlined';
 
 const Container = styled(Box)(({theme, isLoggedin}) => ({
     height: '100%',
@@ -38,7 +39,6 @@ const Header = styled(Box)(({theme}) => ({
     display: 'flex',
     justifyContent: 'center',
     alignItems: 'flex-start',
-    paddingInline: '3%',
     flexDirection: 'column',
     paddingInline: '5%',
     gap: '15px'
@@ -85,6 +85,10 @@ const PageLabel = styled(Typography)(({theme, isSelected}) => ({
 }))
 
 const CustomManageAccountsIcon = styled(ManageAccountsOutlinedIcon)(({theme, isSelected}) => ({
+    color: isSelected ? theme.palette.primary.contrastText : theme.palette.primary.main
+}))
+
+const CustomDonutLargeOutlinedIcon = styled(DonutLargeOutlinedIcon)(({theme, isSelected}) => ({
     color: isSelected ? theme.palette.primary.contrastText : theme.palette.primary.main
 }))
 
@@ -141,5 +145,6 @@ export {
     HeaderLink,
     PageLabel,
     CustomManageAccountsIcon,
-    CustomListOutlinedIcon
+    CustomListOutlinedIcon,
+    CustomDonutLargeOutlinedIcon
 }

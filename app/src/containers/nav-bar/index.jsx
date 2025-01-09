@@ -1,21 +1,21 @@
-import { Body, Container, CustomListOutlinedIcon, CustomManageAccountsIcon, Footer, Header, HeaderLink, Left, PageLabel, PageLink, Profile, Right, Row, Title, Version } from "./index.style";
+import { Body, Container, CustomDonutLargeOutlinedIcon, CustomListOutlinedIcon, CustomManageAccountsIcon, Footer, Header, HeaderLink, Left, PageLabel, PageLink, Profile, Right, Row, Title, Version } from "./index.style";
 import { Button, Link as MUILink } from "@mui/material";
 import { useDispatch, useSelector } from 'react-redux';
 import { clearProfile } from "../../store/profileSlice";
-import { useLocation, Link } from 'react-router';
+import { useLocation, Link, useNavigate } from 'react-router';
 import Login from "../login";
 import Signup from "../signup";
 import { avatarSize } from "../../constants";
 import Avatar from "../../components/avatar";
 import { updateToast } from "../../store/toastSlice";
 import ApiService from "../../services/apiservice";
+import { useQueryClient } from "@tanstack/react-query";
 
 export default function NavBar(props){
-    const {
-        navigate
-    } = props;
+    const navigate = useNavigate()
     const profile = useSelector(state => state.profile);
     const location = useLocation();
+    const queryClient = useQueryClient();
 
     const dispatch = useDispatch();
 
@@ -27,6 +27,7 @@ export default function NavBar(props){
         localStorage.removeItem('lastName');
         localStorage.removeItem('isStaff');
         dispatch(clearProfile());
+        queryClient.invalidateQueries();
         navigate('/', { replace: true });
     }
 
@@ -100,6 +101,20 @@ export default function NavBar(props){
                     </Row>
                 </Header>
                 <Body>
+                    {
+                        !profile.isStaff &&
+                        <PageLink
+                            isSelected={getActiveRoute('/dashboard')}
+                            to='/dashboard'
+                            variant="text"
+                            component={Link}>
+                            <CustomDonutLargeOutlinedIcon isSelected={getActiveRoute('/dashboard')}/>
+                            <PageLabel
+                                isSelected={getActiveRoute('/dashboard')}>
+                                Dashboard
+                            </PageLabel>
+                        </PageLink>
+                    }
                     <PageLink
                         isSelected={getActiveRoute('/appointment-list')}
                         to='/appointment-list'

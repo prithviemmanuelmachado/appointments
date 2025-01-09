@@ -48,7 +48,10 @@ export const DrawerProvider = ({ children }) => {
       >
         <Contianer>
         {
-          pathname.includes('appointment-list')&&
+          (
+            pathname.includes('appointment-list') ||
+            pathname.includes('dashboard')
+          )&&
           <AppointmentDetails id={id}/>
 
         }

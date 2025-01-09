@@ -13,6 +13,7 @@ import ProtectedRoute from './components/protected-route';
 import { chipVariant } from './constants';
 import { DrawerProvider } from './providers/details-drawer';
 import ResetPassword from './containers/reset-password';
+import Dashboard from './containers/dashboard';
 
 function App() {
   const toast = useSelector(state => state.toast);
@@ -65,7 +66,7 @@ function App() {
     <Container isLoggedin={profile.email}>
       <DrawerProvider>
       <Header isLoggedin={profile.email}>
-        <NavBar navigate={navigate}/>
+        <NavBar/>
       </Header>
       <Body isLoggedin={profile.email}>
         <Routes>
@@ -74,36 +75,50 @@ function App() {
             path='/'/>
           <Route
             element={
-              <ResetPassword navigate={navigate}/>
+              <ResetPassword/>
             }
             exact path='/reset-password/:uid/:token'/>
           <Route element = {<ProtectedRoute/>}>
             <Route
               element={
-                <AppointmentList navigate={navigate}/>
+                <AppointmentList/>
               }
               exact path='/appointment-list'/>
           </Route>
           <Route element = {<ProtectedRoute isAdminOnly={true}/>}>
             <Route
               element={
-                <UserManagementList navigate={navigate}/>
+                <UserManagementList/>
               }
               exact path='/user-management-list'/>
           </Route>
           <Route element = {<ProtectedRoute/>}>
             <Route
               element={
-                <AppointmentList navigate={navigate}/>
+                <AppointmentList/>
               }
               exact path='/appointment-list/:id'/>
           </Route>
           <Route element = {<ProtectedRoute isAdminOnly={true}/>}>
             <Route
               element={
-                <UserManagementList navigate={navigate}/>
+                <UserManagementList/>
               }
               exact path='/user-management-list/:id'/>
+          </Route>
+          <Route element = {<ProtectedRoute isNotAdminOnly={true}/>}>
+            <Route
+              element={
+                <Dashboard/>
+              }
+              exact path='/dashboard'/>
+          </Route>
+          <Route element = {<ProtectedRoute isNotAdminOnly={true}/>}>
+            <Route
+              element={
+                <Dashboard/>
+              }
+              exact path='/dashboard/:id'/>
           </Route>
         </Routes>
       </Body>

@@ -12,7 +12,7 @@ from .filters import CustomAppointmentFilter, CalenderFilter
 from .models import Appointment, Note
 from .pagination import CustomPagination
 from .permissions import IsUserAppointmentOrAdmin
-from .serializers import AppointmentSerializer, CreateAppointmentSerializer, NoteSerializer, CalenderSerializer
+from .serializers import AppointmentSerializer, CreateAppointmentSerializer, NoteSerializer, CalenderSerializer, DailyAppointmentSerailizer
 
 class AppointmentViewSet(ModelViewSet):
     permission_classes = [IsAuthenticated]
@@ -84,7 +84,9 @@ def dashboard(request):
     if user.is_authenticated:
         today = datetime.date.today()
         time_now = datetime.datetime.now().time()
-        l_total_appointments = Appointment.objects.all().count()
+        l_total_appointments = Appointment.objects.filter(
+                                created_for = user
+                            ).count()
         l_open_appointments = Appointment.objects.filter(
                                 date__gte = today, 
                                 is_closed = False,
@@ -151,3 +153,19 @@ class CalenderView(ListAPIView):
     permission_classes = [IsAdminUser]
     filter_backends = [DjangoFilterBackend]
     filterset_class = CalenderFilter    
+
+@api_view(['GET'])
+def get_todays_appointments(request):
+    user = request.user
+    if user.is_authenticated:
+        today = datetime.date.today()
+        appointments = Appointment.objects.filter(created_for = user, date = today).order_by('time')
+        serializer = DailyAppointmentSerailizer(appointments, many = True)
+        return Response(data = serializer.data)
+    else:
+        return Response(
+            status = HTTP_401_UNAUTHORIZED,
+            data = {
+                'user': ['Invalid user.']
+            }
+        )

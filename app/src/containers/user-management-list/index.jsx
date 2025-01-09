@@ -9,11 +9,10 @@ import { Container } from "./index.style";
 import Chip from "../../components/chip";
 import Filter from "../../components/filter";
 import { useQuery, useQueryClient } from '@tanstack/react-query';
+import { useNavigate } from "react-router-dom";
 
 export default function UserManagementList(props){
-    const {
-        navigate
-    } = props;
+    const navigate = useNavigate();
     const dispatch = useDispatch();
     const queryClient = useQueryClient();
 
@@ -207,7 +206,7 @@ export default function UserManagementList(props){
     }
 
     const onClick = (data) => {
-        navigate(`user-management-list/${data.id}/`)
+        navigate(`${data.id}/`)
     }
 
     const fetchUserData = ({ queryKey }) => {

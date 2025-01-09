@@ -49,7 +49,7 @@ class NoteSerializer(serializers.ModelSerializer):
 
 class CreateAppointmentSerializer(serializers.ModelSerializer):
     User = get_user_model()
-    created_for = serializers.PrimaryKeyRelatedField(queryset=User.objects.all(), allow_null=True)
+    created_for = serializers.PrimaryKeyRelatedField(queryset=User.objects.all(), allow_null=True, required=False)
     created_for_full_name = serializers.SerializerMethodField()
     visit_type_full = serializers.SerializerMethodField()
 
@@ -87,9 +87,32 @@ class CreateAppointmentSerializer(serializers.ModelSerializer):
         appointment = Appointment.objects.create(**validated_data)
         return appointment
     
+class DailyAppointmentSerailizer(serializers.ModelSerializer):
+    visit_type_full = serializers.SerializerMethodField() 
+
+    class Meta:
+        model = Appointment
+        fields = [
+            'id',
+            'time',
+            'visit_type',
+            'visit_type_full',
+            'description'
+        ]
+        read_only_fields = [
+            'id',
+            'time',
+            'visit_type',
+            'visit_type_full',
+            'description'
+        ]
+        
+    def get_visit_type_full(self, obj):
+        return obj.get_visit_type_display() 
+    
 class AppointmentSerializer(serializers.ModelSerializer):
     User = get_user_model()
-    created_for = serializers.PrimaryKeyRelatedField(queryset=User.objects.all(), allow_null=True)
+    created_for = serializers.PrimaryKeyRelatedField(queryset=User.objects.all(), allow_null=True, required=False)
     created_for_full_name = serializers.SerializerMethodField()
     visit_type_full = serializers.SerializerMethodField() 
 
@@ -117,6 +140,11 @@ class AppointmentSerializer(serializers.ModelSerializer):
         return obj.get_visit_type_display() 
     
     def update(self, instance, validated_data):
+        user = self.context['user']
+        
+        if not user.is_staff:
+            validated_data['created_for'] = user
+            
         validate_appointment_time(validated_data, instance.id)
         return super().update(instance, validated_data)
     
