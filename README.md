@@ -14,7 +14,7 @@ A healthcare management application that uses ***Django*** and ***React*** to ke
 - [Roles](#roles)
 - [User management](#user-management)
 - [Appointment management](#appointment-management)
-- [Demo](#demo)
+- [Dashboard](#dashboard)
 
 ## Installation
 
@@ -53,6 +53,11 @@ A healthcare management application that uses ***Django*** and ***React*** to ke
         EMAIL_HOST_USER=<smtp_user_id>
         EMAIL_HOST_PASSWORD=<smtp_password>
         DEFAULT_FROM_EMAIL=<email_to_be_sent_from>
+        AWS_ACCESS_KEY=<AWS_access_key>
+        AWS_SECRET_KEY=<AWS_secret_key>
+        AWS_STORAGE_BUCKET_NAME=<s3_bukcet_name>
+        AWS_REGION=<aws_region>
+
         
 - Set up the database by migrating the DB schema
 
@@ -77,6 +82,7 @@ A healthcare management application that uses ***Django*** and ***React*** to ke
         REACT_APP_API_BASE_URL=<Base url to the api endpoint ex: http://127.0.0.1:8000/>
         REACT_APP_SITE_NAME=<name_of_the_application>
         REACT_APP_TAB_PICTURE=<loctaion_to_the_tab_image>
+        REACT_APP_VERSION=<Version of the application>
 
 - Start the devlopment server to serve the react app 
 
@@ -108,5 +114,6 @@ There are 2 ways to create an user in this app
 
 A doctor can create appointments for themself, but an admin is able to create appointments for any doctor in the system. Similarly a doctor can leave notes on their appointment, but an admin can leave notes on any appointment in the system
 
-## Demo
-[Watch the Video on Vimeo](https://vimeo.com/1039248072)
+## Dashboard
+
+A doctor can view their appointments for the day here. They also get 2 pie charts representing the statuses of their appointments for that day and over their lifetime.
