@@ -14,6 +14,7 @@ import { chipVariant } from './constants';
 import { DrawerProvider } from './providers/details-drawer';
 import ResetPassword from './containers/reset-password';
 import Dashboard from './containers/dashboard';
+import Calendar from './containers/calendar';
 
 function App() {
   const toast = useSelector(state => state.toast);
@@ -85,13 +86,6 @@ function App() {
               }
               exact path='/appointment-list'/>
           </Route>
-          <Route element = {<ProtectedRoute isAdminOnly={true}/>}>
-            <Route
-              element={
-                <UserManagementList/>
-              }
-              exact path='/user-management-list'/>
-          </Route>
           <Route element = {<ProtectedRoute/>}>
             <Route
               element={
@@ -104,7 +98,28 @@ function App() {
               element={
                 <UserManagementList/>
               }
+              exact path='/user-management-list'/>
+          </Route>
+          <Route element = {<ProtectedRoute isAdminOnly={true}/>}>
+            <Route
+              element={
+                <UserManagementList/>
+              }
               exact path='/user-management-list/:id'/>
+          </Route>
+          <Route element = {<ProtectedRoute isAdminOnly={true}/>}>
+            <Route
+              element={
+                <Calendar/>
+              }
+              exact path='/calendar'/>
+          </Route>
+          <Route element = {<ProtectedRoute isAdminOnly={true}/>}>
+            <Route
+              element={
+                <Calendar/>
+              }
+              exact path='/calendar/:id'/>
           </Route>
           <Route element = {<ProtectedRoute isNotAdminOnly={true}/>}>
             <Route

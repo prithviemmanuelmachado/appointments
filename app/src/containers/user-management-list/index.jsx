@@ -3,7 +3,7 @@ import ApiService from "../../services/apiservice";
 import { chipVariant, columnWidth, inputTypes } from "../../constants";
 import PaginationTable from "../../components/table";
 import { useDispatch } from "react-redux";
-import { updateToast } from "../../store/toastSlice";
+import { raiseError, updateToast } from "../../store/toastSlice";
 import ModalForm from "../../components/modal-form";
 import { Container } from "./index.style";
 import Chip from "../../components/chip";
@@ -224,7 +224,7 @@ export default function UserManagementList(props){
         });
     };
 
-    const { data: userData, isLoading, isError } = useQuery({
+    const { data: userData, isLoading, isError: userDetailsIsError, error: userDetailsError } = useQuery({
         queryKey: ['userData', { sortList, page, filterInput }],
         queryFn: fetchUserData,
         staleTime: 24 * 60 * 60 * 1000, // 1 day in milliseconds
@@ -250,17 +250,17 @@ export default function UserManagementList(props){
                     ),
                 })),
             };
-        },
-        onError: (err) => {
-            dispatch(
-                updateToast({
-                    bodyMessage: err.response?.data || 'An error occurred',
-                    isVisible: true,
-                    type: 'error',
-                })
-            );
         }
     });
+
+    useEffect(() => {
+        if(userDetailsIsError){
+            dispatch(raiseError({
+                error: userDetailsError.response?.data ?? null,
+                status: userDetailsError.status
+            }))
+        }
+    }, [userDetailsIsError])
     
     useEffect(() => {
         //set the chips
@@ -514,10 +514,10 @@ export default function UserManagementList(props){
                     });
                 })
                 .catch((err) => {
-                    dispatch(updateToast({
-                        bodyMessage : err.response.data,
-                        isVisible : true,
-                        type: 'error'
+                    const error = err.response.data
+                    dispatch(raiseError({
+                        error: error ?? null,
+                        status: err.status
                     }))
                     reject(err);
                 });

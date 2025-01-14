@@ -15,6 +15,7 @@ A healthcare management application that uses ***Django*** and ***React*** to ke
 - [User management](#user-management)
 - [Appointment management](#appointment-management)
 - [Dashboard](#dashboard)
+- [Calendar](#calendar)
 
 ## Installation
 
@@ -116,4 +117,8 @@ A doctor can create appointments for themself, but an admin is able to create ap
 
 ## Dashboard
 
-A doctor can view their appointments for the day here. They also get 2 pie charts representing the statuses of their appointments for that day and over their lifetime.
+A doctor can view their appointments for the day here. The details of an appointment can also be viewed and edited here. They also get 2 pie charts representing the statuses of their appointments for that day and over their lifetime. Clicking on a sector of the cart takes the user to the appointment list page filtered for the data reflecting the sector.
+
+## Calendar
+
+An Administrator can view all appointments in a given weeks. The details of an appointment can also be viewed and edited here.

@@ -341,6 +341,8 @@ export default function UserDetails(props){
             }))
             queryClient.invalidateQueries(['userData']);
             queryClient.invalidateQueries(['user-details', id]);
+
+            closeDrawer();
         })
         .catch((err) => {
             const error = err.response.data

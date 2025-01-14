@@ -315,6 +315,7 @@ export default function AppointmentDetails(props){
                     }));
                     queryClient.invalidateQueries(['appointment-details', id]);
                     queryClient.invalidateQueries(['appointments-today']);
+                    queryClient.invalidateQueries(['calendar']);
 
                     resolve(res.data);
                 })
@@ -346,8 +347,11 @@ export default function AppointmentDetails(props){
                 type: 'success'
             }))
             queryClient.invalidateQueries(['appointments']);
+            queryClient.invalidateQueries(['calendar']);
             queryClient.invalidateQueries(['appointments-today']);
             queryClient.invalidateQueries(['appointment-details', id]);
+            
+            closeDrawer();
         })
         .catch((err) => {
             const error = err.response.data

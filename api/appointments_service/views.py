@@ -8,11 +8,11 @@ from rest_framework.viewsets import ModelViewSet
 from rest_framework.response import Response
 from rest_framework.status import HTTP_401_UNAUTHORIZED
 
-from .filters import CustomAppointmentFilter, CalenderFilter
+from .filters import CustomAppointmentFilter, CalendarFilter
 from .models import Appointment, Note
 from .pagination import CustomPagination
 from .permissions import IsUserAppointmentOrAdmin
-from .serializers import AppointmentSerializer, CreateAppointmentSerializer, NoteSerializer, CalenderSerializer, DailyAppointmentSerailizer
+from .serializers import AppointmentSerializer, CreateAppointmentSerializer, NoteSerializer, CalendarSerializer, DailyAppointmentSerailizer
 
 class AppointmentViewSet(ModelViewSet):
     permission_classes = [IsAuthenticated]
@@ -145,14 +145,14 @@ def dashboard(request):
             }
         )
         
-class CalenderView(ListAPIView):
+class CalendarView(ListAPIView):
     queryset = Appointment.objects.all()\
                 .select_related('created_for__avatar')\
                 .order_by('date', 'time')
-    serializer_class = CalenderSerializer
+    serializer_class = CalendarSerializer
     permission_classes = [IsAdminUser]
     filter_backends = [DjangoFilterBackend]
-    filterset_class = CalenderFilter    
+    filterset_class = CalendarFilter    
 
 @api_view(['GET'])
 def get_todays_appointments(request):

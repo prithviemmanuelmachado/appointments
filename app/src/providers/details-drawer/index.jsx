@@ -50,7 +50,8 @@ export const DrawerProvider = ({ children }) => {
         {
           (
             pathname.includes('appointment-list') ||
-            pathname.includes('dashboard')
+            pathname.includes('dashboard') ||
+            pathname.includes('calendar')
           )&&
           <AppointmentDetails id={id}/>
 

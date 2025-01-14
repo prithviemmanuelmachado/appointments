@@ -148,7 +148,7 @@ class AppointmentSerializer(serializers.ModelSerializer):
         validate_appointment_time(validated_data, instance.id)
         return super().update(instance, validated_data)
     
-class CalenderSerializer(serializers.ModelSerializer):
+class CalendarSerializer(serializers.ModelSerializer):
     created_for = serializers.StringRelatedField()
     created_for_avatar = serializers.SerializerMethodField()
     

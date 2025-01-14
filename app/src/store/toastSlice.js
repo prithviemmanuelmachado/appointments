@@ -21,10 +21,27 @@ export const toastSlice = createSlice({
             }
             state.isVisible = action.payload.isVisible;
             state.type = action.payload.type;
+        },
+        raiseError: (state, action) => {
+            const errorObj = action.payload.error;
+            let message = 'An error occurred';
+            if(errorObj instanceof Object){
+                message = '';
+                Object.keys(errorObj).map((key) => {
+                    message += `${key.replaceAll('_', ' ').toUpperCase()}: ${
+                        errorObj[key] instanceof Array ?
+                        errorObj[key].join(', ') :
+                        errorObj[key]
+                    }`;
+                })
+            }
+            state.bodyMessage = message;
+            state.isVisible = true;
+            state.type = 'error';
         }
     }
 })
 
-export const { updateToast } = toastSlice.actions;
+export const { updateToast, raiseError } = toastSlice.actions;
 
 export default toastSlice.reducer;

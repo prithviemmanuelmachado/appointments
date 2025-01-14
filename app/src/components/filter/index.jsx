@@ -104,6 +104,7 @@ export default function Filter(props){
             Object.keys(filters).map((key, index) => {
                 const filter = filters[key];
                 return <Chip
+                        key={`chip-${index}`}
                         label={`${key}: ${filter.lookup} ${filter.value}`}
                         variant={chipVariant.primary}
                         onRemove={filter.onRemove}/>

@@ -4,6 +4,7 @@ import CloseOutlinedIcon from '@mui/icons-material/CloseOutlined';
 const Container = styled(Box)(({theme, align}) => ({
     display: 'flex',
     justifyContent: align,
+    height: '40px'
 }));
 
 const Pill = styled(Box)(({theme, variant}) => ({
