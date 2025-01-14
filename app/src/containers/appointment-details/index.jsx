@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { updateToast } from "../../store/toastSlice";
+import { raiseError, updateToast } from "../../store/toastSlice";
 import { Data, DataContainer, Label, LabelContainer, Row, Title } from "./index.style";
 import { Button, CircularProgress, IconButton, TextField } from "@mui/material";
 import ApiService from "../../services/apiservice";
@@ -47,7 +47,7 @@ export default function AppointmentDetails(props){
         );
     };
 
-    const { data: doctors } = useQuery({
+    const { data: doctors, isError: isDoctorError, error: doctorError } = useQuery({
         queryKey: ['doctors'],
         queryFn: fetchDoctorData,
         enabled: profile.isStaff,
@@ -59,16 +59,16 @@ export default function AppointmentDetails(props){
                 value: data.id
             }));
         },
-        onError: (err) => {
-            dispatch(
-                updateToast({
-                    bodyMessage: err.response?.data || 'An error occurred',
-                    isVisible: true,
-                    type: 'error',
-                })
-            );
-        }
     });
+
+    useEffect(() => {
+        if(isDoctorError){
+            dispatch(raiseError({
+                error: doctorError.response?.data ?? null,
+                status: doctorError.status
+            }))
+        }
+    }, [isDoctorError])
 
     const resetErrors = () => {
         setError({
@@ -86,7 +86,7 @@ export default function AppointmentDetails(props){
         )
     }
 
-    const { data: notes, isLoading: notesIsLoading } = useQuery({
+    const { data: notes, isLoading: notesIsLoading, isError: isNoteError, error: noteError } = useQuery({
         queryKey: ['notes', id],
         queryFn: fetchNotes,
         enabled: !!id,
@@ -94,22 +94,17 @@ export default function AppointmentDetails(props){
         cacheTime: 24 * 60 * 60 * 1000, // 1 day in milliseconds
         select: (res) => {
             return res.data
-        },
-        onError: (err) => {
-            if(err.status === 404){
-                dispatch(updateToast({
-                    bodyMessage : 'No such appointment exists',
-                    isVisible : true,
-                    type: 'error'
-                }))
-            }
-            dispatch(updateToast({
-                bodyMessage : err.response.data,
-                isVisible : true,
-                type: 'error'
-            }))
         }
     });
+
+    useEffect(() => {
+        if(isNoteError){
+            dispatch(raiseError({
+                error: noteError.response?.data ?? null,
+                status: noteError.status
+            }))
+        }
+    }, [isNoteError])
 
 
     const fetchDetails = () => {
@@ -118,7 +113,7 @@ export default function AppointmentDetails(props){
         )
     }
 
-    const { data: appointmentDetails, isLoading: detailsIsLoading } = useQuery({
+    const { data: appointmentDetails, isLoading: detailsIsLoading, isError: appointmentIsError, error: appointmentError } = useQuery({
         queryKey: ['appointment-details', id],
         queryFn: fetchDetails,
         enabled: !!id,
@@ -126,22 +121,17 @@ export default function AppointmentDetails(props){
         cacheTime: 24 * 60 * 60 * 1000, // 1 day in milliseconds
         select: (res) => {
             return res.data
-        },
-        onError: (err) => {
-            if(err.status === 404){
-                dispatch(updateToast({
-                    bodyMessage : 'No such appointment exists',
-                    isVisible : true,
-                    type: 'error'
-                }))
-            }
-            dispatch(updateToast({
-                bodyMessage : err.response.data,
-                isVisible : true,
-                type: 'error'
-            }))
         }
     });
+
+    useEffect(() => {
+        if(appointmentIsError){
+            dispatch(raiseError({
+                error: appointmentError.response?.data ?? null,
+                status: appointmentError.status
+            }))
+        }
+    }, [appointmentIsError])
 
     useEffect(() => {
         if(!detailsIsLoading && !!id){
@@ -330,23 +320,10 @@ export default function AppointmentDetails(props){
                 })
                 .catch((err) => {
                     const error = err.response.data
-                    if(error instanceof Object){
-                        let message = '';
-                        Object.keys(error).map((key) => {
-                            message += `${key.replaceAll('_', ' ').toUpperCase()}: ${error[key].join(', ')}`;
-                        })
-                        dispatch(updateToast({
-                            bodyMessage : message,
-                            isVisible : true,
-                            type: 'error'
-                        }));
-                    } else {
-                        dispatch(updateToast({
-                            bodyMessage : `An unkown error has occured`,
-                            isVisible : true,
-                            type: 'error'
-                        }));
-                    }
+                    dispatch(raiseError({
+                        error: error ?? null,
+                        status: err.status
+                    }))
                     reject();
                 })
             }
@@ -373,17 +350,10 @@ export default function AppointmentDetails(props){
             queryClient.invalidateQueries(['appointment-details', id]);
         })
         .catch((err) => {
-            if(err.status === 404){
-                dispatch(updateToast({
-                    bodyMessage : 'No such appointment exists',
-                    isVisible : true,
-                    type: 'error'
-                }))
-            }
-            dispatch(updateToast({
-                bodyMessage : err.response.data,
-                isVisible : true,
-                type: 'error'
+            const error = err.response.data
+            dispatch(raiseError({
+                error: error ?? null,
+                status: err.status
             }))
         })
     }
@@ -406,17 +376,10 @@ export default function AppointmentDetails(props){
                 queryClient.invalidateQueries(['notes', id]);
             })
             .catch((err) => {
-                if(err.status === 404){
-                    dispatch(updateToast({
-                        bodyMessage : 'No such appointment exists',
-                        isVisible : true,
-                        type: 'error'
-                    }))
-                }
-                dispatch(updateToast({
-                    bodyMessage : err.response.data,
-                    isVisible : true,
-                    type: 'error'
+                const error = err.response.data
+                dispatch(raiseError({
+                    error: error ?? null,
+                    status: err.status
                 }))
             })
         }
@@ -438,17 +401,10 @@ export default function AppointmentDetails(props){
             queryClient.invalidateQueries(['notes', id]);
         })
         .catch((err) => {
-            if(err.status === 404){
-                dispatch(updateToast({
-                    bodyMessage : 'No such appointment exists',
-                    isVisible : true,
-                    type: 'error'
-                }))
-            }
-            dispatch(updateToast({
-                bodyMessage : err.response.data,
-                isVisible : true,
-                type: 'error'
+            const error = err.response.data
+            dispatch(raiseError({
+                error: error ?? null,
+                status: err.status
             }))
         })
     }
@@ -466,17 +422,10 @@ export default function AppointmentDetails(props){
             queryClient.invalidateQueries(['notes', id]);
         })
         .catch((err) => {
-            if(err.status === 404){
-                dispatch(updateToast({
-                    bodyMessage : 'No such appointment exists',
-                    isVisible : true,
-                    type: 'error'
-                }))
-            }
-            dispatch(updateToast({
-                bodyMessage : err.response.data,
-                isVisible : true,
-                type: 'error'
+            const error = err.response.data
+            dispatch(raiseError({
+                error: error ?? null,
+                status: err.status
             }))
         })
     }

@@ -2,7 +2,7 @@ import { useDispatch, useSelector } from "react-redux";
 import ApiService from "../../services/apiservice";
 import { chipVariant, columnWidth, inputTypes } from "../../constants";
 import PaginationTable from "../../components/table";
-import { updateToast } from "../../store/toastSlice";
+import { raiseError, updateToast } from "../../store/toastSlice";
 import { useState, useEffect } from "react";
 import moment from 'moment';
 import { Container } from "./index.style";
@@ -285,7 +285,7 @@ export default function AppointmentList(props){
         );
     };
 
-    const { data: appointmentData, isLoading, isError } = useQuery({
+    const { data: appointmentData, isLoading, isError: appointmentIsError, error: appointmentError } = useQuery({
         queryKey: ['appointments', { sortList, page, filterInput }],
         queryFn: fetchAppointmentData,
         staleTime: 24 * 60 * 60 * 1000, // 1 day in milliseconds
@@ -308,17 +308,17 @@ export default function AppointmentList(props){
                     created_for: data.created_for_full_name
                 })),
             };
-        },
-        onError: (err) => {
-            dispatch(
-                updateToast({
-                    bodyMessage: err.response?.data || 'An error occurred',
-                    isVisible: true,
-                    type: 'error',
-                })
-            );
         }
     });
+
+    useEffect(() => {
+        if(appointmentIsError){
+            dispatch(raiseError({
+                error: appointmentError.response?.data ?? null,
+                status: appointmentError.status
+            }))
+        }
+    }, [appointmentIsError])
 
     useEffect(() => {
         if(isNaN(id)){
@@ -488,7 +488,7 @@ export default function AppointmentList(props){
         );
     };
     
-    const { data: doctors } = useQuery({
+    const { data: doctors, isError: doctorIsError, error: doctorError } = useQuery({
         queryKey: ['doctors'],
         queryFn: fetchDoctorData,
         enabled: profile.isStaff,
@@ -499,17 +499,17 @@ export default function AppointmentList(props){
                 label: `${data.first_name} ${data.last_name}`,
                 value: data.id
             }));
-        },
-        onError: (err) => {
-            dispatch(
-                updateToast({
-                    bodyMessage: err.response?.data || 'An error occurred',
-                    isVisible: true,
-                    type: 'error',
-                })
-            );
         }
     });
+
+    useEffect(() => {
+        if(doctorIsError){
+            dispatch(raiseError({
+                error: doctorError.response?.data ?? null,
+                status: doctorError.status
+            }))
+        }
+    }, [doctorIsError])
 
     let createForm = [
         {
@@ -637,23 +637,10 @@ export default function AppointmentList(props){
                 })
                 .catch((err) => {
                     const error = err.response.data
-                    if(error instanceof Object){
-                        let message = '';
-                        Object.keys(error).map((key) => {
-                            message += `${key.replaceAll('_', ' ').toUpperCase()}: ${error[key].join(', ')}`;
-                        })
-                        dispatch(updateToast({
-                            bodyMessage : message,
-                            isVisible : true,
-                            type: 'error'
-                        }));
-                    } else {
-                        dispatch(updateToast({
-                            bodyMessage : `An unkown error has occured`,
-                            isVisible : true,
-                            type: 'error'
-                        }));
-                    }
+                    dispatch(raiseError({
+                        error: error ?? null,
+                        status: err.status
+                    }))
                     
                     reject(err);
                 })

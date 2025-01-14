@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import ApiService from "../../services/apiservice";
-import { updateToast } from "../../store/toastSlice";
+import { raiseError, updateToast } from "../../store/toastSlice";
 import { useDispatch } from "react-redux";
 import { Data, DataContainer, Label, LabelContainer, Row, Title } from "./index.style";
 import { Button, CircularProgress, IconButton } from "@mui/material";
@@ -143,7 +143,7 @@ export default function UserDetails(props){
         )
     }
 
-    const { data: userDetails, isLoading: userIsLoading } = useQuery({
+    const { data: userDetails, isLoading: userIsLoading, isError: userIsError, error: userError } = useQuery({
         queryKey: ['user-details', id],
         queryFn: fetchDetails,
         enabled: !!id,
@@ -151,22 +151,17 @@ export default function UserDetails(props){
         cacheTime: 24 * 60 * 60 * 1000, // 1 day in milliseconds
         select: (res) => {
             return res.data
-        },
-        onError: (err) => {
-            if(err.status === 404){
-                dispatch(updateToast({
-                    bodyMessage : 'No such user exists',
-                    isVisible : true,
-                    type: 'error'
-                }))
-            }
-            dispatch(updateToast({
-                bodyMessage : err.response.data,
-                isVisible : true,
-                type: 'error'
-            }))
         }
     });
+
+    useEffect(() => {
+        if(userIsError){
+            dispatch(raiseError({
+                error: userError.response?.data ?? null,
+                status: userError.status
+            }))
+        }
+    }, [userIsError])
 
     const resetField = () => {
         setInput({
@@ -318,10 +313,10 @@ export default function UserDetails(props){
                     }
                 })
                 .catch((err) => {
-                    dispatch(updateToast({
-                        bodyMessage : err.response.data,
-                        isVisible : true,
-                        type: 'error'
+                    const error = err.response.data
+                    dispatch(raiseError({
+                        error: error ?? null,
+                        status: err.status
                     }))
                     reject(err);
                 });
@@ -348,17 +343,10 @@ export default function UserDetails(props){
             queryClient.invalidateQueries(['user-details', id]);
         })
         .catch((err) => {
-            if(err.status === 404){
-                dispatch(updateToast({
-                    bodyMessage : 'No such user exists',
-                    isVisible : true,
-                    type: 'error'
-                }))
-            }
-            dispatch(updateToast({
-                bodyMessage : err.response.data,
-                isVisible : true,
-                type: 'error'
+            const error = err.response.data
+            dispatch(raiseError({
+                error: error ?? null,
+                status: err.status
             }))
         })
     }

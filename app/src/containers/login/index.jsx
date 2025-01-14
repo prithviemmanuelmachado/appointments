@@ -3,7 +3,7 @@ import { useDispatch } from "react-redux";
 import { inputTypes } from "../../constants";
 import ApiService from "../../services/apiservice";
 import { updateProfile } from "../../store/profileSlice";
-import { updateToast } from "../../store/toastSlice";
+import { raiseError, updateToast } from "../../store/toastSlice";
 import ModalForm from "../../components/modal-form";
 
 export default function Login(props){
@@ -79,11 +79,11 @@ export default function Login(props){
                 resolve(res.data);
             })
             .catch((err) => {
-                dispatch(updateToast({
-                    bodyMessage : err.response.data,
-                    isVisible : true,
-                    type: 'error'
-                }));
+                const error = err.response.data
+                dispatch(raiseError({
+                    error: error ?? null,
+                    status: err.status
+                }))
                 reject(err);
             });
         });
@@ -131,17 +131,10 @@ export default function Login(props){
                     });
                 })
                 .catch((err) => {
-                    let message = ''
-                    if(err.response.data.detail){
-                        message = err.response.data.detail
-                    }
-                    else{
-                        message = err.response.data
-                    }
-                    dispatch(updateToast({
-                        bodyMessage : message,
-                        isVisible : true,
-                        type: 'error'
+                    const error = err.response.data
+                    dispatch(raiseError({
+                        error: error ?? null,
+                        status: err.status
                     }))
                     reject(err);
                 });

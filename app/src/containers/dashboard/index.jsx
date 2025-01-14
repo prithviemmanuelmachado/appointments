@@ -1,6 +1,6 @@
 import { useDispatch } from "react-redux";
 import ApiService from "../../services/apiservice";
-import { updateToast } from "../../store/toastSlice";
+import { raiseError } from "../../store/toastSlice";
 import { 
     Chart, 
     ChartContainer, 
@@ -21,6 +21,7 @@ import moment from "moment";
 import Chip from "../../components/chip";
 import Notification from "../../components/notification";
 import { useNavigate } from "react-router-dom";
+import { useEffect } from "react";
 
 export default function Dashboard(props){
     const navigate = useNavigate();
@@ -32,24 +33,24 @@ export default function Dashboard(props){
         );
     };
 
-    const { data: chart, isLoading: chartIsLoading, isError: chartIsError } = useQuery({
+    const { data: chart, isLoading: chartIsLoading, isError: chartIsError, error: chartError } = useQuery({
         queryKey: ['chart'],
         queryFn: fetchChartData,
         staleTime: 24 * 60 * 60 * 1000, // 1 day in milliseconds
         cacheTime: 24 * 60 * 60 * 1000, // 1 day in milliseconds
         select: (res) => {
             return res.data
-        },
-        onError: (err) => {
-            dispatch(
-                updateToast({
-                    bodyMessage: err.response?.data || 'An error occurred',
-                    isVisible: true,
-                    type: 'error',
-                })
-            );
         }
     });
+
+    useEffect(() => {
+        if(chartIsError){
+            dispatch(raiseError({
+                error: chartError.response?.data ?? null,
+                status: chartError.status
+            }))
+        }
+    }, [chartIsError])
 
     const fetchTodaysAppointments = () => {
         return ApiService.get(
@@ -57,20 +58,11 @@ export default function Dashboard(props){
         );
     }
 
-    const { data: appointmentData, isLoading: appointmentIsLoading, isError: appointmentIsError } = useQuery({
+    const { data: appointmentData, isLoading: appointmentIsLoading, isError: appointmentIsError, error: appointmentError } = useQuery({
             queryKey: ['appointments-today'],
             queryFn: fetchTodaysAppointments,
             staleTime: 24 * 60 * 60 * 1000, // 1 day in milliseconds
             cacheTime: 24 * 60 * 60 * 1000, // 1 day in milliseconds
-            onError: (err) => {
-                dispatch(
-                    updateToast({
-                        bodyMessage: err.response?.data || 'An error occurred',
-                        isVisible: true,
-                        type: 'error',
-                    })
-                );
-            },
             select: (res) => {
                 return res.data.map((data) => ({
                     ...data,
@@ -82,6 +74,15 @@ export default function Dashboard(props){
                 }));
             }
     });
+
+    useEffect(() => {
+        if(appointmentIsError){
+            dispatch(raiseError({
+                error: appointmentError.response?.data ?? null,
+                status: appointmentError.status
+            }))
+        }
+    }, [appointmentIsError])
 
     const itemClickedLifetime = (e, d) => {
         if(d.dataIndex === 0){

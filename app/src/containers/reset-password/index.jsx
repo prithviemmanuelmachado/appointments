@@ -6,7 +6,7 @@ import { inputTypes } from "../../constants";
 import { Button } from "@mui/material";
 import ApiService from "../../services/apiservice";
 import {useDispatch} from "react-redux";
-import { updateToast } from "../../store/toastSlice";
+import { raiseError, updateToast } from "../../store/toastSlice";
 
 export default function ResetPassword(props){
     const {
@@ -122,17 +122,10 @@ export default function ResetPassword(props){
                 navigate('/');
             })
             .catch((err) => {
-                let errorMessage = 'Unable to reset password';
-                if(err?.response?.data){
-                    errorMessage = ''
-                    Object.keys(err.response.data).map((key) => {
-                        errorMessage += `${key.toUpperCase()}: ${err.response.data[key].join(', ')}`
-                    })
-                }
-                dispatch(updateToast({
-                    bodyMessage : errorMessage,
-                    isVisible : true,
-                    type: 'error'
+                const error = err.response.data
+                dispatch(raiseError({
+                    error: error ?? null,
+                    status: err.status
                 }))
             })
         }

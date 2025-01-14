@@ -2,7 +2,7 @@ import { useState } from "react";
 import { useDispatch } from "react-redux";
 import { inputTypes } from "../../constants";
 import ApiService from "../../services/apiservice";
-import { updateToast } from "../../store/toastSlice";
+import { raiseError, updateToast } from "../../store/toastSlice";
 import ModalForm from "../../components/modal-form";
 
 export default function Signup(props){
@@ -137,10 +137,10 @@ export default function Signup(props){
                     })
                 })
                 .catch((err) => {
-                    dispatch(updateToast({
-                        bodyMessage : err.response.data,
-                        isVisible : true,
-                        type: 'error'
+                    const error = err.response.data
+                    dispatch(raiseError({
+                        error: error ?? null,
+                        status: err.status
                     }))
                     reject(err);
                 });

@@ -7,7 +7,7 @@ import Login from "../login";
 import Signup from "../signup";
 import { avatarSize } from "../../constants";
 import Avatar from "../../components/avatar";
-import { updateToast } from "../../store/toastSlice";
+import { raiseError, updateToast } from "../../store/toastSlice";
 import ApiService from "../../services/apiservice";
 import { useQueryClient } from "@tanstack/react-query";
 
@@ -50,17 +50,10 @@ export default function NavBar(props){
             }))
         })
         .catch((err) => {
-            let message = ''
-            if(err.response.data.detail){
-                message = err.response.data.detail
-            }
-            else{
-                message = "Error while sending reset email"
-            }
-            dispatch(updateToast({
-                bodyMessage : message,
-                isVisible : true,
-                type: 'error'
+            const error = err.response.data
+            dispatch(raiseError({
+                error: error ?? null,
+                status: err.status
             }))
         });
     };
@@ -112,6 +105,20 @@ export default function NavBar(props){
                             <PageLabel
                                 isSelected={getActiveRoute('/dashboard')}>
                                 Dashboard
+                            </PageLabel>
+                        </PageLink>
+                    }
+                    {
+                        profile.isStaff &&
+                        <PageLink
+                            isSelected={getActiveRoute('/calendar')}
+                            to='/calendar'
+                            variant="text"
+                            component={Link}>
+                            <CustomDonutLargeOutlinedIcon isSelected={getActiveRoute('/calendar')}/>
+                            <PageLabel
+                                isSelected={getActiveRoute('/calendar')}>
+                                Calendar
                             </PageLabel>
                         </PageLink>
                     }
