@@ -59,6 +59,7 @@ A healthcare management application that uses ***Django*** and ***React*** to ke
         AWS_STORAGE_BUCKET_NAME=<s3_bukcet_name>
         AWS_REGION=<aws_region>
 
+#### **Note** : The AWS bucket should be public.
         
 - Set up the database by migrating the DB schema
 
