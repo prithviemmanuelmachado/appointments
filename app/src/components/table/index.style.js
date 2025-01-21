@@ -2,7 +2,6 @@ import { Box, styled, TableCell, TableRow, Typography } from "@mui/material"
 import { glass } from "../../constants"
 
 const HeaderCell = styled(TableCell)(({theme, cwidth, align}) => ({
-    backgroundColor: theme.palette.primary.light,
     minWidth: cwidth,
     alignItems: align,
 }))
