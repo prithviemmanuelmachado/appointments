@@ -1,11 +1,27 @@
 import { Box, styled, Typography } from "@mui/material"
+import { indigo } from "@mui/material/colors"
 
 const Container = styled(Box)(({theme}) => ({
     width: '100%',
-    height: '100%',
     display: 'flex',
     justifyContent: 'flex-end',
-    alignItems: 'center'
+    alignItems: 'center',
+    flexDirection: 'column',
+    padding: 0
+}))
+
+const Row = styled(Box)(({theme, leftToRight}) => ({
+    width: '95%',
+    display: 'flex',
+    justifyContent: 'flex-end',
+    alignItems: 'center',
+    background: `linear-gradient(-45deg, ${leftToRight ? indigo[50] : indigo[400]}33, ${leftToRight ? indigo[400] : indigo[50]}33)`, // Semi-transparent background
+    boxShadow: '0 4px 30px rgba(0, 0, 0, 0.1)', // Subtle shadow
+    backdropFilter: 'blur(10px)', // Blur the background behind
+    WebkitBackdropFilter: 'blur(10px)', // Safari support
+    border: '1px solid rgba(255, 255, 255, 0.3)' , // Border for definition
+    marginBlock: '5%',
+    borderRadius: '1rem'
 }))
 
 const TextContainer = styled(Box)(({theme}) => ({
@@ -14,22 +30,33 @@ const TextContainer = styled(Box)(({theme}) => ({
     justifyContent: 'center',
     alignItems: 'flex-start',
     paddingInline: '2%',
-    flexDirection: 'column'
+    flexDirection: 'column',
+    gap: '1rem'
 }))
 
 const Title = styled(Typography)(({theme}) => ({
-    fontSize: 24,
+    fontSize: '2.4rem',
     color: theme.palette.primary.main,
-    fontWeight: 'bold'
+    fontWeight: 'bolder',
+    textTransform: 'uppercase',
+    cursor: 'default'
 }))
 
 const Body = styled(Typography)(({theme}) => ({
+    cursor: 'default'    
+}))
 
+const SubTitle = styled(Typography)(({theme}) => ({
+    fontSize: '2.4rem',
+    fontWeight: 'bolder',
+    cursor: 'default'
 }))
 
 export {
     Container,
     TextContainer,
     Title,
-    Body
+    Body,
+    SubTitle,
+    Row
 }

@@ -1,9 +1,10 @@
 import { Box, styled, TableCell, TableRow, Typography } from "@mui/material"
+import { glass } from "../../constants"
 
 const HeaderCell = styled(TableCell)(({theme, cwidth, align}) => ({
     backgroundColor: theme.palette.primary.light,
     minWidth: cwidth,
-    alignItems: align
+    alignItems: align,
 }))
 
 const ButtonRow = styled(TableCell)(({theme}) => ({
@@ -22,7 +23,7 @@ const HeaderLabel = styled(Typography)(({theme}) => ({
     fontSize: 16,
     fontWeight: 'bold',
     color: theme.palette.unfocused.main,
-    cursor: 'default'
+    cursor: 'default',
 }))
 
 const SortContainer = styled(Box)(({theme}) => ({
@@ -39,8 +40,11 @@ const SortItem = styled(Box)(({theme}) => ({
 
 const DataRow = styled(TableRow)(({theme, clickable}) => ({
     cursor: clickable ? 'pointer' : 'default',
-    ':hover': {
-        backgroundColor: clickable && theme.palette.primary.light
+    ':hover': clickable && {
+        ...glass,
+        borderRadius: 0,
+        background: `${theme.palette.primary.main}33`,
+        boxShadow: '0', 
     }
 }))
 

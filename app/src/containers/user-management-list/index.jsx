@@ -35,7 +35,6 @@ export default function UserManagementList(props){
 
     const [page, setPage] = useState(0);
     const [sortList, setSortList] = useState([]);
-    const [filter, setFilter] = useState(true);
     const [filterChips, setFilterChips] = useState({});
 
     const filterForm = [
@@ -198,10 +197,10 @@ export default function UserManagementList(props){
         setFilterChips({});
     }
 
-    const handleFilter = () => {
+    const handleFilter = (data) => {
         return new Promise((resolve, reject) => {
-            setFilter((prevState) => !prevState);
-            resolve({});
+            setFilterInput(data);
+            resolve(data);
         });
     }
 
@@ -276,7 +275,6 @@ export default function UserManagementList(props){
                             id: ''
                         }
                     });
-                    setFilter((prevState) => !prevState);
                 }
             }
         }
@@ -291,7 +289,6 @@ export default function UserManagementList(props){
                             firstName: ''
                         }
                     })
-                    setFilter((prevState) => !prevState);
                 }
             }
         }
@@ -306,7 +303,6 @@ export default function UserManagementList(props){
                             lastName: ''
                         }
                     })
-                    setFilter((prevState) => !prevState);
                 }
             }
         }
@@ -321,7 +317,6 @@ export default function UserManagementList(props){
                             username: ''
                         }
                     })
-                    setFilter((prevState) => !prevState);
                 }
             }
         }
@@ -336,7 +331,6 @@ export default function UserManagementList(props){
                             email: ''
                         }
                     })
-                    setFilter((prevState) => !prevState);
                 }
             }
         }
@@ -351,7 +345,6 @@ export default function UserManagementList(props){
                             isStaff: null
                         }
                     })
-                    setFilter((prevState) => !prevState);
                 }
             }
         }
@@ -366,12 +359,11 @@ export default function UserManagementList(props){
                             isActive: null
                         }
                     })
-                    setFilter((prevState) => !prevState);
                 }
             }
         }
         setFilterChips({...tempFilter});
-    },[filter]);
+    },[filterInput]);
 
     const resetErrors = () => {
         setError({
@@ -554,7 +546,6 @@ export default function UserManagementList(props){
         data = {userData?.results || []}
         pageNumber = {page}
         setPageNumber = {setPage}
-        onFilter = {() => setFilter(!filter)}
         onReset = {resetFilters}
         onSortAsc = {onSortAsc}
         onSortDesc = {onSortDesc}

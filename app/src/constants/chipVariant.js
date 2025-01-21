@@ -1,14 +1,14 @@
-import { amber, blue, green, indigo, lightGreen, orange, pink, purple, red } from "@mui/material/colors";
+import { blue, cyan, green, indigo, pink, purple, red, teal, yellow } from "@mui/material/colors";
 
 const chipVariant = {
-    inPerson: orange[500],
-    virtual: purple[300],
-    open: amber[400],
-    closed: lightGreen[700],
-    active: green[500],
+    inPerson: cyan[700],
+    virtual: purple[900],
+    open: yellow[900],
+    closed: teal[500],
+    active: green[700],
     inactive: red[500],
     admin: pink[500],
-    doctor: blue[500],
+    doctor: blue[700],
     primary: indigo[500]
 }
 

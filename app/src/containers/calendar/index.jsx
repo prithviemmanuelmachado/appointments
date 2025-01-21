@@ -2,7 +2,7 @@ import moment from "moment";
 import Filter from "../../components/filter";
 import { ButtonCell, Cell, Container, Label, SubLabel } from "./index.style";
 import { useEffect, useState } from "react";
-import { inputTypes } from "../../constants";
+import { glass, inputTypes } from "../../constants";
 import ApiService from "../../services/apiservice";
 import { useQuery } from "@tanstack/react-query";
 import { useDispatch } from "react-redux";
@@ -223,7 +223,8 @@ export default function Calendar(props){
         <TableContainer
             sx={{
                 maxHeight: '75%',
-                minHeight: '75%'
+                minHeight: '75%',
+                ...glass
             }}>
             <Table
                 stickyHeader={true}

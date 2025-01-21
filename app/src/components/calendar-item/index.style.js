@@ -1,4 +1,5 @@
 import { Box, styled, Typography } from "@mui/material"
+import { glass } from "../../constants"
 
 const Container = styled(Box)(({theme, isLast, isFirst}) => ({
     width: '100%',
@@ -8,9 +9,10 @@ const Container = styled(Box)(({theme, isLast, isFirst}) => ({
     marginTop: !isFirst && '10px',
     marginBottom: !isLast && '10px',
     padding: '3px',
-    boxShadow: `5px 5px 5px ${theme.palette.unfocused.main}`,
-    borderRadius: '3px',
-    cursor: 'pointer'
+    boxShadow: `0 0 5px ${theme.palette.unfocused.main}`,
+    borderRadius: '5px',
+    cursor: 'pointer',
+    ...glass
 }))
 
 const Profile = styled(Typography)(({theme}) => ({

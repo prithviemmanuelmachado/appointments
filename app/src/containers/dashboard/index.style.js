@@ -1,10 +1,12 @@
-import { Box, styled, Typography } from "@mui/material"
+import { Box, styled, Typography } from "@mui/material";
+import { glass } from "../../constants";
 
 const ChartContainer = styled(Box)(({theme}) => ({
     paddingInline: '15px',
     display: 'flex',
     height: '50%',
     width: '100%',
+    gap: '1rem'
 }))
 
 const NotificationsContainer = styled(Box)(({theme}) => ({
@@ -29,19 +31,20 @@ const NotificationList = styled(Box)(({theme}) => ({
 const Chart = styled(Box)(({theme}) => ({
     padding: '15px',
     display: 'flex',
-    height: '100%',
-    width: '50%',
+    height: '90%',
+    width: '46%',
     justifyContent: 'flex-start',
     alignItems: 'flex-start',
-    flexDirection: 'column'
+    flexDirection: 'column',
+    ...glass
 }))
 
 const Title = styled(Typography)(({theme}) => ({
     width: '100%',
     fontSize: '1.2rem',
-    color: theme.palette.unfocused.main,
+    color: theme.palette.primary.main,
     cursor: 'default',
-    fontWeight: 'bold'
+    fontWeight: 'bold',
 }))
 
 const DataContainer = styled(Box)(({theme}) => ({

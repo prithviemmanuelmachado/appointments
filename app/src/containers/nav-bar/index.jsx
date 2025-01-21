@@ -1,4 +1,23 @@
-import { Body, Container, CustomDonutLargeOutlinedIcon, CustomListOutlinedIcon, CustomManageAccountsIcon, Footer, Header, HeaderLink, Left, PageLabel, PageLink, Profile, Right, Row, Title, Version } from "./index.style";
+import { 
+    Body, 
+    Container, 
+    CustomDonutLargeOutlinedIcon, 
+    CustomListOutlinedIcon, 
+    CustomManageAccountsIcon, 
+    Footer, 
+    Header, 
+    HeaderLink, 
+    Left, 
+    Logo, 
+    PageLabel, 
+    PageLink, 
+    Profile, 
+    Right, 
+    Row, 
+    Title, 
+    Version,
+    CustomCalendarMonthIcon 
+} from "./index.style";
 import { Button, Link as MUILink } from "@mui/material";
 import { useDispatch, useSelector } from 'react-redux';
 import { clearProfile } from "../../store/profileSlice";
@@ -67,6 +86,7 @@ export default function NavBar(props){
                         to='/'
                         variant="text"
                         component={Link}>
+                        <Logo/>
                         <Title>{process.env.REACT_APP_SITE_NAME}</Title>
                     </PageLink>
                 </Left>
@@ -81,6 +101,7 @@ export default function NavBar(props){
                         to='/'
                         variant="text"
                         component={Link}>
+                        <Logo/>
                         <Title>{process.env.REACT_APP_SITE_NAME}</Title>
                     </HeaderLink>
                     <Row>
@@ -115,7 +136,7 @@ export default function NavBar(props){
                             to='/calendar'
                             variant="text"
                             component={Link}>
-                            <CustomDonutLargeOutlinedIcon isSelected={getActiveRoute('/calendar')}/>
+                            <CustomCalendarMonthIcon isSelected={getActiveRoute('/calendar')}/>
                             <PageLabel
                                 isSelected={getActiveRoute('/calendar')}>
                                 Calendar

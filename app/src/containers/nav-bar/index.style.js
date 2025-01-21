@@ -1,6 +1,7 @@
 import { Avatar, Box, Button, styled, Typography } from "@mui/material"
 import ManageAccountsOutlinedIcon from '@mui/icons-material/ManageAccountsOutlined';
 import ListOutlinedIcon from '@mui/icons-material/ListOutlined';
+import CalendarMonthIcon from '@mui/icons-material/CalendarMonth';
 import DonutLargeOutlinedIcon from '@mui/icons-material/DonutLargeOutlined';
 
 const Container = styled(Box)(({theme, isLoggedin}) => ({
@@ -14,8 +15,16 @@ const Container = styled(Box)(({theme, isLoggedin}) => ({
     borderBottom: !isLoggedin && `${theme.palette.primary.main} 2px solid`
 }))
 
+const Logo = styled(Box)(({theme}) => ({
+    height: '70px',
+    width: '70px',
+    backgroundImage: 'url("/logo.svg")',
+    backgroundSize: 'cover',
+    backgroundPosition: 'center', 
+    backgroundRepeat: 'no-repeat',
+}))
+
 const Left = styled(Box)(({theme}) => ({
-    height: '100%',
     width: '44%',
     display: 'flex',
     justifyContent: 'flex-start',
@@ -88,6 +97,10 @@ const CustomManageAccountsIcon = styled(ManageAccountsOutlinedIcon)(({theme, isS
     color: isSelected ? theme.palette.primary.contrastText : theme.palette.primary.main
 }))
 
+const CustomCalendarMonthIcon = styled(CalendarMonthIcon)(({theme, isSelected}) => ({
+    color: isSelected ? theme.palette.primary.contrastText : theme.palette.primary.main
+}))
+
 const CustomDonutLargeOutlinedIcon = styled(DonutLargeOutlinedIcon)(({theme, isSelected}) => ({
     color: isSelected ? theme.palette.primary.contrastText : theme.palette.primary.main
 }))
@@ -103,7 +116,7 @@ const Profile = styled(Typography)(({theme}) => ({
 
 const HeaderLink = styled(Button)(({theme}) => ({
     textTransform: "none",
-    borderRadius: 0,
+    borderRadius: 0
 }))
 
 const PageLink = styled(Button)(({theme, isSelected}) => ({
@@ -146,5 +159,7 @@ export {
     PageLabel,
     CustomManageAccountsIcon,
     CustomListOutlinedIcon,
-    CustomDonutLargeOutlinedIcon
+    CustomDonutLargeOutlinedIcon,
+    Logo,
+    CustomCalendarMonthIcon
 }

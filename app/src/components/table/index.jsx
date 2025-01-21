@@ -11,6 +11,7 @@ import {
 import { DataRow, HeaderCell, HeaderItem, HeaderLabel, SortContainer, SortItem } from "./index.style";
 import ArrowDropUpIcon from '@mui/icons-material/ArrowDropUp';
 import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown';
+import { glass } from "../../constants";
 
 /**
  * PaginationTable Component
@@ -96,6 +97,7 @@ export default function PaginationTable(props){
             minHeight: '75%'
         }}>
         <Table
+            sx={{...glass}}
             stickyHeader={true}
             aria-label="sticky table">
             <TableHead>

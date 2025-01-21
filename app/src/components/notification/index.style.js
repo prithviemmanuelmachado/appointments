@@ -1,14 +1,16 @@
 import { Box, styled, Typography } from "@mui/material"
+import { glass } from "../../constants"
 
 const Container = styled(Box)(({theme}) => ({
     padding: '15px',
     display: 'flex',
     flexGrow: 1,
-    boxShadow: `5px 5px 5px ${theme.palette.unfocused.main}`,
-    borderRadius: 10,
+    boxShadow: `0 0 5px ${theme.palette.unfocused.main}`,
     flexDirection: 'column',
     gap: '10px',
-    cursor: 'pointer'
+    cursor: 'pointer',
+    width: '98%',
+    ...glass
 }))
 
 const Title = styled(Typography)(({theme}) => ({

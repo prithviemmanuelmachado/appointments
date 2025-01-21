@@ -1,13 +1,15 @@
 import { Box, styled } from "@mui/material"
+import { glass } from "../../constants"
 
 const Container = styled(Box)(({theme}) => ({
-    paddingInline: 0,
+    padding: '0.5rem',
     display: 'flex',
     justifyContent: 'center',
     alignItems: 'flex-start',
     flexDirection: 'column',
     flexGrow: 1,
-    gap: 10
+    gap: 10,
+    ...glass
 }))
 
 const ButtonContainer = styled(Box)(({theme}) => ({
