@@ -20,7 +20,12 @@ const Title = styled(Typography)(({theme}) => ({
 
 const Footer = styled(Box)(({theme}) => ({
     height: '50px',
-    display: 'flex'
+    display: 'flex',
+    [theme.breakpoints.down('md')]:{
+        flexDirection: 'column',
+        paddingBlockEnd: '2rem',
+        gap: '1rem'
+    }
 }))
 
 const Right = styled(Box)(({theme}) => ({
@@ -28,7 +33,10 @@ const Right = styled(Box)(({theme}) => ({
     display: 'flex',
     justifyContent: 'flex-end',
     alignItems: 'center',
-    gap: '30px'
+    gap: '30px',
+    [theme.breakpoints.down('md')]:{
+        justifyContent: 'flex-start',
+    }
 }))
 
 const Left = styled(Box)(({theme}) => ({

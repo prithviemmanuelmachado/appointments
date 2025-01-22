@@ -15,7 +15,16 @@ export default function Notification(props){
         {data.description}
         <Footer>
             <Left>
-                Appointment time: {data.time}
+                <p
+                    style={{margin: 0}}>
+                Appointment time: 
+                <span
+                    style={{
+                        marginInlineStart: '27px'
+                    }}>
+                {data.time}
+                </span>
+                </p>
             </Left>
             <Right>
                 Appointment type: {data.visit_type}

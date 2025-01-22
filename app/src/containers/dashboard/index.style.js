@@ -3,10 +3,14 @@ import { glass } from "../../constants";
 
 const ChartContainer = styled(Box)(({theme}) => ({
     paddingInline: '15px',
-    display: 'flex',
-    height: '50%',
+    display: 'flex',    
     width: '100%',
-    gap: '1rem'
+    gap: '1rem',
+    flexDirection: 'column',
+    [theme.breakpoints.up('md')]: {
+        height: '50%',
+        flexDirection: 'row'
+    }
 }))
 
 const NotificationsContainer = styled(Box)(({theme}) => ({
@@ -36,7 +40,10 @@ const Chart = styled(Box)(({theme}) => ({
     justifyContent: 'flex-start',
     alignItems: 'flex-start',
     flexDirection: 'column',
-    ...glass
+    ...glass,
+    [theme.breakpoints.down('md')]: {
+        width: '80%',
+    }
 }))
 
 const Title = styled(Typography)(({theme}) => ({
@@ -45,12 +52,18 @@ const Title = styled(Typography)(({theme}) => ({
     color: theme.palette.primary.main,
     cursor: 'default',
     fontWeight: 'bold',
+    [theme.breakpoints.down('md')]: {
+        paddingBlock: '2%',
+    }
 }))
 
 const DataContainer = styled(Box)(({theme}) => ({
     width: '100%',
     display: 'flex',
     flexGrow: 1,
+    [theme.breakpoints.down('md')]: {
+        flexDirection: 'column'
+    }
 }))
 
 const LegendContainer = styled(Box)(({theme}) => ({
@@ -59,15 +72,20 @@ const LegendContainer = styled(Box)(({theme}) => ({
     flexDirection: 'column',
     justifyContent: 'center',
     gap: '30px',
-    height: '100%',
+    [theme.breakpoints.down('md')]: {
+        width: '90%',
+    }
 }))
 
 const PieChartContainer = styled(Box)(({theme}) => ({
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
-    height: '100%',
     width: '60%',
+    [theme.breakpoints.down('md')]: {
+        width: '90%',
+        height: '300px'
+    },
 }))
 
 const LegendRow = styled(Box)(({theme}) => ({

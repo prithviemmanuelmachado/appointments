@@ -176,8 +176,6 @@ export default function Dashboard(props){
                                 cornerRadius: 0,
                                 startAngle: 0,
                                 endAngle: 360,
-                                cx: 150,
-                                cy: 150,
                             }
                             ]}
                         />
@@ -251,8 +249,6 @@ export default function Dashboard(props){
                                 cornerRadius: 0,
                                 startAngle: 0,
                                 endAngle: 360,
-                                cx: 150,
-                                cy: 150,
                             }
                             ]}
                         />
@@ -268,8 +264,10 @@ export default function Dashboard(props){
             appointmentIsLoading ? 
             <CircularProgress/>  :
             appointmentData?.length > 0 ?
-            appointmentData.map((notification) => {
-                return <Notification data={notification}/>
+            appointmentData.map((notification, index) => {
+                return <Notification 
+                        key={`notif-${index}`}
+                        data={notification}/>
             }):
             <Typography
             sx={{
