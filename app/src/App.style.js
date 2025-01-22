@@ -4,7 +4,12 @@ const Container = styled(Box)(({theme, isLoggedin}) => ({
     display: 'flex',
     width: '100vw',
     height: '100vh',
-    flexDirection: isLoggedin ? 'row' : 'column'
+    [theme.breakpoints.down('md')]: {
+        flexDirection: 'column'
+    },
+    [theme.breakpoints.up('md')]: {
+        flexDirection: isLoggedin ? 'row' : 'column',
+    }
 }))
 
 const Body = styled(Box)(({theme, isLoggedin}) => ({
@@ -23,11 +28,18 @@ const Body = styled(Box)(({theme, isLoggedin}) => ({
 }))
 
 const Header = styled(Box)(({theme, isLoggedin}) => ({
-    height: isLoggedin ? '100%' : '10vh',
-    width: isLoggedin ? '30vw' : '100%',
     display: 'flex',
     justifyContent: 'center',
-    alignItems: 'center'
+    alignItems: 'center',
+    [theme.breakpoints.down('md')]: {
+        height: '10vh',
+        width: '100%',
+    },
+    [theme.breakpoints.up('md')]: {
+        height: isLoggedin ? '100%' : '10vh',
+        width: isLoggedin ? '30vw' : '100%',
+        minWidth: '300px'
+    }
 }))
 
 const ModalCard = styled(Box)(({theme}) => ({

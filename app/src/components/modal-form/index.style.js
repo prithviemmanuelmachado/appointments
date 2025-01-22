@@ -47,7 +47,6 @@ const LinkContainer = styled(Box)(({theme}) => ({
 }))
 
 const Container = styled(Box)(({theme}) => ({
-    width: '60%',
     maxHeight: '90%',
     paddingBlock: '2%',
     display: 'flex',
@@ -55,7 +54,13 @@ const Container = styled(Box)(({theme}) => ({
     alignItems: 'flex-start',
     flexDirection: 'column',
     borderRadius: '10px',
-    backgroundColor: theme.palette.background.paper
+    backgroundColor: theme.palette.background.paper,
+    [theme.breakpoints.down('md')]: {
+        width: '90%',
+    },
+    [theme.breakpoints.up('md')]: {
+        width: '60%',
+    },
 }))
 
 const InputContainer = styled(Box)(({theme, width, isRow, noPadding}) => ({

@@ -9,7 +9,10 @@ const Container = styled(Box)(({theme}) => ({
     flexDirection: 'column',
     flexGrow: 1,
     gap: 10,
-    ...glass
+    ...glass,
+    [theme.breakpoints.down('md')]: {
+        height: '20vh'
+    },
 }))
 
 const ButtonContainer = styled(Box)(({theme}) => ({

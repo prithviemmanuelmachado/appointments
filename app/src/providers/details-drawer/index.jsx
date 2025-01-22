@@ -42,6 +42,16 @@ export const DrawerProvider = ({ children }) => {
     <DrawerContext.Provider value={{ closeDrawer, refreshList, handleRefresh }}>
       {children}
       <Drawer
+        sx={(theme) => ({
+          '& .MuiDrawer-paper': {
+            [theme.breakpoints.down('md')]:{
+              width: '90vw'
+            },
+            [theme.breakpoints.up('md')]:{
+              width: '50vw'
+            }
+          },
+        })}
         open={drawerOpen}
         onClose={closeDrawer}
         anchor="right"

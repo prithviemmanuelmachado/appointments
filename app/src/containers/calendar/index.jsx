@@ -221,11 +221,14 @@ export default function Calendar(props){
             filters={filterChips}/>
         </Container>
         <TableContainer
-            sx={{
+            sx={(theme) => ({
                 maxHeight: '75%',
                 minHeight: '75%',
-                ...glass
-            }}>
+                [theme.breakpoints.down('md')]:{
+                    maxHeight: '70%',
+                    minHeight: '70%'
+                }
+            })}>
             <Table
                 stickyHeader={true}
                 aria-label="sticky table">

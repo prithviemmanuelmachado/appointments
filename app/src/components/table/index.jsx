@@ -92,10 +92,14 @@ export default function PaginationTable(props){
 
     return <>
     <TableContainer
-        sx={{
+        sx={(theme) => ({
             maxHeight: '75%',
-            minHeight: '75%'
-        }}>
+            minHeight: '75%',
+            [theme.breakpoints.down('md')]:{
+                maxHeight: '60%',
+                minHeight: '60%'
+            }
+        })}>
         <Table
             sx={{...glass}}
             stickyHeader={true}

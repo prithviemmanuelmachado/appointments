@@ -4,20 +4,20 @@ import ListOutlinedIcon from '@mui/icons-material/ListOutlined';
 import CalendarMonthIcon from '@mui/icons-material/CalendarMonth';
 import DonutLargeOutlinedIcon from '@mui/icons-material/DonutLargeOutlined';
 
-const Container = styled(Box)(({theme, isLoggedin}) => ({
+const Container = styled(Box)(({theme, isLoggedin, isMobile}) => ({
     height: '100%',
     width: '100%',
     display: 'flex',
     justifyContent: 'center',
     alignItems: 'center',
-    flexDirection: isLoggedin ? 'column' : 'row',
+    flexDirection: isLoggedin && !isMobile ? 'column' : 'row',
     borderRight: isLoggedin && `${theme.palette.primary.main} 2px solid`,
     borderBottom: !isLoggedin && `${theme.palette.primary.main} 2px solid`
 }))
 
 const Logo = styled(Box)(({theme}) => ({
-    height: '70px',
-    width: '70px',
+    height: '50px',
+    width: '50px',
     backgroundImage: 'url("/logo.svg")',
     backgroundSize: 'cover',
     backgroundPosition: 'center', 
@@ -29,17 +29,28 @@ const Left = styled(Box)(({theme}) => ({
     display: 'flex',
     justifyContent: 'flex-start',
     alignItems: 'center',
-    paddingInline: '3%'
+    paddingInline: '3%',
+    [theme.breakpoints.down('md')]: {
+        width: '70%',
+    },
+    [theme.breakpoints.up('md')]: {
+        width: '44%',
+    }
 }))
 
 const Right = styled(Box)(({theme}) => ({
     height: '100%',
-    width: '44%',
     display: 'flex',
     justifyContent: 'flex-end',
     alignItems: 'center',
     paddingInline: '3%',
-    columnGap: '10px'
+    columnGap: '10px',
+    [theme.breakpoints.down('md')]: {
+        width: '25%',
+    },
+    [theme.breakpoints.up('md')]: {
+        width: '44%',
+    }
 }))
 
 const Header = styled(Box)(({theme}) => ({
@@ -49,7 +60,6 @@ const Header = styled(Box)(({theme}) => ({
     justifyContent: 'center',
     alignItems: 'flex-start',
     flexDirection: 'column',
-    paddingInline: '5%',
     gap: '15px'
 }))
 
@@ -68,7 +78,12 @@ const Row = styled(Box)(({theme}) => ({
     width: '100%',
     display: 'flex',
     gap: '10px',
-    alignItems: 'center'
+    alignItems: 'center',
+    [theme.breakpoints.down('md')]: {
+        width: '90%',
+        paddingInline: '5%',
+        paddingBlock: '10%'
+    },
 }))
 
 const Body = styled(Box)(({theme}) => ({
@@ -83,7 +98,7 @@ const Body = styled(Box)(({theme}) => ({
 }))
 
 const Title = styled(Typography)(({theme}) => ({
-    fontSize: 30,
+    fontSize: '1.5rem',
     fontWeight: 'bold',
     color: theme.palette.primary.main
 }))
@@ -116,7 +131,8 @@ const Profile = styled(Typography)(({theme}) => ({
 
 const HeaderLink = styled(Button)(({theme}) => ({
     textTransform: "none",
-    borderRadius: 0
+    borderRadius: 0,
+    paddingInline: 0
 }))
 
 const PageLink = styled(Button)(({theme, isSelected}) => ({

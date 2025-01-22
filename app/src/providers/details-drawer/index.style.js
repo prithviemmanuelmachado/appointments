@@ -1,8 +1,8 @@
 import { Box, styled } from "@mui/material"
 
 const Contianer = styled(Box)(({theme}) => ({
-    width: '50vw',
-    paddingInline: '10px',
+    width: '90%',
+    paddingInline: '5%',
     display: 'flex',
     flexDirection: 'column'
 }))

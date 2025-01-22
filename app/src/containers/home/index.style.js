@@ -14,14 +14,18 @@ const Row = styled(Box)(({theme, leftToRight}) => ({
     width: '95%',
     display: 'flex',
     justifyContent: 'flex-end',
-    alignItems: 'center',
+    alignItems: 'center',   
     background: `linear-gradient(-45deg, ${leftToRight ? indigo[50] : indigo[400]}33, ${leftToRight ? indigo[400] : indigo[50]}33)`, // Semi-transparent background
     boxShadow: '0 4px 30px rgba(0, 0, 0, 0.1)', // Subtle shadow
     backdropFilter: 'blur(10px)', // Blur the background behind
     WebkitBackdropFilter: 'blur(10px)', // Safari support
     border: '1px solid rgba(255, 255, 255, 0.3)' , // Border for definition
     marginBlock: '5%',
-    borderRadius: '1rem'
+    borderRadius: '1rem',
+    paddingBlock: '1rem',
+    [theme.breakpoints.down('md')]: {
+        flexDirection: 'column'
+    }
 }))
 
 const TextContainer = styled(Box)(({theme}) => ({

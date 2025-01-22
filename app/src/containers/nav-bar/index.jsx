@@ -18,7 +18,7 @@ import {
     Version,
     CustomCalendarMonthIcon 
 } from "./index.style";
-import { Button, Link as MUILink } from "@mui/material";
+import { Button, Drawer, IconButton, Link as MUILink, useMediaQuery } from "@mui/material";
 import { useDispatch, useSelector } from 'react-redux';
 import { clearProfile } from "../../store/profileSlice";
 import { useLocation, Link, useNavigate } from 'react-router';
@@ -29,12 +29,16 @@ import Avatar from "../../components/avatar";
 import { raiseError, updateToast } from "../../store/toastSlice";
 import ApiService from "../../services/apiservice";
 import { useQueryClient } from "@tanstack/react-query";
+import MenuOutlinedIcon from '@mui/icons-material/MenuOutlined';
+import { useState } from "react";
 
 export default function NavBar(props){
     const navigate = useNavigate()
     const profile = useSelector(state => state.profile);
     const location = useLocation();
     const queryClient = useQueryClient();
+    const isMobile = useMediaQuery((theme) => theme.breakpoints.down('md'))
+    const [isDrawerOpen, setIsDrawerOpen] = useState(false);
 
     const dispatch = useDispatch();
 
@@ -77,7 +81,105 @@ export default function NavBar(props){
         });
     };
 
-    return <Container isLoggedin={profile.email}>
+    const toggleDrawer = (isOpen) => {
+        setIsDrawerOpen(isOpen)
+    }
+
+    const menuContent = (
+        <>
+            <Body>
+                {
+                    !profile.isStaff &&
+                    <PageLink
+                        onClick={() => toggleDrawer(false)}
+                        isSelected={getActiveRoute('/dashboard')}
+                        to='/dashboard'
+                        variant="text"
+                        component={Link}>
+                        <CustomDonutLargeOutlinedIcon isSelected={getActiveRoute('/dashboard')}/>
+                        <PageLabel
+                            isSelected={getActiveRoute('/dashboard')}>
+                            Dashboard
+                        </PageLabel>
+                    </PageLink>
+                }
+                {
+                    profile.isStaff &&
+                    <PageLink
+                        onClick={() => toggleDrawer(false)}
+                        isSelected={getActiveRoute('/calendar')}
+                        to='/calendar'
+                        variant="text"
+                        component={Link}>
+                        <CustomCalendarMonthIcon isSelected={getActiveRoute('/calendar')}/>
+                        <PageLabel
+                            isSelected={getActiveRoute('/calendar')}>
+                            Calendar
+                        </PageLabel>
+                    </PageLink>
+                }
+                <PageLink
+                    onClick={() => toggleDrawer(false)}
+                    isSelected={getActiveRoute('/appointment-list')}
+                    to='/appointment-list'
+                    variant="text"
+                    component={Link}>
+                    <CustomListOutlinedIcon isSelected={getActiveRoute('/appointment-list')}/>
+                    <PageLabel
+                        isSelected={getActiveRoute('/appointment-list')}>
+                        Appointments
+                    </PageLabel>
+                </PageLink>
+                {
+                    profile.isStaff &&
+                    <PageLink
+                        onClick={() => toggleDrawer(false)}
+                        isSelected={getActiveRoute('/user-management-list')}
+                        to='/user-management-list'
+                        variant="text"
+                        component={Link}>
+                        <CustomManageAccountsIcon isSelected={getActiveRoute('/user-management-list')}/>
+                        <PageLabel
+                            isSelected={getActiveRoute('/user-management-list')}>
+                            User mangement
+                        </PageLabel>
+                    </PageLink>
+                }
+            </Body>
+            <Footer>
+                <MUILink
+                    variant="button"
+                    underline={'none'}
+                    component="button"
+                    onClick={resetPassword}>
+                Reset password
+                </MUILink>
+                <Button
+                    variant="outlined"
+                    onClick={handleLogout}>
+                    LOGOUT
+                </Button>
+                <Version>
+                    Version {process.env.REACT_APP_VERSION}
+                </Version>
+            </Footer>
+        </>
+    );
+
+    const user = (
+        profile.email &&
+        <Row>
+        {
+            <Avatar
+                avatar={profile.avatar}
+                alt={profile.firstName[0]}
+                size={avatarSize.s}/>
+        }
+        <Profile>{`Hi, ${profile.firstName} ${profile.lastName}`}</Profile>
+        </Row>
+    );
+
+    return <Container isLoggedin={profile.email} isMobile={isMobile}>
         {
             !profile.email ?
             <>
@@ -95,7 +197,39 @@ export default function NavBar(props){
                     <Signup/>
                 </Right>
             </>:
+            isMobile ? 
             <>
+                <Left>
+                    <PageLink
+                        to='/'
+                        variant="text"
+                        component={Link}>
+                        <Logo/>
+                        <Title>{process.env.REACT_APP_SITE_NAME}</Title>
+                    </PageLink>
+                </Left>
+                <Right>
+                    <IconButton onClick={() => toggleDrawer(true)}>
+                        <MenuOutlinedIcon/>
+                    </IconButton>
+                </Right>
+                <Drawer
+                    sx={{
+                        '& .MuiDrawer-paper': {
+                            width: {
+                                xs: '70vw',
+                                sm: '50vw',
+                            }
+                        },
+                    }}
+                    open={isDrawerOpen} 
+                    onClose={() => toggleDrawer(false)}>
+                    {user}
+                    {menuContent}
+                </Drawer>
+            </> :
+            <>
+
                 <Header>
                     <HeaderLink
                         to='/'
@@ -104,88 +238,9 @@ export default function NavBar(props){
                         <Logo/>
                         <Title>{process.env.REACT_APP_SITE_NAME}</Title>
                     </HeaderLink>
-                    <Row>
-                    {
-                        <Avatar
-                            avatar={profile.avatar}
-                            alt={profile.firstName[0]}
-                            size={avatarSize.s}/>
-                    }
-                    <Profile>{`Hi, ${profile.firstName} ${profile.lastName}`}</Profile>
-                    </Row>
+                    {user}
                 </Header>
-                <Body>
-                    {
-                        !profile.isStaff &&
-                        <PageLink
-                            isSelected={getActiveRoute('/dashboard')}
-                            to='/dashboard'
-                            variant="text"
-                            component={Link}>
-                            <CustomDonutLargeOutlinedIcon isSelected={getActiveRoute('/dashboard')}/>
-                            <PageLabel
-                                isSelected={getActiveRoute('/dashboard')}>
-                                Dashboard
-                            </PageLabel>
-                        </PageLink>
-                    }
-                    {
-                        profile.isStaff &&
-                        <PageLink
-                            isSelected={getActiveRoute('/calendar')}
-                            to='/calendar'
-                            variant="text"
-                            component={Link}>
-                            <CustomCalendarMonthIcon isSelected={getActiveRoute('/calendar')}/>
-                            <PageLabel
-                                isSelected={getActiveRoute('/calendar')}>
-                                Calendar
-                            </PageLabel>
-                        </PageLink>
-                    }
-                    <PageLink
-                        isSelected={getActiveRoute('/appointment-list')}
-                        to='/appointment-list'
-                        variant="text"
-                        component={Link}>
-                        <CustomListOutlinedIcon isSelected={getActiveRoute('/appointment-list')}/>
-                        <PageLabel
-                            isSelected={getActiveRoute('/appointment-list')}>
-                            Appointments
-                        </PageLabel>
-                    </PageLink>
-                    {
-                        profile.isStaff &&
-                        <PageLink
-                            isSelected={getActiveRoute('/user-management-list')}
-                            to='/user-management-list'
-                            variant="text"
-                            component={Link}>
-                            <CustomManageAccountsIcon isSelected={getActiveRoute('/user-management-list')}/>
-                            <PageLabel
-                                isSelected={getActiveRoute('/user-management-list')}>
-                                User mangement
-                            </PageLabel>
-                        </PageLink>
-                    }
-                </Body>
-                <Footer>
-                    <MUILink
-                        variant="button"
-                        underline={'none'}
-                        component="button"
-                        onClick={resetPassword}>
-                    Reset password
-                    </MUILink>
-                    <Button
-                        variant="outlined"
-                        onClick={handleLogout}>
-                        LOGOUT
-                    </Button>
-                    <Version>
-                        Version {process.env.REACT_APP_VERSION}
-                    </Version>
-                </Footer>
+                {menuContent}
             </>
         }
     </Container>
