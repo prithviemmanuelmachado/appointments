@@ -7,7 +7,7 @@ const ChartContainer = styled(Box)(({theme}) => ({
     width: '100%',
     gap: '1rem',
     flexDirection: 'column',
-    [theme.breakpoints.up('md')]: {
+    [theme.breakpoints.up('lg')]: {
         height: '50%',
         flexDirection: 'row'
     }
@@ -41,7 +41,7 @@ const Chart = styled(Box)(({theme}) => ({
     alignItems: 'flex-start',
     flexDirection: 'column',
     ...glass,
-    [theme.breakpoints.down('md')]: {
+    [theme.breakpoints.down('lg')]: {
         width: '80%',
     }
 }))
@@ -52,7 +52,7 @@ const Title = styled(Typography)(({theme}) => ({
     color: theme.palette.primary.main,
     cursor: 'default',
     fontWeight: 'bold',
-    [theme.breakpoints.down('md')]: {
+    [theme.breakpoints.down('lg')]: {
         paddingBlock: '2%',
     }
 }))
@@ -61,7 +61,7 @@ const DataContainer = styled(Box)(({theme}) => ({
     width: '100%',
     display: 'flex',
     flexGrow: 1,
-    [theme.breakpoints.down('md')]: {
+    [theme.breakpoints.down('lg')]: {
         flexDirection: 'column'
     }
 }))
@@ -72,7 +72,7 @@ const LegendContainer = styled(Box)(({theme}) => ({
     flexDirection: 'column',
     justifyContent: 'center',
     gap: '30px',
-    [theme.breakpoints.down('md')]: {
+    [theme.breakpoints.down('lg')]: {
         width: '90%',
     }
 }))
@@ -82,9 +82,9 @@ const PieChartContainer = styled(Box)(({theme}) => ({
     alignItems: 'center',
     justifyContent: 'center',
     width: '60%',
-    [theme.breakpoints.down('md')]: {
-        width: '90%',
-        height: '300px'
+    [theme.breakpoints.down('lg')]: {
+        width: '100%',
+        height: '300px',
     },
 }))
 
