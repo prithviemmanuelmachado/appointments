@@ -149,7 +149,8 @@ const PageLink = styled(Button)(({theme, isSelected}) => ({
 
 const Version = styled(Typography)(({theme}) => ({
     fontSize: 14,
-    color: theme.palette.grey[500]
+    color: theme.palette.grey[500],
+    cursor: 'default'
 }))
 
 const ProfileAvatar = styled(Avatar)(({theme}) => ({
