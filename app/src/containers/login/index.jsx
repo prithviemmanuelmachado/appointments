@@ -219,6 +219,7 @@ export default function Login(props){
 
     return <>
         <ModalForm
+            narrow
             onFooterClick={openForgotPassword}
             footerLinkText={'Forgot password'}
             buttonLabel={'Login'}
@@ -230,6 +231,7 @@ export default function Login(props){
             onSubmit={login}
             forceClose={forceClose}/>
         <ModalForm
+            narrow
             formTitle={'FORGOT PASSWORD'}
             formFields={forgotPassForm}
             onFormClose={() => {

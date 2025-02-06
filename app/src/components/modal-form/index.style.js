@@ -12,7 +12,9 @@ const Header = styled(Box)(({theme}) => ({
     display: 'flex',
     alignItems: 'center',
     paddingInline: '3%',
-    borderBottom: `3px solid ${theme.palette.primary.light}`
+    borderBottom: `3px solid ${theme.palette.primary.light}`,
+    cursor: 'default',
+    paddingBlockEnd: '3%'
 }))
 
 const TitleContainer = styled(Box)(({theme}) => ({
@@ -37,7 +39,8 @@ const ButtonContainer = styled(Box)(({theme}) => ({
     paddingTop: '2%',
     display: 'flex',
     justifyContent: 'flex-end',
-    borderTop: `3px solid ${theme.palette.primary.light}`
+    borderTop: `3px solid ${theme.palette.primary.light}`,
+    paddingBlockStart: '3%'
 }))
 
 const LinkContainer = styled(Box)(({theme}) => ({
@@ -46,7 +49,7 @@ const LinkContainer = styled(Box)(({theme}) => ({
     alignItems: 'center'
 }))
 
-const Container = styled(Box)(({theme}) => ({
+const Container = styled(Box)(({theme, narrow }) => ({
     maxHeight: '90%',
     paddingBlock: '2%',
     display: 'flex',
@@ -59,7 +62,7 @@ const Container = styled(Box)(({theme}) => ({
         width: '90%',
     },
     [theme.breakpoints.up('md')]: {
-        width: '60%',
+        width: narrow ? '40%' : '60%',
     },
 }))
 

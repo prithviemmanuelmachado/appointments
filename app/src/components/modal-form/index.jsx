@@ -27,8 +27,9 @@ import { inputTypes } from "../../constants";
  * @component
  *
  * @param {Object} props - The properties for the ModalForm component.
- * @param {function} onFooterClick - The function that is called when footer link is clicked
- * @param {string} footerLinkText - The text on the footer link
+ * @param {function} props.onFooterClick - The function that is called when footer link is clicked
+ * @param {string} props.footerLinkText - The text on the footer link
+ * @param {boolean} props.narrow - Reders a narrow popup modal when width of screen is md and above according to materail ui breakpoints
  * @param {Component} props.buttonIcon - The icon for the button that opens the modal.
  * @param {string} props.buttonLabel - The label for the button that opens the modal.
  * @param {string} props.buttonVariant - The variant for the button that opens the modal. Same as the variant for MIUI Button.
@@ -96,6 +97,7 @@ import { inputTypes } from "../../constants";
  *   ];
  * 
  *   <ModalForm
+ *       narrow
  *       buttonIcon={</>}
  *       buttonLabel="Open Form"
  *       formTitle="Example Modal Form"
@@ -110,6 +112,7 @@ import { inputTypes } from "../../constants";
  */
 export default function ModalForm(props){
     const {
+        narrow,
         onFooterClick,
         footerLinkText,
         buttonIcon,
@@ -227,7 +230,7 @@ export default function ModalForm(props){
             alignItems: 'center'
         }}
         >
-            <Container>
+            <Container narrow={narrow}>
                 <Header>
                     <TitleContainer>
                         <Title>{formTitle}</Title>
