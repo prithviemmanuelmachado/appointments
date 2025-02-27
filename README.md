@@ -81,10 +81,10 @@ A healthcare management application that uses ***Django*** and ***React*** to ke
 
 - In the `app` folder create a .env file with the following keys and values
 
-        REACT_APP_API_BASE_URL=<Base url to the api endpoint ex: http://127.0.0.1:8000/>
-        REACT_APP_SITE_NAME=<name_of_the_application>
-        REACT_APP_TAB_PICTURE=<loctaion_to_the_tab_image>
-        REACT_APP_VERSION=<Version of the application>
+        VITE_API_BASE_URL=<Base url to the api endpoint ex: http://127.0.0.1:8000/>
+        VITE_SITE_NAME=<name_of_the_application>
+        VITE_TAB_PICTURE=<loctaion_to_the_tab_image>
+        VITE_VERSION=<Version of the application>
 
 - Start the devlopment server to serve the react app 
 

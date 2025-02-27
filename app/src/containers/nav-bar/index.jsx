@@ -160,7 +160,7 @@ export default function NavBar(props){
                     LOGOUT
                 </Button>
                 <Version>
-                    Version {process.env.REACT_APP_VERSION}
+                    Version {import.meta.env.VITE_VERSION}
                 </Version>
             </Footer>
         </>
@@ -189,7 +189,7 @@ export default function NavBar(props){
                         variant="text"
                         component={Link}>
                         <Logo/>
-                        <Title>{process.env.REACT_APP_SITE_NAME}</Title>
+                        <Title>{import.meta.env.VITE_SITE_NAME}</Title>
                     </PageLink>
                 </Left>
                 <Right>
@@ -205,7 +205,7 @@ export default function NavBar(props){
                         variant="text"
                         component={Link}>
                         <Logo/>
-                        <Title>{process.env.REACT_APP_SITE_NAME}</Title>
+                        <Title>{import.meta.env.VITE_SITE_NAME}</Title>
                     </PageLink>
                 </Left>
                 <Right>
@@ -236,7 +236,7 @@ export default function NavBar(props){
                         variant="text"
                         component={Link}>
                         <Logo/>
-                        <Title>{process.env.REACT_APP_SITE_NAME}</Title>
+                        <Title>{import.meta.env.VITE_SITE_NAME}</Title>
                     </HeaderLink>
                     {user}
                 </Header>
