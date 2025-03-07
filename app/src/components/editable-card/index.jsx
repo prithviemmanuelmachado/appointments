@@ -117,7 +117,7 @@ export default function EditableCard(props){
                     onChange={(event) => {
                         setDesc(event.target.value)
                     }}/>:
-                <Typography>
+                <Typography sx={{ whiteSpace: 'pre-line' }}>
                     {desc}
                 </Typography>
             }

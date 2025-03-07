@@ -32,7 +32,8 @@ const Label = styled(Typography)(({theme}) => ({
 }))
 
 const Data = styled(Typography)(({theme}) => ({
-    cursor: 'default'
+    cursor: 'default',
+    whiteSpace: 'pre-line'
 }))
 
 const Title = styled(Typography)(({theme}) => ({
