@@ -39,11 +39,12 @@ const TextContainer = styled(Box)(({theme}) => ({
 }))
 
 const Title = styled(Typography)(({theme}) => ({
-    fontSize: '2.4rem',
+    fontSize: '2.2rem',
     color: theme.palette.primary.main,
     fontWeight: 'bolder',
     textTransform: 'uppercase',
-    cursor: 'default'
+    cursor: 'default',
+    fontFamily: "'Domine', serif"
 }))
 
 const Body = styled(Typography)(({theme}) => ({
@@ -53,7 +54,8 @@ const Body = styled(Typography)(({theme}) => ({
 const SubTitle = styled(Typography)(({theme}) => ({
     fontSize: '2.4rem',
     fontWeight: 'bolder',
-    cursor: 'default'
+    cursor: 'default',
+    fontFamily: "'Domine', serif"
 }))
 
 export {

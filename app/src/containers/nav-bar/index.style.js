@@ -100,7 +100,8 @@ const Body = styled(Box)(({theme}) => ({
 const Title = styled(Typography)(({theme}) => ({
     fontSize: '1.5rem',
     fontWeight: 'bold',
-    color: theme.palette.primary.main
+    color: theme.palette.primary.main,
+    fontFamily: "'Domine', serif"
 }))
 
 const PageLabel = styled(Typography)(({theme, isSelected}) => ({
