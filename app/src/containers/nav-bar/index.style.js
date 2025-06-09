@@ -130,10 +130,14 @@ const Profile = styled(Typography)(({theme}) => ({
     fontSize: 16,
 }))
 
-const HeaderLink = styled(Button)(({theme}) => ({
+const HeaderLink = styled(Box)(({theme}) => ({
     textTransform: "none",
     borderRadius: 0,
-    paddingInline: 0
+    paddingInline: 0,
+    display: 'flex',
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: '10px'
 }))
 
 const PageLink = styled(Button)(({theme, isSelected}) => ({

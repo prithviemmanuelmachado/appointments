@@ -4,6 +4,7 @@ const Title = styled(Typography)(({theme}) => ({
     fontSize: 28,
     fontWeight: 'bold',
     color: theme.palette.primary.main,
+    fontFamily: "'Domine', serif"
 }))
 
 const Header = styled(Box)(({theme}) => ({

@@ -231,10 +231,7 @@ export default function NavBar(props){
             <>
 
                 <Header>
-                    <HeaderLink
-                        to='/'
-                        variant="text"
-                        component={Link}>
+                    <HeaderLink>
                         <Logo/>
                         <Title>{import.meta.env.VITE_SITE_NAME}</Title>
                     </HeaderLink>
