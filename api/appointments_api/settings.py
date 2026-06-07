@@ -42,9 +42,9 @@ INSTALLED_APPS = [
     "django_filters",
     "djoser",
     "rest_framework",
+    'corsheaders',
     
     "appointments_service",
-    'corsheaders',
     "user_service"
 ]
 
